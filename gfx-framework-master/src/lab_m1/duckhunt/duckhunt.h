@@ -1,6 +1,7 @@
 #pragma once
 
 #include "components/simple_scene.h"
+#include "duck.h"
 
 
 namespace m1
@@ -17,13 +18,6 @@ namespace m1
         void FrameStart() override;
         void Update(float deltaTimeSeconds) override;
         void FrameEnd() override;
-        Mesh* CreateCircle(
-                const std::string& name,
-                float centerX,
-                float centerY,
-                float radius,
-                glm::vec3 color,
-                bool fill);
 
         void OnInputUpdate(float deltaTime, int mods) override;
         void OnKeyPress(int key, int mods) override;
@@ -35,13 +29,7 @@ namespace m1
         void OnWindowResize(int width, int height) override;
 
      protected:
-        float cx, cy;
         glm::mat3 modelMatrix;
-        float translateX, translateY;
-        float scaleX, scaleY;
-        float angularStep;
-
-        // TODO(student): If you need any other class variables, define them here.
-
+        Duck* duck;
     };
-}   // namespace m1
+}
