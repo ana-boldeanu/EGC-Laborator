@@ -5,22 +5,11 @@
 
 namespace m1
 {
-    class Lab4 : public gfxc::SimpleScene
+    class DuckHunt : public gfxc::SimpleScene
     {
      public:
-        struct ViewportArea
-        {
-            ViewportArea() : x(0), y(0), width(1), height(1) {}
-            ViewportArea(int x, int y, int width, int height)
-                : x(x), y(y), width(width), height(height) {}
-            int x;
-            int y;
-            int width;
-            int height;
-        };
-
-        Lab4();
-        ~Lab4();
+         DuckHunt();
+        ~DuckHunt();
 
         void Init() override;
 
@@ -38,14 +27,14 @@ namespace m1
         void OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY) override;
         void OnWindowResize(int width, int height) override;
 
-        void RenderScene();
      protected:
-        glm::mat4 modelMatrix;
-        float translateX, translateY, translateZ;
-        float scaleX, scaleY, scaleZ;
-        float angularStepOX, angularStepOY, angularStepOZ;
-        GLenum polygonMode;
-        ViewportArea miniViewportArea;
+        float cx, cy;
+        glm::mat3 modelMatrix;
+        float translateX, translateY;
+        float scaleX, scaleY;
+        float angularStep;
+
+        // TODO(student): If you need any other class variables, define them here.
+
     };
 }   // namespace m1
-
