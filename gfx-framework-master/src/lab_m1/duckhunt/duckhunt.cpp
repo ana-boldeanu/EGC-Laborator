@@ -10,12 +10,6 @@ using namespace std;
 using namespace m1;
 
 
-/*
- *  To find out more about `FrameStart`, `Update`, `FrameEnd`
- *  and the order in which they are called, see `world.cpp`.
- */
-
-
 DuckHunt::DuckHunt()
 {
 }
@@ -24,7 +18,32 @@ DuckHunt::DuckHunt()
 DuckHunt::~DuckHunt()
 {
 }
+Mesh* DuckHunt::CreateCircle(
+    const std::string& name,
+    float centerX,
+    float centerY,
+    float radius,
+    glm::vec3 color,
+    bool fill)
+{
+    std::vector<VertexFormat> vertices;
+    std::vector<unsigned int> indices;
+    Mesh* circle = new Mesh(name);
 
+    circle->SetDrawMode(GL_TRIANGLE_FAN);
+    
+    indices.push_back(0);
+    vertices.push_back(VertexFormat(glm::vec3(centerX, centerY, 0), color));
+    for (int i = 1; i <= 16; i++) {
+        indices.push_back(i);
+        vertices.push_back(VertexFormat(glm::vec3(centerX + (radius * cos(i * 2 * 3.1415 / 16)),
+            centerY + (radius * sin(i * 2 * 3.1415 / 16)), 0), color));
+    }
+    indices.push_back(1);
+
+    circle->InitFromData(vertices, indices);
+    return circle;
+}
 
 void DuckHunt::Init()
 {
@@ -36,46 +55,89 @@ void DuckHunt::Init()
     camera->Update();
     GetCameraInput()->SetActive(false);
 
-    glm::vec3 corner = glm::vec3(0, 0, 0);
-    float squareSide = 100;
+    // Duck body & beak triangles
+    {
+        vector<VertexFormat> vertices
+        {
+            VertexFormat(glm::vec3(0, 0, 0), glm::vec3(0.33, 0, 0)),
+            VertexFormat(glm::vec3(64, 22, 0), glm::vec3(0.4, 0, 0)),
+            VertexFormat(glm::vec3(94, 80, 0), glm::vec3(0.4, 0, 0)),
+            VertexFormat(glm::vec3(153, 14, 0), glm::vec3(0.42, 0, 0)),
+            VertexFormat(glm::vec3(186, 90, 0), glm::vec3(0.4, 0, 0)),
+            VertexFormat(glm::vec3(204, 22, 0), glm::vec3(0.4, 0, 0)),
+            VertexFormat(glm::vec3(228, 49, 0), glm::vec3(0.4, 0, 0)),
+            VertexFormat(glm::vec3(229, 85, 0), glm::vec3(0.4, 0, 0)),
+            VertexFormat(glm::vec3(250, 95, 0), glm::vec3(0, 0.4, 0)),
+            VertexFormat(glm::vec3(280, 65, 0), glm::vec3(0, 0.4, 0)),
+            VertexFormat(glm::vec3(292, 82, 0), glm::vec3(1, 0.4, 0)),
+            VertexFormat(glm::vec3(291, 94, 0), glm::vec3(1, 0.4, 0)),
+            VertexFormat(glm::vec3(306, 90, 0), glm::vec3(1, 0.4, 0)),
 
-    // TODO(student): Compute coordinates of a square's center, and store
-    // then in the `cx` and `cy` class variables (see the header). Use
-    // `corner` and `squareSide`. These two class variables will be used
-    // in the `Update()` function. Think about it, why do you need them?
-    cx = (squareSide - corner.x) / 2;
-    cy = (squareSide - corner.y) / 2;
+            // Some copies for colors
+            VertexFormat(glm::vec3(204, 22, 0), glm::vec3(1, 1, 1)),
+            VertexFormat(glm::vec3(228, 49, 0), glm::vec3(1, 1, 1)),
+            VertexFormat(glm::vec3(229, 85, 0), glm::vec3(1, 1, 1)),
 
-    // Initialize tx and ty (the translation steps)
-    translateX = 0;
-    translateY = 0;
+            VertexFormat(glm::vec3(204, 22, 0), glm::vec3(0, 0.4, 0)),
+            VertexFormat(glm::vec3(228, 49, 0), glm::vec3(0, 0.4, 0)),
+            VertexFormat(glm::vec3(229, 85, 0), glm::vec3(0, 0.4, 0)),
+        };
 
-    // Initialize sx and sy (the scale factors)
-    scaleX = 1;
-    scaleY = 1;
+        vector<unsigned int> indices =
+        {
+            0, 1, 2,
+            1, 3, 2,
+            2, 3, 4,
+            3, 5, 4,
+            4, 5, 7,
+            15, 13, 14,
+            18, 17, 8,
+            8, 16, 9,
+            10, 12, 11
+        };
 
-    // Initialize angularStep
-    angularStep = 0;
+        meshes["duck_body"] = new Mesh("duck_body");
+        meshes["duck_body"]->InitFromData(vertices, indices);
+    }
 
-    Mesh* square1 = object2D::CreateSquare("square1", corner, squareSide, glm::vec3(1, 0, 0), true);
-    AddMeshToList(square1);
+    // Duck wings triangles
+    {
+        vector<VertexFormat> vertices
+        {
+            VertexFormat(glm::vec3(131, 42, 0), glm::vec3(0.37, 0, 0)),
+            VertexFormat(glm::vec3(220, 63, 0), glm::vec3(0.37, 0, 0)),
+            VertexFormat(glm::vec3(105, 225, 0), glm::vec3(0.37, 0, 0))
+        };
 
-    Mesh* square2 = object2D::CreateSquare("square2", corner, squareSide, glm::vec3(0, 1, 0));
-    AddMeshToList(square2);
+        vector<unsigned int> indices =
+        {
+            0, 1, 2
+        };
 
-    Mesh* square3 = object2D::CreateSquare("square3", corner, squareSide, glm::vec3(0, 0, 1));
-    AddMeshToList(square3);
+        meshes["duck_wing_1"] = new Mesh("duck_wing_1");
+        meshes["duck_wing_1"]->InitFromData(vertices, indices);
+    }
 
-    Mesh* car_bottom = object2D::CreateSquare("car_bottom", corner, squareSide, glm::vec3(0, 1, 1), true);
-    AddMeshToList(car_bottom);
+    // Duck wings triangles
+    {
+        vector<VertexFormat> vertices
+        {
+            VertexFormat(glm::vec3(131, 42, 0), glm::vec3(0.34, 0, 0)),
+            VertexFormat(glm::vec3(220, 63, 0), glm::vec3(0.34, 0, 0)),
+            VertexFormat(glm::vec3(177, 213, 0), glm::vec3(0.34, 0, 0))
+        };
 
-    Mesh* car_top = object2D::CreateSquare("car_top", corner, squareSide, glm::vec3(0, 1, 1), true);
-    AddMeshToList(car_top);
+        vector<unsigned int> indices =
+        {
+            0, 1, 2
+        };
 
-    Mesh* car_wheel = object2D::CreateSquare("car_wheel", corner, squareSide, glm::vec3(0, 0, 1), true);
-    AddMeshToList(car_wheel);
+        meshes["duck_wing_2"] = new Mesh("duck_wing_2");
+        meshes["duck_wing_2"]->InitFromData(vertices, indices);
+    }
+
+    meshes["duck_head"] = CreateCircle("duck_head", 270, 84, 23, glm::vec3(0, 0.4, 0), true);
 }
-
 
 void DuckHunt::FrameStart()
 {
@@ -84,6 +146,7 @@ void DuckHunt::FrameStart()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::ivec2 resolution = window->GetResolution();
+
     // Sets the screen area where to draw
     glViewport(0, 0, resolution.x, resolution.y);
 }
@@ -91,101 +154,23 @@ void DuckHunt::FrameStart()
 
 void DuckHunt::Update(float deltaTimeSeconds)
 {
-    // TODO(student): Update steps for translation, rotation and scale,
-    // in order to create animations. Use the class variables in the
-    // class header, and if you need more of them to complete the task,
-    // add them over there!
-    float step = 0.5 * deltaTimeSeconds;
+    glEnable(GL_CULL_FACE);
 
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(150, 250);
-    // TODO(student): Create animations by multiplying the current
-    // transform matrix with the matrices you just implemented.
-    // Remember, the last matrix in the chain will take effect first!
-    modelMatrix *= transform2D::Translate(cx, cy);
-    modelMatrix *= transform2D::Rotate(angularStep);
-    modelMatrix *= transform2D::Translate(-cx, -cy);
+    
 
-    angularStep += step;
+    RenderMesh(meshes["duck_wing_1"], shaders["VertexColor"], glm::vec3(0, 0, 0));
 
-    RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
+    RenderMesh(meshes["duck_body"], shaders["VertexColor"], glm::vec3(0, 0, 0));
 
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(400, 250);
-    // TODO(student): Create animations by multiplying the current
-    // transform matrix with the matrices you just implemented
-    // Remember, the last matrix in the chain will take effect first!
-    modelMatrix *= transform2D::Translate(translateX, translateY);
+    RenderMesh(meshes["duck_wing_2"], shaders["VertexColor"], glm::vec3(0, 0, 0));
 
-    translateX += 100 * step;
-    translateY += 100 * step;
-
-    RenderMesh2D(meshes["square2"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(650, 250);
-    // TODO(student): Create animations by multiplying the current
-    // transform matrix with the matrices you just implemented
-    // Remember, the last matrix in the chain will take effect first!
-    modelMatrix *= transform2D::Translate(cx, cy);
-    modelMatrix *= transform2D::Scale(scaleX, scaleY);
-    modelMatrix *= transform2D::Translate(-cx, -cy);
-
-    scaleX += step;
-    scaleY += step;
-
-    RenderMesh2D(meshes["square3"], shaders["VertexColor"], modelMatrix);
-
-    // Bonus - moving car animation
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(80, 80);
-    modelMatrix *= transform2D::Translate(translateX, 0);
-    modelMatrix *= transform2D::Translate(cx, cy);
-    modelMatrix *= transform2D::Scale(3, 1);
-    modelMatrix *= transform2D::Translate(-cx, -cy);
-
-    RenderMesh2D(meshes["car_bottom"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(85, 140);
-    modelMatrix *= transform2D::Translate(translateX, 0);
-    modelMatrix *= transform2D::Translate(cx, cy);
-    modelMatrix *= transform2D::Scale(1.5, 0.7);
-    modelMatrix *= transform2D::Translate(-cx, -cy);
-
-    RenderMesh2D(meshes["car_top"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(20, 20);
-    modelMatrix *= transform2D::Translate(translateX, 0);
-    modelMatrix *= transform2D::Translate(cx, cy);
-    modelMatrix *= transform2D::Scale(0.7, 0.7);
-    modelMatrix *= transform2D::Rotate(-angularStep * 5);
-    modelMatrix *= transform2D::Translate(-cx, -cy);
-
-    RenderMesh2D(meshes["car_wheel"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(140, 20);
-    modelMatrix *= transform2D::Translate(translateX, 0);
-    modelMatrix *= transform2D::Translate(cx, cy);
-    modelMatrix *= transform2D::Scale(0.7, 0.7);
-    modelMatrix *= transform2D::Rotate(-angularStep * 5);
-    modelMatrix *= transform2D::Translate(-cx, -cy);
-
-    RenderMesh2D(meshes["car_wheel"], shaders["VertexColor"], modelMatrix);
+    RenderMesh(meshes["duck_head"], shaders["VertexColor"], glm::vec3(0, 0, 0));
 }
 
 
 void DuckHunt::FrameEnd()
 {
 }
-
-
-/*
- *  These are callback functions. To find more about callbacks and
- *  how they behave, see `input_controller.h`.
- */
 
 
 void DuckHunt::OnInputUpdate(float deltaTime, int mods)
@@ -195,31 +180,26 @@ void DuckHunt::OnInputUpdate(float deltaTime, int mods)
 
 void DuckHunt::OnKeyPress(int key, int mods)
 {
-    // Add key press event
 }
 
 
 void DuckHunt::OnKeyRelease(int key, int mods)
 {
-    // Add key release event
 }
 
 
 void DuckHunt::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
-    // Add mouse move event
 }
 
 
 void DuckHunt::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {
-    // Add mouse button press event
 }
 
 
 void DuckHunt::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
 {
-    // Add mouse button release event
 }
 
 

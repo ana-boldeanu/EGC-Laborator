@@ -17,6 +17,13 @@ namespace m1
         void FrameStart() override;
         void Update(float deltaTimeSeconds) override;
         void FrameEnd() override;
+        Mesh* CreateCircle(
+                const std::string& name,
+                float centerX,
+                float centerY,
+                float radius,
+                glm::vec3 color,
+                bool fill);
 
         void OnInputUpdate(float deltaTime, int mods) override;
         void OnKeyPress(int key, int mods) override;

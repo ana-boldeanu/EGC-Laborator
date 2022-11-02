@@ -49,6 +49,11 @@ void Lab4::Init()
     angularStepOY = 0;
     angularStepOZ = 0;
 
+    // Bonus - rotate third box around first box
+    angularStepOXbonus = 0;
+    angularStepOYbonus = 0;
+    angularStepOZbonus = 0;
+
     // Sets the resolution of the small viewport
     glm::ivec2 resolution = window->GetResolution();
     miniViewportArea = ViewportArea(50, 50, resolution.x / 5.f, resolution.y / 5.f);
@@ -77,10 +82,17 @@ void Lab4::RenderScene() {
     RenderMesh(meshes["box"], shaders["Simple"], modelMatrix);
 
     modelMatrix = glm::mat4(1);
-    modelMatrix *= transform3D::Translate(2.5f, 0.5f, -1.5f);
+    modelMatrix *= transform3D::Translate(0.0f, 0.5f, -1.5f);
+    modelMatrix *= transform3D::RotateOY(angularStepOYbonus);
+    modelMatrix *= transform3D::Translate(3.0f, 0.0f, 0.0f);
+    //modelMatrix *= transform3D::RotateOX(angularStepOXbonus);
+    //modelMatrix *= transform3D::RotateOZ(angularStepOZbonus);
+
+    //modelMatrix *= transform3D::Translate(2.5f, 0.5f, -1.5f);
     modelMatrix *= transform3D::RotateOX(angularStepOX);
     modelMatrix *= transform3D::RotateOY(angularStepOY);
     modelMatrix *= transform3D::RotateOZ(angularStepOZ);
+
     RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
 }
 
@@ -180,6 +192,31 @@ void Lab4::OnInputUpdate(float deltaTime, int mods)
 
     if (window->KeyHold(GLFW_KEY_8)) {
         angularStepOY -= rotateStep * deltaTime;
+    }
+
+    // Bonus - rotating around other point
+    if (window->KeyHold(GLFW_KEY_N)) {
+        angularStepOXbonus += rotateStep * deltaTime;
+    }
+
+    if (window->KeyHold(GLFW_KEY_M)) {
+        angularStepOXbonus -= rotateStep * deltaTime;
+    }
+
+    if (window->KeyHold(GLFW_KEY_V)) {
+        angularStepOYbonus += rotateStep * deltaTime;
+    }
+
+    if (window->KeyHold(GLFW_KEY_B)) {
+        angularStepOYbonus -= rotateStep * deltaTime;
+    }
+
+    if (window->KeyHold(GLFW_KEY_X)) {
+        angularStepOZbonus += rotateStep * deltaTime;
+    }
+
+    if (window->KeyHold(GLFW_KEY_C)) {
+        angularStepOZbonus -= rotateStep * deltaTime;
     }
 }
 

@@ -44,6 +44,7 @@ namespace m1
         float translateX, translateY, translateZ;
         float scaleX, scaleY, scaleZ;
         float angularStepOX, angularStepOY, angularStepOZ;
+        float angularStepOXbonus, angularStepOYbonus, angularStepOZbonus;
         GLenum polygonMode;
         ViewportArea miniViewportArea;
     };
