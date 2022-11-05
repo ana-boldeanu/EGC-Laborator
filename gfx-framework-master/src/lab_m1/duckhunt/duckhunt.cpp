@@ -3,9 +3,6 @@
 #include <vector>
 #include <iostream>
 
-#include "lab_m1/lab3/transform2D.h"
-#include "lab_m1/lab3/object2D.h"
-
 using namespace std;
 using namespace m1;
 
@@ -13,8 +10,16 @@ using namespace m1;
 DuckHunt::DuckHunt()
 {
     duck = new Duck();
-    flight = new Flight();
+    flightAngle = 0.4;
+    flightStep = 2;
+    flyRight = true;
+    flyUp = true;
+    flight = new Flight(flightAngle, flightStep);
     modelMatrix = glm::mat3(1);
+    flightMatrix = glm::mat3(1);
+    wingsMatrix = glm::mat3(1);
+    currX = duck->GetCenterX();
+    currY = duck->GetCenterY();
 }
 
 
@@ -37,8 +42,6 @@ void DuckHunt::Init()
     meshes["duck_body"] = duck->GetBody();
     meshes["duck_wing_front"] = duck->GetWingFront();
     meshes["duck_wing_back"] = duck->GetWingBack();
-
-    modelMatrix = glm::mat3(1);
 }
 
 
@@ -52,24 +55,49 @@ void DuckHunt::FrameStart()
 
     // Sets the screen area where to draw
     glViewport(0, 0, resolution.x, resolution.y);
-
-
 }
 
 
 void DuckHunt::Update(float deltaTimeSeconds)
 {
-    modelMatrix = flight->FlapWing(modelMatrix);
+    // Check duck current position
+    glm::ivec2 resolution = window->props.resolution;
 
-    RenderMesh2D(meshes["duck_wing_front"], shaders["VertexColor"], modelMatrix);
+    if (currX > resolution.x) {
+        flyRight = false;
+    }
+    else if (currX < 0) {
+        flyRight = true;
+    }
 
-    RenderMesh2D(meshes["duck_body"], shaders["VertexColor"], glm::mat3(1));
+    if (currY > resolution.y) {
+        flyUp = false;
+    }
+    else if (currY < 0) {
+        flyUp = true;
+    }
 
-    RenderMesh2D(meshes["duck_wing_back"], shaders["VertexColor"], modelMatrix);
 
-    RenderMesh2D(meshes["duck_head"], shaders["VertexColor"], glm::mat3(1));
+    modelMatrix = flight->RotateDuck(modelMatrix, flightAngle);
 
+    flightMatrix = flight->TranslateDuck(modelMatrix, flightStep, flyRight, flyUp, currX, currY);
+
+    wingsMatrix = flight->FlapWing(flightMatrix);
+   
+    RenderMesh2D(meshes["duck_wing_front"], shaders["VertexColor"], wingsMatrix);
+
+    RenderMesh2D(meshes["duck_body"], shaders["VertexColor"], flightMatrix);
+
+    RenderMesh2D(meshes["duck_wing_back"], shaders["VertexColor"], wingsMatrix);
+
+    RenderMesh2D(meshes["duck_head"], shaders["VertexColor"], flightMatrix);
+
+    // Reset transform matrix for next frame
     modelMatrix = glm::mat3(1);
+    flightMatrix = glm::mat3(1);
+    wingsMatrix = glm::mat3(1);
+
+    printf("%d  ||  %d  ||  %f == %d  ||  %f == %d\n", flyRight, flyUp, currX, resolution.x, currY, resolution.y);
 }
 
 
