@@ -12,6 +12,9 @@ using namespace m1;
 
 DuckHunt::DuckHunt()
 {
+    duck = new Duck();
+    flight = new Flight();
+    modelMatrix = glm::mat3(1);
 }
 
 
@@ -30,11 +33,12 @@ void DuckHunt::Init()
     camera->Update();
     GetCameraInput()->SetActive(false);
 
-    duck = new Duck();
-    meshes["duck_head"] = duck->CreateDuckHead();
-    meshes["duck_wing_front"] = duck->CreateDuckWingFront();
-    meshes["duck_wing_back"] = duck->CreateDuckWingBack();
-    meshes["duck_body"] = duck->CreateDuckBody();
+    meshes["duck_head"] = duck->GetHead();
+    meshes["duck_body"] = duck->GetBody();
+    meshes["duck_wing_front"] = duck->GetWingFront();
+    meshes["duck_wing_back"] = duck->GetWingBack();
+
+    modelMatrix = glm::mat3(1);
 }
 
 
@@ -48,18 +52,24 @@ void DuckHunt::FrameStart()
 
     // Sets the screen area where to draw
     glViewport(0, 0, resolution.x, resolution.y);
+
+
 }
 
 
 void DuckHunt::Update(float deltaTimeSeconds)
 {
-    RenderMesh(meshes["duck_wing_front"], shaders["VertexColor"], glm::vec3(0, 0, 0));
+    modelMatrix = flight->FlapWing(modelMatrix);
 
-    RenderMesh(meshes["duck_body"], shaders["VertexColor"], glm::vec3(0, 0, 0));
+    RenderMesh2D(meshes["duck_wing_front"], shaders["VertexColor"], modelMatrix);
 
-    RenderMesh(meshes["duck_wing_back"], shaders["VertexColor"], glm::vec3(0, 0, 0));
+    RenderMesh2D(meshes["duck_body"], shaders["VertexColor"], glm::mat3(1));
 
-    RenderMesh(meshes["duck_head"], shaders["VertexColor"], glm::vec3(0, 0, 0));
+    RenderMesh2D(meshes["duck_wing_back"], shaders["VertexColor"], modelMatrix);
+
+    RenderMesh2D(meshes["duck_head"], shaders["VertexColor"], glm::mat3(1));
+
+    modelMatrix = glm::mat3(1);
 }
 
 

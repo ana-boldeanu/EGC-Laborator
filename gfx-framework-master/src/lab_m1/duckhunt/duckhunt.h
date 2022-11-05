@@ -2,6 +2,7 @@
 
 #include "components/simple_scene.h"
 #include "duck.h"
+#include "flight.h"
 
 
 namespace m1
@@ -29,7 +30,9 @@ namespace m1
         void OnWindowResize(int width, int height) override;
 
      protected:
+        glm::mat3 flightMatrix;
         glm::mat3 modelMatrix;
         Duck* duck;
+        Flight* flight;
     };
 }

@@ -10,18 +10,29 @@ namespace m1
     public:
         Duck();
         ~Duck();
+        Mesh* Duck::GetHead();
+        Mesh* Duck::GetBody();
+        Mesh* Duck::GetWingFront();
+        Mesh* Duck::GetWingBack();
+        float Duck::GetCenterX();
+        float Duck::GetCenterY();
+
+
+    private:
+        Mesh* CreateCircle(const std::string& name, float centerX, float centerY,
+            float radius, glm::vec3 color, bool fill);
         Mesh* Duck::CreateDuckWingFront();
         Mesh* Duck::CreateDuckWingBack();
         Mesh* Duck::CreateDuckBody();
         Mesh* Duck::CreateDuckHead();
 
-    private:
-        Mesh* CreateCircle(const std::string& name, float centerX, float centerY,
-            float radius, glm::vec3 color, bool fill);
-        
 
     protected:
-        glm::mat3 modelMatrix;
-
+        Mesh* head;
+        Mesh* body;
+        Mesh* wingFront;
+        Mesh* wingBack;
+        float tailTipX, tailTipY;  // Tail tip coordinates (duck drawing starts here)
+        float beakTipX, beakTipY;  // Beak tip coordinates (duck drawing ends here)
     };
 }
