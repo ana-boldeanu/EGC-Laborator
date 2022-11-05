@@ -3,6 +3,7 @@
 #include "components/simple_scene.h"
 #include "duck.h"
 #include "flight.h"
+#include "lab_m1/lab3/transform2D.h"
 
 
 namespace m1
@@ -30,9 +31,14 @@ namespace m1
         void OnWindowResize(int width, int height) override;
 
      protected:
-        glm::mat3 flightMatrix;
-        glm::mat3 modelMatrix;
+        glm::mat3 flightMatrix; // Matrix used to translate the whole model
+        glm::mat3 modelMatrix;  // Matrix used to scale or rotate the whole model
+        glm::mat3 wingsMatrix;  // Matrix used for wings flapping animation
         Duck* duck;
         Flight* flight;
+        float flightAngle;
+        float flightStep;
+        bool flyRight, flyUp;
+        float currX, currY;     // Current coordinates for duck center
     };
 }

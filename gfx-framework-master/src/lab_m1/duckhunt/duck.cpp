@@ -9,11 +9,8 @@ using namespace m1;
 
 Duck::Duck()
 {
-    tailTipX = 0; tailTipY = 0;
-    beakTipX = 306; beakTipY = 100;
-
-    head = CreateDuckHead();
     body = CreateDuckBody();
+    head = CreateDuckHead();
     wingFront = CreateDuckWingFront();
     wingBack = CreateDuckWingBack();
 }
@@ -134,6 +131,11 @@ Mesh* Duck::CreateDuckHead()
 
 Mesh* Duck::CreateDuckBody()
 {
+    // Set limits for the model (drawing of the duck should be relative to these coordinates, i.e. x = tailTip + 64,
+    // but for now I used global distances, tailTip set to 0, 0 anyway)
+    tailTipX = 0; tailTipY = 0;
+    beakTipX = 306; beakTipY = 100;
+
     // Duck body & beak triangles
     vector<VertexFormat> vertices
     {
