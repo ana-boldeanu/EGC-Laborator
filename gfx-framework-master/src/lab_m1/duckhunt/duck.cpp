@@ -100,7 +100,7 @@ Mesh* Duck::CreateDuckWingBack()
 
 
 Mesh* Duck::CreateCircle(const std::string& name, float centerX, float centerY,
-    float radius, glm::vec3 color, bool fill)
+    float radius, glm::vec3 color)
 {
     std::vector<VertexFormat> vertices;
     std::vector<unsigned int> indices;
@@ -124,7 +124,7 @@ Mesh* Duck::CreateCircle(const std::string& name, float centerX, float centerY,
 
 Mesh* Duck::CreateDuckHead()
 {
-    Mesh* head = CreateCircle("duck_head", 270, 87, 25, glm::vec3(0, 0.4, 0), true);
+    Mesh* head = CreateCircle("duck_head", 270, 87, 25, glm::vec3(0, 0.4, 0));
     return head;
 }
 

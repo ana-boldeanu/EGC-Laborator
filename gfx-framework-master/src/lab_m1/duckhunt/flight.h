@@ -24,7 +24,7 @@ namespace m1
         float translateX, translateY;
         float flightAngle;
         float flightSpeed;
-        const float PI = 3.1415926;
+        const float PI = 3.1415926f;
 
     protected:
     };

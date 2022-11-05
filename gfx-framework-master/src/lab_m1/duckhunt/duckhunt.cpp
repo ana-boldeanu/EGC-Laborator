@@ -10,14 +10,19 @@ using namespace m1;
 DuckHunt::DuckHunt()
 {
     duck = new Duck();
-    flightAngle = 0.4;
+    flightAngle = 0.4f;
     flightStep = 2;
     flyRight = true;
     flyUp = true;
     flight = new Flight(flightAngle, flightStep);
+    lifeCount = 3; 
+    bulletCount = 3; 
+    score = 0;
+    gameStats = new Interface();
     modelMatrix = glm::mat3(1);
     flightMatrix = glm::mat3(1);
     wingsMatrix = glm::mat3(1);
+    interfaceMatrix = glm::mat3(1);
     currX = duck->GetCenterX();
     currY = duck->GetCenterY();
 }
@@ -42,6 +47,10 @@ void DuckHunt::Init()
     meshes["duck_body"] = duck->GetBody();
     meshes["duck_wing_front"] = duck->GetWingFront();
     meshes["duck_wing_back"] = duck->GetWingBack();
+    meshes["life"] = gameStats->GetLifeSymbol();
+    meshes["bullet"] = gameStats->GetBulletSymbol();
+    meshes["maxScore"] = gameStats->GetMaxScoreBox();
+    meshes["currScore"] = gameStats->GetCurrScoreBox();
 }
 
 
@@ -55,6 +64,51 @@ void DuckHunt::FrameStart()
 
     // Sets the screen area where to draw
     glViewport(0, 0, resolution.x, resolution.y);
+}
+
+
+void DuckHunt::RenderInterface(int lifeCount, int bulletCount, int score) 
+{
+    gameStats->lifeCount = lifeCount;
+    gameStats->bulletCount = bulletCount;
+    gameStats->score = score;
+
+    // Render lives
+    interfaceMatrix *= transform2D::Translate(gameStats->lifePosX, gameStats->lifePosY);
+
+    for (int i = 0; i < lifeCount; i++) {
+        RenderMesh2D(meshes["life"], shaders["VertexColor"], interfaceMatrix);
+        interfaceMatrix *= transform2D::Translate(gameStats->lifePosDist, 0);
+    }
+
+    // Render bullets
+    interfaceMatrix = glm::mat3(1);
+    interfaceMatrix *= transform2D::Translate(gameStats->bulletPosX, gameStats->bulletPosY);
+
+    for (int i = 0; i < bulletCount; i++) {
+        RenderMesh2D(meshes["bullet"], shaders["VertexColor"], interfaceMatrix);
+        interfaceMatrix *= transform2D::Translate(gameStats->bulletPosDist, 0);
+    }
+
+
+    // Render score
+    float maxScaleFactor = 7.5;
+    float currScaleFactor = 0;
+    if (score) {
+        currScaleFactor = (gameStats->score / gameStats->maxScore) * maxScaleFactor;
+    }
+
+    interfaceMatrix = glm::mat3(1);
+    interfaceMatrix *= transform2D::Translate(gameStats->scorePosX, gameStats->scorePosY);
+    interfaceMatrix *= transform2D::Scale(maxScaleFactor, 1);
+    RenderMesh2D(meshes["maxScore"], shaders["VertexColor"], interfaceMatrix);
+
+    interfaceMatrix = glm::mat3(1);
+    interfaceMatrix *= transform2D::Translate(gameStats->scorePosX, gameStats->scorePosY);
+    interfaceMatrix *= transform2D::Scale(currScaleFactor, 1);
+    RenderMesh2D(meshes["currScore"], shaders["VertexColor"], interfaceMatrix);
+
+    interfaceMatrix = glm::mat3(1);
 }
 
 
@@ -80,7 +134,7 @@ void DuckHunt::Update(float deltaTimeSeconds)
 
     modelMatrix = flight->RotateDuck(modelMatrix, flightAngle);
 
-    flightMatrix = flight->TranslateDuck(modelMatrix, flightStep, flyRight, flyUp, currX, currY);
+    //flightMatrix = flight->TranslateDuck(modelMatrix, flightStep, flyRight, flyUp, currX, currY);
 
     wingsMatrix = flight->FlapWing(flightMatrix);
    
@@ -91,6 +145,8 @@ void DuckHunt::Update(float deltaTimeSeconds)
     RenderMesh2D(meshes["duck_wing_back"], shaders["VertexColor"], wingsMatrix);
 
     RenderMesh2D(meshes["duck_head"], shaders["VertexColor"], flightMatrix);
+
+    RenderInterface(lifeCount, bulletCount, score);
 
     // Reset transform matrix for next frame
     modelMatrix = glm::mat3(1);

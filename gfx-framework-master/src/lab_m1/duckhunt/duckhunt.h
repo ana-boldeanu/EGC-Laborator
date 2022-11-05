@@ -3,6 +3,7 @@
 #include "components/simple_scene.h"
 #include "duck.h"
 #include "flight.h"
+#include "interface.h"
 #include "lab_m1/lab3/transform2D.h"
 
 
@@ -15,6 +16,7 @@ namespace m1
         ~DuckHunt();
 
         void Init() override;
+        void RenderInterface(int lifeCount, int bulletCount, int score);
 
      private:
         void FrameStart() override;
@@ -34,11 +36,16 @@ namespace m1
         glm::mat3 flightMatrix; // Matrix used to translate the whole model
         glm::mat3 modelMatrix;  // Matrix used to scale or rotate the whole model
         glm::mat3 wingsMatrix;  // Matrix used for wings flapping animation
+        glm::mat3 interfaceMatrix;
         Duck* duck;
         Flight* flight;
+        Interface* gameStats;
         float flightAngle;
         float flightStep;
         bool flyRight, flyUp;
         float currX, currY;     // Current coordinates for duck center
+        int lifeCount;
+        int bulletCount;
+        int score;
     };
 }

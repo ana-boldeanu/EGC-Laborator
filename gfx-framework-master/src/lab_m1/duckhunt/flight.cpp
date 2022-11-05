@@ -30,7 +30,7 @@ Flight::~Flight()
 
 
 glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix) {
-    float step = 0.1;
+    float step = 0.1f;
 
     modelMatrix *= transform2D::Translate(duckCenterX, duckCenterY);
     modelMatrix *= transform2D::Scale(1, scaleY);
