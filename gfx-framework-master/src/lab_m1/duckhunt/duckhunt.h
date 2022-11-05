@@ -16,7 +16,7 @@ namespace m1
         ~DuckHunt();
 
         void Init() override;
-        void RenderInterface(int lifeCount, int bulletCount, int score);
+        void RenderInterface(int lifeCount, int bulletCount, float score);
 
      private:
         void FrameStart() override;
@@ -40,12 +40,14 @@ namespace m1
         Duck* duck;
         Flight* flight;
         Interface* gameStats;
-        float flightAngle;
+        float flightAngle, initialAngle;
         float flightStep;
         bool flyRight, flyUp;
+        float initialX, initialY;
         float currX, currY;     // Current coordinates for duck center
         int lifeCount;
         int bulletCount;
-        int score;
+        float score;
+        const float PI = 3.1415926f;
     };
 }

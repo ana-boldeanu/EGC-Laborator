@@ -34,5 +34,6 @@ namespace m1
         Mesh* wingBack;
         float tailTipX, tailTipY;  // Tail tip coordinates (duck drawing starts here)
         float beakTipX, beakTipY;  // Beak tip coordinates (duck drawing ends here)
+        float centerY;
     };
 }

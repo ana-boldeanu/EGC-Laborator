@@ -56,22 +56,15 @@ glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix) {
 }
 
 
-glm::mat3 Flight::TranslateDuck(glm::mat3 modelMatrix, float step, bool flyRight, bool flyUp, float &currX, float &currY) 
+glm::mat3 Flight::TranslateDuck(glm::mat3 modelMatrix, float step, float &currX, float &currY) 
 {
     float deltaX = flightSpeed * cos(flightAngle);
     float deltaY = flightSpeed * sin(flightAngle);
 
-    if (!flyRight) {
-        deltaX = -deltaX;
-    }
-
-    if (!flyUp) {
-        deltaY = -deltaY;
-    }
-
     modelMatrix *= transform2D::Translate(deltaX, deltaY);
-    currX += deltaX;
-    currY += deltaY;
+
+    currX = deltaX;
+    currY = deltaY;
 
     flightSpeed += step;
 
@@ -84,7 +77,7 @@ glm::mat3 Flight::RotateDuck(glm::mat3 modelMatrix, float angle)
     flightAngle = angle;
 
     modelMatrix *= transform2D::Translate(duckCenterX, duckCenterY);
-    modelMatrix *= transform2D::Rotate(flightAngle);
+    modelMatrix *= transform2D::Rotate(angle);
     modelMatrix *= transform2D::Translate(-duckCenterX, -duckCenterY);
 
     return modelMatrix;

@@ -10,7 +10,8 @@ using namespace m1;
 DuckHunt::DuckHunt()
 {
     duck = new Duck();
-    flightAngle = 0.4f;
+    flightAngle = 0.4;
+    initialAngle = flightAngle;
     flightStep = 2;
     flyRight = true;
     flyUp = true;
@@ -18,6 +19,7 @@ DuckHunt::DuckHunt()
     lifeCount = 3; 
     bulletCount = 3; 
     score = 0;
+    initialX = 0; initialY = 0;
     gameStats = new Interface();
     modelMatrix = glm::mat3(1);
     flightMatrix = glm::mat3(1);
@@ -67,7 +69,7 @@ void DuckHunt::FrameStart()
 }
 
 
-void DuckHunt::RenderInterface(int lifeCount, int bulletCount, int score) 
+void DuckHunt::RenderInterface(int lifeCount, int bulletCount, float score) 
 {
     gameStats->lifeCount = lifeCount;
     gameStats->bulletCount = bulletCount;
@@ -114,27 +116,34 @@ void DuckHunt::RenderInterface(int lifeCount, int bulletCount, int score)
 
 void DuckHunt::Update(float deltaTimeSeconds)
 {
-    // Check duck current position
-    glm::ivec2 resolution = window->props.resolution;
+    glm::ivec2 resolution = window->GetResolution();
 
-    if (currX > resolution.x) {
+    // Right wall
+    if (flyRight && currX > resolution.x / 2) {
         flyRight = false;
+        flightAngle = PI - flightAngle;
     }
-    else if (currX < 0) {
-        flyRight = true;
-    }
-
-    if (currY > resolution.y) {
+    // Top wall
+    if (flyUp && currY > resolution.y / 2) {
         flyUp = false;
+        flightAngle = 2 * PI - flightAngle;
     }
-    else if (currY < 0) {
+    // Left wall
+    if (!flyRight && currX < 0) {
+        flyRight = true;
+        flightAngle = PI - flightAngle;
+    }
+    // Bottom wall
+    if (!flyUp && currY < 0) {
         flyUp = true;
+        flightAngle = 2 * PI - flightAngle;
     }
+    
+    modelMatrix *= transform2D::Translate(initialX, initialY);
+    
+    modelMatrix = flight->TranslateDuck(modelMatrix, flightStep, currX, currY);
 
-
-    modelMatrix = flight->RotateDuck(modelMatrix, flightAngle);
-
-    //flightMatrix = flight->TranslateDuck(modelMatrix, flightStep, flyRight, flyUp, currX, currY);
+    flightMatrix = flight->RotateDuck(modelMatrix, flightAngle);
 
     wingsMatrix = flight->FlapWing(flightMatrix);
    
@@ -153,7 +162,7 @@ void DuckHunt::Update(float deltaTimeSeconds)
     flightMatrix = glm::mat3(1);
     wingsMatrix = glm::mat3(1);
 
-    printf("%d  ||  %d  ||  %f == %d  ||  %f == %d\n", flyRight, flyUp, currX, resolution.x, currY, resolution.y);
+    printf("currX = %f ?? %d  ||  currY = %f ?? %d\n", currX, resolution.x / 2, currY, resolution.y / 2);
 }
 
 

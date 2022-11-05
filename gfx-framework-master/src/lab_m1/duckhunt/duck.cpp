@@ -53,7 +53,7 @@ float Duck::GetCenterX()
 
 float Duck::GetCenterY()
 {
-    return (beakTipY - tailTipY) / 2;
+    return centerY;
 }
 
 
@@ -62,9 +62,9 @@ Mesh* Duck::CreateDuckWingFront()
     // Duck front wing triangles
     vector<VertexFormat> vertices
     {
-        VertexFormat(glm::vec3(125, 42, 0), glm::vec3(0.44, 0, 0)),
-        VertexFormat(glm::vec3(211, 63, 0), glm::vec3(0.44, 0, 0)),
-        VertexFormat(glm::vec3(105, 225, 0), glm::vec3(0.44, 0, 0))
+        VertexFormat(glm::vec3(125, 42, 0), glm::vec3(0.47, 0, 0)),
+        VertexFormat(glm::vec3(211, 63, 0), glm::vec3(0.47, 0, 0)),
+        VertexFormat(glm::vec3(105, 225, 0), glm::vec3(0.47, 0, 0))
     };
 
     vector<unsigned int> indices =
@@ -83,9 +83,9 @@ Mesh* Duck::CreateDuckWingBack()
     // Duck back wing triangles
     vector<VertexFormat> vertices
     {
-        VertexFormat(glm::vec3(131, 42, 0), glm::vec3(0.32, 0, 0)),
-        VertexFormat(glm::vec3(211, 63, 0), glm::vec3(0.32, 0, 0)),
-        VertexFormat(glm::vec3(185, 218, 0), glm::vec3(0.32, 0, 0))
+        VertexFormat(glm::vec3(131, 42, 0), glm::vec3(0.27, 0, 0)),
+        VertexFormat(glm::vec3(211, 63, 0), glm::vec3(0.27, 0, 0)),
+        VertexFormat(glm::vec3(185, 218, 0), glm::vec3(0.27, 0, 0))
     };
 
     vector<unsigned int> indices =
@@ -124,7 +124,7 @@ Mesh* Duck::CreateCircle(const std::string& name, float centerX, float centerY,
 
 Mesh* Duck::CreateDuckHead()
 {
-    Mesh* head = CreateCircle("duck_head", 270, 87, 25, glm::vec3(0, 0.4, 0));
+    Mesh* head = CreateCircle("duck_head", 285, 60, 24, glm::vec3(0, 0.4, 0));
     return head;
 }
 
@@ -134,33 +134,33 @@ Mesh* Duck::CreateDuckBody()
     // Set limits for the model (drawing of the duck should be relative to these coordinates, i.e. x = tailTip + 64,
     // but for now I used global distances, tailTip set to 0, 0 anyway)
     tailTipX = 0; tailTipY = 0;
-    beakTipX = 306; beakTipY = 100;
+    beakTipX = 323; beakTipY = 59;
+    centerY = 50;
 
     // Duck body & beak triangles
     vector<VertexFormat> vertices
     {
         VertexFormat(glm::vec3(tailTipX, tailTipY, 0), glm::vec3(0.33, 0, 0)),
-        VertexFormat(glm::vec3(64, 22, 0), glm::vec3(0.4, 0, 0)),
-        VertexFormat(glm::vec3(94, 80, 0), glm::vec3(0.4, 0, 0)),
-        VertexFormat(glm::vec3(153, 14, 0), glm::vec3(0.42, 0, 0)),
-        VertexFormat(glm::vec3(186, 90, 0), glm::vec3(0.4, 0, 0)),
-        VertexFormat(glm::vec3(204, 22, 0), glm::vec3(0.4, 0, 0)),
-        VertexFormat(glm::vec3(228, 49, 0), glm::vec3(0.4, 0, 0)),
-        VertexFormat(glm::vec3(229, 85, 0), glm::vec3(0.4, 0, 0)),
-        VertexFormat(glm::vec3(250, 95, 0), glm::vec3(0, 0.4, 0)),
-        VertexFormat(glm::vec3(280, 65, 0), glm::vec3(0, 0.4, 0)),
-        VertexFormat(glm::vec3(294, 85, 0), glm::vec3(1, 0.4, 0)), // beak base
-        VertexFormat(glm::vec3(292, 99, 0), glm::vec3(1, 0.4, 0)), // beak base
+        VertexFormat(glm::vec3(64, 22, 0), glm::vec3(0.4, 0, 0)),  // 1
+        VertexFormat(glm::vec3(94, 80, 0), glm::vec3(0.4, 0, 0)),  // 2
+        VertexFormat(glm::vec3(153, 14, 0), glm::vec3(0.42, 0, 0)),// 3
+        VertexFormat(glm::vec3(186, 90, 0), glm::vec3(0.4, 0, 0)), // 4
+        VertexFormat(glm::vec3(204, 22, 0), glm::vec3(0.4, 0, 0)), // 5
+        VertexFormat(glm::vec3(233, 57, 0), glm::vec3(0, 0.4, 0)), // 6
+        VertexFormat(glm::vec3(229, 85, 0), glm::vec3(0.4, 0, 0)), // 7
+        VertexFormat(glm::vec3(310, 56, 0), glm::vec3(0, 0.4, 0)), // 8
+        VertexFormat(glm::vec3(308, 54, 0), glm::vec3(1, 0.4, 0)), // beak base
+        VertexFormat(glm::vec3(308, 63, 0), glm::vec3(1, 0.4, 0)), // beak base
         VertexFormat(glm::vec3(beakTipX, beakTipY, 0), glm::vec3(1, 0.4, 0)), // beak tip
 
         // Some copies for colors (white neck detail)
-        VertexFormat(glm::vec3(204, 22, 0), glm::vec3(1, 1, 1)),
-        VertexFormat(glm::vec3(228, 49, 0), glm::vec3(1, 1, 1)),
-        VertexFormat(glm::vec3(229, 85, 0), glm::vec3(1, 1, 1)),
+        VertexFormat(glm::vec3(204, 22, 0), glm::vec3(1, 1, 1)), // 12
+        VertexFormat(glm::vec3(233, 57, 0), glm::vec3(1, 1, 1)), // 13
+        VertexFormat(glm::vec3(229, 85, 0), glm::vec3(1, 1, 1)), // 14
 
-        VertexFormat(glm::vec3(204, 22, 0), glm::vec3(0, 0.4, 0)),
-        VertexFormat(glm::vec3(228, 49, 0), glm::vec3(0, 0.4, 0)),
-        VertexFormat(glm::vec3(229, 85, 0), glm::vec3(0, 0.4, 0)),
+        VertexFormat(glm::vec3(204, 22, 0), glm::vec3(0, 0.4, 0)), // 15
+        VertexFormat(glm::vec3(233, 57, 0), glm::vec3(0, 0.4, 0)), // 16
+        VertexFormat(glm::vec3(229, 85, 0), glm::vec3(0, 0.4, 0)), // 17
     };
 
     vector<unsigned int> indices =
@@ -170,10 +170,10 @@ Mesh* Duck::CreateDuckBody()
         2, 3, 4,
         3, 5, 4,
         4, 5, 7,
-        15, 13, 14,
-        18, 17, 8,
-        8, 16, 9,
-        10, 12, 11
+        14, 12, 13,
+        17, 16, 8,
+        6, 15, 8,
+        9, 11, 10
     };
 
     Mesh* duckBody = new Mesh("duck_body");

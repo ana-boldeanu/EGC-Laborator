@@ -20,7 +20,7 @@ namespace m1
         Mesh* Interface::GetMaxScoreBox();
         float lifePosX, lifePosY, lifePosDist;
         float bulletPosX, bulletPosY, bulletPosDist;
-        float scorePosX, scorePosY, scoreLength, scoreWidth;
+        float scorePosX, scorePosY;
         
     private:
         Mesh* Interface::CreateLife();

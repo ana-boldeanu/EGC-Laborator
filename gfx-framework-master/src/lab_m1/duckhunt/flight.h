@@ -12,7 +12,7 @@ namespace m1
         Flight(float angle, float flightSpeed);
         ~Flight();
         glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix);
-        glm::mat3 Flight::TranslateDuck(glm::mat3 modelMatrix, float step, bool flyRight, bool flyUp, float &currX, float &currY);
+        glm::mat3 Flight::TranslateDuck(glm::mat3 modelMatrix, float step, float &currX, float &currY);
         glm::mat3 Flight::RotateDuck(glm::mat3 modelMatrix, float angle);
         
     private:
