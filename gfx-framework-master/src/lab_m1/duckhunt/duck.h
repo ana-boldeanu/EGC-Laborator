@@ -16,6 +16,7 @@ namespace m1
         Mesh* Duck::GetWingBack();
         float Duck::GetCenterX();
         float Duck::GetCenterY();
+        float Duck::GetLength();
         Mesh* CreateCircle(const std::string& name, float centerX, float centerY,
             float radius, glm::vec3 color);
 
@@ -34,5 +35,6 @@ namespace m1
         Mesh* wingBack;
         float tailTipX, tailTipY;  // Tail tip coordinates (duck drawing starts here)
         float beakTipX, beakTipY;  // Beak tip coordinates (duck drawing ends here)
+        float centerY;
     };
 }

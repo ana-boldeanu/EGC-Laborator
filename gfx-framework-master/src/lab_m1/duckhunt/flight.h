@@ -12,8 +12,9 @@ namespace m1
         Flight(float angle, float flightSpeed);
         ~Flight();
         glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix);
-        glm::mat3 Flight::TranslateDuck(glm::mat3 modelMatrix, float step, bool flyRight, bool flyUp, float &currX, float &currY);
+        glm::mat3 Flight::TranslateDuck(glm::mat3 modelMatrix, float flightAngle, float step, float &currX, float &currY);
         glm::mat3 Flight::RotateDuck(glm::mat3 modelMatrix, float angle);
+        float flightAngle;
         
     private:
         Duck* duck;
@@ -22,7 +23,7 @@ namespace m1
         float scaledSoFarX, scaledSoFarY;   // Wings current scale factor
         bool scaleDown;                     // Wings scaling direction
         float translateX, translateY;
-        float flightAngle;
+        
         float flightSpeed;
         const float PI = 3.1415926f;
 
