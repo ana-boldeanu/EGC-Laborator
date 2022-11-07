@@ -10,27 +10,23 @@ using namespace m1;
 DuckHunt::DuckHunt()
 {
     duck = new Duck();
-    duckScale = 0.8f;
-    duckLength = duck->GetLength();
-    duckWidth = duck->GetWidth();
-    currX = duck->GetCenterX();
-    currY = duck->GetCenterY();
-
-    initialX = 0; initialY = 0;
-    flightAngle = 0.8f;
-    flightSpeed = 4;
-    flyRight = true; flyUp = true;
-    flight = new Flight(flightAngle, flightSpeed);
-
+    flightAngle = 0.9;
+    initialAngle = flightAngle;
+    flightStep = 2;
+    flyRight = true;
+    flyUp = true;
+    flight = new Flight(flightAngle, flightStep);
     lifeCount = 3; 
     bulletCount = 3; 
     score = 0;
+    initialX = 0; initialY = 0;
     gameStats = new Interface();
-
     modelMatrix = glm::mat3(1);
     flightMatrix = glm::mat3(1);
     wingsMatrix = glm::mat3(1);
     interfaceMatrix = glm::mat3(1);
+    currX = duck->GetCenterX();
+    currY = duck->GetCenterY();
 }
 
 
@@ -63,7 +59,7 @@ void DuckHunt::Init()
 void DuckHunt::FrameStart()
 {
     // Clears the color buffer (using the previously set color) and depth buffer
-    glClearColor(0.8f, 1, 1, 1);
+    glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::ivec2 resolution = window->GetResolution();
@@ -122,36 +118,33 @@ void DuckHunt::Update(float deltaTimeSeconds)
 {
     glm::ivec2 resolution = window->GetResolution();
 
-    //printf("%f\n", duckLength);
-
     // Right wall
-    if (flyRight && currX + duckLength / 2 > resolution.x) {
+    if (flyRight && (currX > resolution.x / 2)) {
         flyRight = false;
         flightAngle = PI - flightAngle;
     }
     // Top wall
-    if (flyUp && currY + duckWidth / 2 > resolution.y) {
+    if (flyUp && (currY > resolution.y / 2)) {
         flyUp = false;
         flightAngle = -flightAngle;
+
     }
     // Left wall
-    if (!flyRight && currX + duckLength / 2 < 0) {
+    if (!flyRight && (currX < 0)) {
         flyRight = true;
         flightAngle = PI - flightAngle;
     }
     // Bottom wall
-    if (!flyUp && currY + duckWidth / 2 < 0) {
+    if (!flyUp && (currY < 0)) {
         flyUp = true;
         flightAngle = -flightAngle;
     }
     
     modelMatrix *= transform2D::Translate(initialX, initialY);
 
-    modelMatrix = flight->TranslateDuck(modelMatrix, flightAngle, currX, currY);
+    modelMatrix = flight->TranslateDuck(modelMatrix, flightAngle, flightStep, currX, currY);
 
     flightMatrix = flight->RotateDuck(modelMatrix, flightAngle);
-
-    flightMatrix *= transform2D::Scale(duckScale, duckScale);
 
     wingsMatrix = flight->FlapWing(flightMatrix);
    
@@ -170,7 +163,7 @@ void DuckHunt::Update(float deltaTimeSeconds)
     flightMatrix = glm::mat3(1);
     wingsMatrix = glm::mat3(1);
 
-    printf("currX = %f ?? %d  ||  currY = %f ?? %d\n", currX, resolution.x, currY, resolution.y);
+    printf("currX = %f ?? %d  ||  currY = %f ?? %d\n", currX, resolution.x / 2, currY, resolution.y / 2);
 }
 
 
@@ -180,9 +173,9 @@ void DuckHunt::FrameEnd()
 
 void DuckHunt::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
-    float duckLength = duck->GetLength();
+    int duckLength = duck->GetLength();
     glm::ivec2 resolution = window->GetResolution();
-    float actualY = resolution.y - currY;
+    int actualY = resolution.y - currY;
 
     deadlyShot = false;
     if (mouseX >= currX - duckLength / 2) {

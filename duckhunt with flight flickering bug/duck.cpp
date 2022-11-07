@@ -61,11 +61,6 @@ float Duck::GetLength()
     return beakTipX - tailTipX;
 }
 
-float Duck::GetWidth()
-{
-    return 2 * centerY;
-}
-
 Mesh* Duck::CreateDuckWingFront()
 {
     // Duck front wing triangles

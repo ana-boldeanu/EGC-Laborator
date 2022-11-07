@@ -35,11 +35,8 @@ namespace m1
         Duck* duck;
         Flight* flight;
         Interface* gameStats;
-        float duckLength;
-        float duckWidth;
-        float duckScale;
-        float flightAngle;
-        float flightSpeed;
+        float flightAngle, initialAngle;
+        float flightStep;
         bool flyRight, flyUp;
         float initialX, initialY;
         float currX, currY;     // Current coordinates for duck center

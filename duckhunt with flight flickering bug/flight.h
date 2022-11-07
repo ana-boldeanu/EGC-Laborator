@@ -9,10 +9,10 @@ namespace m1
     class Flight : public gfxc::SimpleScene
     {
     public:
-        Flight(float angle, float speed);
+        Flight(float angle, float flightSpeed);
         ~Flight();
         glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix);
-        glm::mat3 Flight::TranslateDuck(glm::mat3 modelMatrix, float flightAngle, float &currX, float &currY);
+        glm::mat3 Flight::TranslateDuck(glm::mat3 modelMatrix, float flightAngle, float step, float &currX, float &currY);
         glm::mat3 Flight::RotateDuck(glm::mat3 modelMatrix, float angle);
         float flightAngle;
         
@@ -23,6 +23,7 @@ namespace m1
         float scaledSoFarX, scaledSoFarY;   // Wings current scale factor
         bool scaleDown;                     // Wings scaling direction
         float translateX, translateY;
+        
         float flightSpeed;
         const float PI = 3.1415926f;
 

@@ -74,7 +74,7 @@ Mesh* Interface::CreateBullet()
 Mesh* Interface::CreateWireframeBox() 
 {
     float length = 40;
-    glm::vec3 color = glm::vec3(0, 0.5, 1);
+    glm::vec3 color = glm::vec3(0, 1, 1);
 
     Mesh* wireframe = CreateSquare("bullet", length, color, false);
 
@@ -85,7 +85,7 @@ Mesh* Interface::CreateWireframeBox()
 Mesh* Interface::CreateScoreBox() 
 {
     float length = 40;
-    glm::vec3 color = glm::vec3(0, 0.5, 1);
+    glm::vec3 color = glm::vec3(0, 1, 1);
 
     Mesh* scoreBox = CreateSquare("bullet", length, color, true);
 
