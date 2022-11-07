@@ -27,7 +27,6 @@ namespace m1
         void DuckHunt::OnKeyPress(int key, int mods) override;
         void OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY) override;
         void OnMouseBtnPress(int mouseX, int mouseY, int button, int mods) override;
-        void OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods) override;
 
      protected:
         glm::mat3 flightMatrix; // Matrix used to translate the whole model
@@ -48,6 +47,7 @@ namespace m1
 
         float initialX, initialY;
         float currX, currY;     // Current coordinates for duck center
+        float translateX, translateY;
         float flightAngle;
         float flightSpeed;
         bool flyRight, flyUp;
@@ -56,10 +56,12 @@ namespace m1
         int bulletCount;
         float score;
 
-        const float PI = 3.1415926f;
         bool deadlyShot = false;
         bool duckActive = true;
         bool duckEvaded = false;
         bool duckDead = false;
+
+        const float PI = 3.1415926f;
+        float maxInitialX = 1280;
     };
 }

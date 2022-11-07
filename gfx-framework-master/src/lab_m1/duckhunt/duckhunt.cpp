@@ -9,17 +9,21 @@ using namespace m1;
 
 DuckHunt::DuckHunt()
 {
+    srand(static_cast <unsigned> (time(0)));
+    
     duck = new Duck();
     duckScale = 0.8f;
-    duckLength = duck->GetLength();
-    duckWidth = duck->GetWidth();
-    currX = duck->GetCenterX();
-    currY = duck->GetCenterY();
+    duckLength = (duck->GetLength()) * duckScale;
+    duckWidth = (duck->GetWidth()) * duckScale;
 
-    initialX = 0; initialY = 0;
-    flightAngle = 0.8f;
-    flightSpeed = 6;
-    flyRight = true; flyUp = true;
+    initialX = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / maxInitialX)); initialY = 0;
+    currX = initialX;
+    currY = initialY;
+    translateX = 0; translateY = 0;
+
+    flightAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
+    flightSpeed = 10;
+    flyRight = (flightAngle < PI / 2); flyUp = true;
     flight = new Flight(flightAngle, flightSpeed);
 
     lifeCount = 3; 
@@ -118,15 +122,17 @@ void DuckHunt::RenderInterface(int lifeCount, int bulletCount, float score)
     interfaceMatrix = glm::mat3(1);
 }
 
+// incerc aici sa repar faptul ca iese din ecran in functie de translatia initiala care s-a adaugat deja la currX
 void DuckHunt::ResetDuck() 
 {
-    currX = duck->GetCenterX();
-    currY = duck->GetCenterY();
-
-    initialX = 0; initialY = 0;
-    flightAngle = 0.8f;
-    flightSpeed = 6;
-    flyRight = true; flyUp = true;
+    initialX = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / maxInitialX)); initialY = 0;
+    currX = initialX;
+    currY = initialY;
+    translateX = 0; translateY = 0;
+    
+    flightAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
+    flightSpeed = 10;
+    flyRight = (flightAngle < PI / 2); flyUp = true;
     flight = new Flight(flightAngle, flightSpeed);
 
     bulletCount = 3;
@@ -144,6 +150,8 @@ void DuckHunt::Update(float deltaTimeSeconds)
     glm::ivec2 resolution = window->GetResolution();
     
     timePassed += deltaTimeSeconds;
+    currX = initialX + translateX;
+    currY = initialY + translateY;
 
     if (duckActive && timePassed >= timeLimit) {
         skyColor = glm::vec3(1, 0.8f, 0.8f);
@@ -161,22 +169,22 @@ void DuckHunt::Update(float deltaTimeSeconds)
 
     if (duckActive) {
         // Right wall
-        if (flyRight && currX + duckLength / 2 > resolution.x) {
+        if (flyRight && currX > resolution.x) {
             flyRight = false;
             flightAngle = PI - flightAngle;
         }
         // Top wall
-        if (flyUp && currY + duckWidth / 2 > resolution.y) {
+        if (flyUp && currY > resolution.y) {
             flyUp = false;
             flightAngle = -flightAngle;
         }
         // Left wall
-        if (!flyRight && currX + duckLength / 2 < 0) {
+        if (!flyRight && currX < 0) {
             flyRight = true;
             flightAngle = PI - flightAngle;
         }
         // Bottom wall
-        if (!flyUp && currY + duckWidth / 2 < 0) {
+        if (!flyUp && currY < 0) {
             flyUp = true;
             flightAngle = -flightAngle;
         }
@@ -200,7 +208,9 @@ void DuckHunt::Update(float deltaTimeSeconds)
     
     modelMatrix *= transform2D::Translate(initialX, initialY);
 
-    modelMatrix = flight->TranslateDuck(modelMatrix, flightAngle, currX, currY);
+    modelMatrix *= transform2D::Translate(-duck->GetCenterX(), -duck->GetCenterY());
+
+    //modelMatrix = flight->TranslateDuck(modelMatrix, deltaTimeSeconds, flightAngle, translateX, translateY);
 
     flightMatrix = flight->RotateDuck(modelMatrix, flightAngle);
 
@@ -208,7 +218,6 @@ void DuckHunt::Update(float deltaTimeSeconds)
 
     wingsMatrix = flight->FlapWing(flightMatrix);
 
-   
     RenderMesh2D(meshes["duck_wing_front"], shaders["VertexColor"], wingsMatrix);
 
     RenderMesh2D(meshes["duck_body"], shaders["VertexColor"], flightMatrix);
@@ -224,7 +233,7 @@ void DuckHunt::Update(float deltaTimeSeconds)
     flightMatrix = glm::mat3(1);
     wingsMatrix = glm::mat3(1);
 
-    //printf("currX = %f ?? %d  ||  currY = %f ?? %d\n", currX, resolution.x, currY, resolution.y);
+    //printf("currX = %f ?? translateX = %f  ||  currY = %f ??  translateX = %f\n", currX, translateX, currY, translateY);
 }
 
 
@@ -249,12 +258,5 @@ void DuckHunt::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 
 void DuckHunt::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {    
-    if (button == GLFW_MOUSE_BUTTON_1) {
-        printf("Nice!\n");
-    }
-}
-
-
-void DuckHunt::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
-{
+    printf("Nice!\n");
 }
