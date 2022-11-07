@@ -16,6 +16,7 @@ namespace m1
         Mesh* Duck::GetWingBack();
         float Duck::GetCenterX();
         float Duck::GetCenterY();
+        float Duck::GetLength();
         Mesh* CreateCircle(const std::string& name, float centerX, float centerY,
             float radius, glm::vec3 color);
 

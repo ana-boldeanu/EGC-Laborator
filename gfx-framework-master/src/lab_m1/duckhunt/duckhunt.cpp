@@ -10,7 +10,7 @@ using namespace m1;
 DuckHunt::DuckHunt()
 {
     duck = new Duck();
-    flightAngle = 0.4;
+    flightAngle = 0.9;
     initialAngle = flightAngle;
     flightStep = 2;
     flyRight = true;
@@ -119,29 +119,30 @@ void DuckHunt::Update(float deltaTimeSeconds)
     glm::ivec2 resolution = window->GetResolution();
 
     // Right wall
-    if (flyRight && currX > resolution.x / 2) {
+    if (flyRight && (currX > resolution.x / 2)) {
         flyRight = false;
         flightAngle = PI - flightAngle;
     }
     // Top wall
-    if (flyUp && currY > resolution.y / 2) {
+    if (flyUp && (currY > resolution.y / 2)) {
         flyUp = false;
-        flightAngle = 2 * PI - flightAngle;
+        flightAngle = -flightAngle;
+
     }
     // Left wall
-    if (!flyRight && currX < 0) {
+    if (!flyRight && (currX < 0)) {
         flyRight = true;
         flightAngle = PI - flightAngle;
     }
     // Bottom wall
-    if (!flyUp && currY < 0) {
+    if (!flyUp && (currY < 0)) {
         flyUp = true;
-        flightAngle = 2 * PI - flightAngle;
+        flightAngle = -flightAngle;
     }
     
     modelMatrix *= transform2D::Translate(initialX, initialY);
-    
-    modelMatrix = flight->TranslateDuck(modelMatrix, flightStep, currX, currY);
+
+    modelMatrix = flight->TranslateDuck(modelMatrix, flightAngle, flightStep, currX, currY);
 
     flightMatrix = flight->RotateDuck(modelMatrix, flightAngle);
 
@@ -170,42 +171,44 @@ void DuckHunt::FrameEnd()
 {
 }
 
-
-void DuckHunt::OnInputUpdate(float deltaTime, int mods)
-{
-}
-
-
-void DuckHunt::OnKeyPress(int key, int mods)
-{
-}
-
-
-void DuckHunt::OnKeyRelease(int key, int mods)
-{
-}
-
-
 void DuckHunt::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
+    int duckLength = duck->GetLength();
+    glm::ivec2 resolution = window->GetResolution();
+    int actualY = resolution.y - currY;
+
+    deadlyShot = false;
+    if (mouseX >= currX - duckLength / 2) {
+        if (mouseX <= currX + duckLength / 2) {
+            if (mouseY >= actualY - duckLength / 2) {
+                if (mouseY <= actualY + duckLength / 2) {
+                    deadlyShot = true;
+                }
+            }
+        }
+    }
+
+    //printf("currX = %d  ||  currY = %d\n", mouseX, mouseY);
+    if (deadlyShot) {
+        printf("Deadly!! ");
+    }
 }
 
 
 void DuckHunt::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {
+    if (button == GLFW_MOUSE_BUTTON_1) {
+        if (deadlyShot) {
+            printf("Nice!\n");
+            bulletCount = 3;
+        }
+        else {
+            bulletCount--;
+        }
+    }
 }
 
 
 void DuckHunt::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
-{
-}
-
-
-void DuckHunt::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)
-{
-}
-
-
-void DuckHunt::OnWindowResize(int width, int height)
 {
 }

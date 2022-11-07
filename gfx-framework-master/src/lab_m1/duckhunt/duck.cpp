@@ -56,6 +56,10 @@ float Duck::GetCenterY()
     return centerY;
 }
 
+float Duck::GetLength() 
+{
+    return beakTipX - tailTipX;
+}
 
 Mesh* Duck::CreateDuckWingFront()
 {
