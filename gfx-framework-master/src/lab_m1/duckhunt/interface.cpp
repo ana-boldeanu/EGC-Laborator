@@ -19,8 +19,8 @@ Interface::Interface()
     currScoreBox = CreateScoreBox();
 
     lifePosX = 30; lifePosY = 690; lifePosDist = 50;
-    bulletPosX = 200; bulletPosY = 675; bulletPosDist = 50;
-    scorePosX = 15; scorePosY = 600;
+    bulletPosX = 205; bulletPosY = 675; bulletPosDist = 50;
+    scorePosX = 15; scorePosY = 625;
 }
 
 
@@ -73,7 +73,7 @@ Mesh* Interface::CreateBullet()
 
 Mesh* Interface::CreateWireframeBox() 
 {
-    float length = 40;
+    float length = 20;
     glm::vec3 color = glm::vec3(0, 0.5, 1);
 
     Mesh* wireframe = CreateSquare("bullet", length, color, false);

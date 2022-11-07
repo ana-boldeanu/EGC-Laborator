@@ -18,7 +18,7 @@ DuckHunt::DuckHunt()
 
     initialX = 0; initialY = 0;
     flightAngle = 0.8f;
-    flightSpeed = 4;
+    flightSpeed = 6;
     flyRight = true; flyUp = true;
     flight = new Flight(flightAngle, flightSpeed);
 
@@ -31,6 +31,7 @@ DuckHunt::DuckHunt()
     flightMatrix = glm::mat3(1);
     wingsMatrix = glm::mat3(1);
     interfaceMatrix = glm::mat3(1);
+    skyColor = glm::vec3(0.8f, 1, 1);
 }
 
 
@@ -63,7 +64,7 @@ void DuckHunt::Init()
 void DuckHunt::FrameStart()
 {
     // Clears the color buffer (using the previously set color) and depth buffer
-    glClearColor(0.8f, 1, 1, 1);
+    glClearColor(skyColor.x, skyColor.y, skyColor.z, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::ivec2 resolution = window->GetResolution();
@@ -98,7 +99,7 @@ void DuckHunt::RenderInterface(int lifeCount, int bulletCount, float score)
 
 
     // Render score
-    float maxScaleFactor = 7.5;
+    float maxScaleFactor = 16;
     float currScaleFactor = 0;
     if (score) {
         currScaleFactor = (gameStats->score / gameStats->maxScore) * maxScaleFactor;
@@ -117,32 +118,84 @@ void DuckHunt::RenderInterface(int lifeCount, int bulletCount, float score)
     interfaceMatrix = glm::mat3(1);
 }
 
+void DuckHunt::ResetDuck() 
+{
+    currX = duck->GetCenterX();
+    currY = duck->GetCenterY();
+
+    initialX = 0; initialY = 0;
+    flightAngle = 0.8f;
+    flightSpeed = 6;
+    flyRight = true; flyUp = true;
+    flight = new Flight(flightAngle, flightSpeed);
+
+    bulletCount = 3;
+
+    duckActive = true;
+    duckEvaded = false;
+    duckDead = false;
+    deadlyShot = false;
+
+    skyColor = glm::vec3(0.8f, 1, 1);
+}
 
 void DuckHunt::Update(float deltaTimeSeconds)
 {
     glm::ivec2 resolution = window->GetResolution();
+    
+    timePassed += deltaTimeSeconds;
 
-    //printf("%f\n", duckLength);
+    if (duckActive && timePassed >= timeLimit) {
+        skyColor = glm::vec3(1, 0.8f, 0.8f);
+        duckActive = false;
+        duckEvaded = true;
+        timePassed = 0;
+    }
 
-    // Right wall
-    if (flyRight && currX + duckLength / 2 > resolution.x) {
-        flyRight = false;
-        flightAngle = PI - flightAngle;
+    if (duckActive && deadlyShot) {
+        skyColor = glm::vec3(0.8f, 1, 0.8f);
+        duckActive = false;
+        duckDead = true;
+        timePassed = 0;
     }
-    // Top wall
-    if (flyUp && currY + duckWidth / 2 > resolution.y) {
-        flyUp = false;
-        flightAngle = -flightAngle;
+
+    if (duckActive) {
+        // Right wall
+        if (flyRight && currX + duckLength / 2 > resolution.x) {
+            flyRight = false;
+            flightAngle = PI - flightAngle;
+        }
+        // Top wall
+        if (flyUp && currY + duckWidth / 2 > resolution.y) {
+            flyUp = false;
+            flightAngle = -flightAngle;
+        }
+        // Left wall
+        if (!flyRight && currX + duckLength / 2 < 0) {
+            flyRight = true;
+            flightAngle = PI - flightAngle;
+        }
+        // Bottom wall
+        if (!flyUp && currY + duckWidth / 2 < 0) {
+            flyUp = true;
+            flightAngle = -flightAngle;
+        }
     }
-    // Left wall
-    if (!flyRight && currX + duckLength / 2 < 0) {
-        flyRight = true;
-        flightAngle = PI - flightAngle;
-    }
-    // Bottom wall
-    if (!flyUp && currY + duckWidth / 2 < 0) {
+    else if (duckEvaded) {
         flyUp = true;
-        flightAngle = -flightAngle;
+        flightAngle = PI / 2;
+
+        if (currY > resolution.y + duckLength) {
+            ResetDuck();
+        }
+    }
+    else if (duckDead) {
+        flyUp = false;
+        flightAngle = -PI / 2;
+
+        if (currY < -duckLength) {
+            ResetDuck();
+        }
     }
     
     modelMatrix *= transform2D::Translate(initialX, initialY);
@@ -154,6 +207,7 @@ void DuckHunt::Update(float deltaTimeSeconds)
     flightMatrix *= transform2D::Scale(duckScale, duckScale);
 
     wingsMatrix = flight->FlapWing(flightMatrix);
+
    
     RenderMesh2D(meshes["duck_wing_front"], shaders["VertexColor"], wingsMatrix);
 
@@ -170,7 +224,7 @@ void DuckHunt::Update(float deltaTimeSeconds)
     flightMatrix = glm::mat3(1);
     wingsMatrix = glm::mat3(1);
 
-    printf("currX = %f ?? %d  ||  currY = %f ?? %d\n", currX, resolution.x, currY, resolution.y);
+    //printf("currX = %f ?? %d  ||  currY = %f ?? %d\n", currX, resolution.x, currY, resolution.y);
 }
 
 
@@ -178,40 +232,25 @@ void DuckHunt::FrameEnd()
 {
 }
 
-void DuckHunt::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
+
+void DuckHunt::OnKeyPress(int key, int mods)
 {
-    float duckLength = duck->GetLength();
-    glm::ivec2 resolution = window->GetResolution();
-    float actualY = resolution.y - currY;
-
-    deadlyShot = false;
-    if (mouseX >= currX - duckLength / 2) {
-        if (mouseX <= currX + duckLength / 2) {
-            if (mouseY >= actualY - duckLength / 2) {
-                if (mouseY <= actualY + duckLength / 2) {
-                    deadlyShot = true;
-                }
-            }
-        }
-    }
-
-    //printf("currX = %d  ||  currY = %d\n", mouseX, mouseY);
-    if (deadlyShot) {
-        printf("Deadly!! ");
+    if (key == GLFW_KEY_D) {
+        deadlyShot = true;
     }
 }
 
 
-void DuckHunt::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
+void DuckHunt::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
+    //printf("mouseX = %d  ||  mouseY = %d\n", mouseX, mouseY);    
+}
+
+
+void DuckHunt::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
+{    
     if (button == GLFW_MOUSE_BUTTON_1) {
-        if (deadlyShot) {
-            printf("Nice!\n");
-            bulletCount = 3;
-        }
-        else {
-            bulletCount--;
-        }
+        printf("Nice!\n");
     }
 }
 

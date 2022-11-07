@@ -22,7 +22,9 @@ namespace m1
         void FrameStart() override;
         void Update(float deltaTimeSeconds) override;
         void FrameEnd() override;
+        void DuckHunt::ResetDuck();
 
+        void DuckHunt::OnKeyPress(int key, int mods) override;
         void OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY) override;
         void OnMouseBtnPress(int mouseX, int mouseY, int button, int mods) override;
         void OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods) override;
@@ -32,21 +34,32 @@ namespace m1
         glm::mat3 modelMatrix;  // Matrix used to scale or rotate the whole model
         glm::mat3 wingsMatrix;  // Matrix used for wings flapping animation
         glm::mat3 interfaceMatrix;
+        glm::vec3 skyColor;
+
         Duck* duck;
         Flight* flight;
         Interface* gameStats;
+
         float duckLength;
         float duckWidth;
         float duckScale;
+        float timePassed = 0;
+        float timeLimit = 7;
+
+        float initialX, initialY;
+        float currX, currY;     // Current coordinates for duck center
         float flightAngle;
         float flightSpeed;
         bool flyRight, flyUp;
-        float initialX, initialY;
-        float currX, currY;     // Current coordinates for duck center
+        
         int lifeCount;
         int bulletCount;
         float score;
+
         const float PI = 3.1415926f;
         bool deadlyShot = false;
+        bool duckActive = true;
+        bool duckEvaded = false;
+        bool duckDead = false;
     };
 }
