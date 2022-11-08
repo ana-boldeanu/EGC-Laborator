@@ -57,9 +57,9 @@ namespace m1
         int bulletCount;
         float score;
 
-        float pointsPerDuck = 3.5;
+        float pointsPerDuck = 4;
         int ducksCount = 1;
-        bool gameOver = false;
+        bool gameOver = true;
 
         bool deadlyShot = false;
         bool duckActive = true;

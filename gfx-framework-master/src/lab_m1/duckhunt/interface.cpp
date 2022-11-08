@@ -27,53 +27,34 @@ Interface::Interface()
     color_1 = glm::vec3(0.30f, 0.65f, 0.05f);
     grass_upper = CreateGrass(grassPosX, grassPosY, color_0, color_1);
 
-    lifePosX = 30; lifePosY = 690; lifePosDist = 50;
-    bulletPosX = 205; bulletPosY = 675; bulletPosDist = 50;
+    lifePosX = 15; lifePosY = 665; lifePosDist = 50;
+    bulletPosX = 1160; bulletPosY = 655; bulletPosDist = 40;
     scorePosX = 15; scorePosY = 625;
 }
 
 
-Interface::~Interface()
-{
-}
-
-
-Mesh* Interface::GetLifeSymbol()
-{
-    return lifeSymbol;
-}
-
-Mesh* Interface::GetBulletSymbol()
-{
-    return bulletSymbol;
-}
-
-Mesh* Interface::GetMaxScoreBox()
-{
-    return maxScoreBox;
-}
-
-Mesh* Interface::GetCurrScoreBox()
-{
-    return currScoreBox;
-}
-
-Mesh* Interface::GetGrass(bool lower) 
-{
-    if (lower) {
-        return grass_lower;
-    }
-    else {
-        return grass_upper;
-    }
-}
-
 Mesh* Interface::CreateLife()
 {
-    float radius = 15;
+	Mesh* life = new Mesh("life");
+    glm::vec3 color = glm::vec3(1, 0, 0);
 
-    Duck* duck = new Duck();
-	Mesh* life = duck->CreateCircle("life", 0, 0, radius, glm::vec3(1, 0, 0));
+    std::vector<VertexFormat> vertices =
+    {
+        VertexFormat(glm::vec3(22, 0, 0), color),
+        VertexFormat(glm::vec3(43, 28, 0), color),
+        VertexFormat(glm::vec3(34, 38, 0), color),
+        VertexFormat(glm::vec3(22, 28, 0), color),
+        VertexFormat(glm::vec3(11, 38, 0), color),
+        VertexFormat(glm::vec3(0, 28, 0), color)
+    };
+
+    std::vector<unsigned int> indices = { 
+        0, 1, 5, 
+        1, 2, 3,
+        3, 4, 5
+    };
+
+    life->InitFromData(vertices, indices);
 
     return life;
 }
@@ -81,20 +62,36 @@ Mesh* Interface::CreateLife()
 
 Mesh* Interface::CreateBullet()
 {
-    float length = 30;
-    glm::vec3 color = glm::vec3(1, 1, 0);
+    Mesh* bullet = new Mesh("bullet");
+    glm::vec3 color = glm::vec3(0.45, 0.3, 0);
 
-    Mesh* bullet = CreateSquare("bullet", length, color, true);
+    std::vector<VertexFormat> vertices =
+    {
+        VertexFormat(glm::vec3(0, 0, 0), color),
+        VertexFormat(glm::vec3(20, 0, 0), color),
+        VertexFormat(glm::vec3(20, 30, 0), color),
+        VertexFormat(glm::vec3(0, 30, 0), color),
+        VertexFormat(glm::vec3(10, 46, 0), glm::vec3(0.2, 0.1, 0))
+    };
 
-	return bullet;
+    std::vector<unsigned int> indices = {
+        0, 1, 2,
+        0, 2, 3,
+        2, 3, 4
+    };
+
+    bullet->InitFromData(vertices, indices);
+
+    return bullet;
 }
+
 
 Mesh* Interface::CreateWireframeBox() 
 {
     float length = 20;
     glm::vec3 color = glm::vec3(0, 0.5, 1);
 
-    Mesh* wireframe = CreateSquare("bullet", length, color, false);
+    Mesh* wireframe = CreateSquare("maxScore", length, color, false);
 
     return wireframe;
 }
@@ -105,7 +102,7 @@ Mesh* Interface::CreateScoreBox()
     float length = 20;
     glm::vec3 color = glm::vec3(0, 0.5, 1);
 
-    Mesh* scoreBox = CreateSquare("bullet", length, color, true);
+    Mesh* scoreBox = CreateSquare("currScore", length, color, true);
 
     return scoreBox;
 }
@@ -175,3 +172,38 @@ Mesh* Interface::CreateSquare(const std::string &name, float length, glm::vec3 c
     return square;
 }
 
+
+Interface::~Interface()
+{
+}
+
+
+Mesh* Interface::GetLifeSymbol()
+{
+    return lifeSymbol;
+}
+
+Mesh* Interface::GetBulletSymbol()
+{
+    return bulletSymbol;
+}
+
+Mesh* Interface::GetMaxScoreBox()
+{
+    return maxScoreBox;
+}
+
+Mesh* Interface::GetCurrScoreBox()
+{
+    return currScoreBox;
+}
+
+Mesh* Interface::GetGrass(bool lower)
+{
+    if (lower) {
+        return grass_lower;
+    }
+    else {
+        return grass_upper;
+    }
+}

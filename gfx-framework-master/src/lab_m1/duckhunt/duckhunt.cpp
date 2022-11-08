@@ -132,39 +132,39 @@ void DuckHunt::RenderEnvironment()
     float centerX = 925;
     float centerY = 525;
 
-    Mesh* cloud = duck->CreateCircle("clouds", centerX, centerY, radius, glm::vec3(1, 1, 1));
+    Mesh* cloud = duck->CreateCircle("clouds", centerX, centerY, radius + 12, glm::vec3(1, 1, 1));
     RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
 
-    cloud = duck->CreateCircle("clouds", centerX + 100, centerY + 20, radius, glm::vec3(1, 1, 1));
+    cloud = duck->CreateCircle("clouds", centerX + 100, centerY, radius, glm::vec3(1, 1, 1));
     RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
 
-    cloud = duck->CreateCircle("clouds", centerX - 100, centerY + 20, radius, glm::vec3(1, 1, 1));
+    cloud = duck->CreateCircle("clouds", centerX - 100, centerY, radius, glm::vec3(1, 1, 1));
     RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
 
     radius = 50;
     centerX = 225;
     centerY = 425;
 
-    cloud = duck->CreateCircle("clouds", centerX, centerY, radius, glm::vec3(1, 1, 1));
+    cloud = duck->CreateCircle("clouds", centerX, centerY, radius + 8, glm::vec3(1, 1, 1));
     RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
 
-    cloud = duck->CreateCircle("clouds", centerX + 70, centerY + 15, radius, glm::vec3(1, 1, 1));
+    cloud = duck->CreateCircle("clouds", centerX + 70, centerY, radius, glm::vec3(1, 1, 1));
     RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
 
-    cloud = duck->CreateCircle("clouds", centerX - 70, centerY + 15, radius, glm::vec3(1, 1, 1));
+    cloud = duck->CreateCircle("clouds", centerX - 70, centerY, radius, glm::vec3(1, 1, 1));
     RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
 
     radius = 45;
     centerX = 505;
     centerY = 615;
 
-    cloud = duck->CreateCircle("clouds", centerX, centerY, radius, glm::vec3(1, 1, 1));
+    cloud = duck->CreateCircle("clouds", centerX, centerY, radius + 8, glm::vec3(1, 1, 1));
     RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
 
-    cloud = duck->CreateCircle("clouds", centerX - 70, centerY - 15, radius, glm::vec3(1, 1, 1));
+    cloud = duck->CreateCircle("clouds", centerX - 70, centerY, radius, glm::vec3(1, 1, 1));
     RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
 
-    cloud = duck->CreateCircle("clouds", centerX + 70, centerY - 15, radius, glm::vec3(1, 1, 1));
+    cloud = duck->CreateCircle("clouds", centerX + 70, centerY, radius, glm::vec3(1, 1, 1));
     RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
 }
 
@@ -178,7 +178,7 @@ void DuckHunt::ResetDuck()
     ducksCount++;
 
     if (ducksCount % 5 == 0) {
-        flightSpeed *= 1.25f;
+        flightSpeed *= 1.15f;
     }
     
     flightAngle = 0;
@@ -202,6 +202,13 @@ void DuckHunt::Update(float deltaTimeSeconds)
 {
     glm::ivec2 resolution = window->GetResolution();
     
+    if (score >= gameStats->maxScore) {
+        skyColor = glm::vec3(1, 1, 0.8f);
+        duckActive = false;
+        duckEvaded = false;
+        duckDead = false;
+    }
+
     if (duckActive && !gameOver) {
         timePassed += deltaTimeSeconds;
     }
@@ -324,7 +331,13 @@ void DuckHunt::OnKeyPress(int key, int mods)
         gameOver = false;
         bulletCount = 3;
         lifeCount = 3;
+        score = 0;
+        flightSpeed = 500;
         ResetDuck();
+    }
+
+    if (key == GLFW_KEY_V) {
+        score += 100;
     }
 }
 
@@ -339,6 +352,8 @@ void DuckHunt::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {    
     glm::ivec2 resolution = window->GetResolution();
     float revY = resolution.y - currY;
+
+    bulletCount--;
 
     if (mouseX <= currX + duckLength / 2) {
         if (mouseX >= currX - duckLength / 2) {
@@ -364,8 +379,5 @@ void DuckHunt::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 
     if (deadlyShot) {
         score += pointsPerDuck * flightSpeed / 400;
-    }
-    else {
-        bulletCount--;
     }
 }
