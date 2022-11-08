@@ -17,6 +17,7 @@ namespace m1
 
         void Init() override;
         void RenderInterface(int lifeCount, int bulletCount, float score);
+        void RenderEnvironment();
 
      private:
         void FrameStart() override;

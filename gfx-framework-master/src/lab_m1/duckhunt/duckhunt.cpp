@@ -62,6 +62,8 @@ void DuckHunt::Init()
     meshes["bullet"] = gameStats->GetBulletSymbol();
     meshes["maxScore"] = gameStats->GetMaxScoreBox();
     meshes["currScore"] = gameStats->GetCurrScoreBox();
+    meshes["grass_lower"] = gameStats->GetGrass(true);
+    meshes["grass_upper"] = gameStats->GetGrass(false);
 }
 
 
@@ -76,7 +78,6 @@ void DuckHunt::FrameStart()
     // Sets the screen area where to draw
     glViewport(0, 0, resolution.x, resolution.y);
 }
-
 
 void DuckHunt::RenderInterface(int lifeCount, int bulletCount, float score) 
 {
@@ -121,6 +122,15 @@ void DuckHunt::RenderInterface(int lifeCount, int bulletCount, float score)
 
     interfaceMatrix = glm::mat3(1);
 }
+
+
+void DuckHunt::RenderEnvironment() 
+{
+    RenderMesh2D(meshes["grass_upper"], shaders["VertexColor"], interfaceMatrix);
+    RenderMesh2D(meshes["grass_lower"], shaders["VertexColor"], interfaceMatrix);
+}
+
+
 
 // incerc aici sa repar faptul ca iese din ecran in functie de translatia initiala care s-a adaugat deja la currX
 void DuckHunt::ResetDuck() 
@@ -210,13 +220,16 @@ void DuckHunt::Update(float deltaTimeSeconds)
 
     modelMatrix *= transform2D::Translate(-duck->GetCenterX(), -duck->GetCenterY());
 
-    //modelMatrix = flight->TranslateDuck(modelMatrix, deltaTimeSeconds, flightAngle, translateX, translateY);
+    modelMatrix = flight->TranslateDuck(modelMatrix, deltaTimeSeconds, flightAngle, translateX, translateY);
 
     flightMatrix = flight->RotateDuck(modelMatrix, flightAngle);
 
     flightMatrix *= transform2D::Scale(duckScale, duckScale);
 
     wingsMatrix = flight->FlapWing(flightMatrix);
+
+    
+    RenderMesh2D(meshes["grass_lower"], shaders["VertexColor"], interfaceMatrix);
 
     RenderMesh2D(meshes["duck_wing_front"], shaders["VertexColor"], wingsMatrix);
 
@@ -226,7 +239,23 @@ void DuckHunt::Update(float deltaTimeSeconds)
 
     RenderMesh2D(meshes["duck_head"], shaders["VertexColor"], flightMatrix);
 
+    RenderMesh2D(meshes["grass_upper"], shaders["VertexColor"], interfaceMatrix);
+
     RenderInterface(lifeCount, bulletCount, score);
+
+
+    float radius = 70;
+    float centerX = 925;
+    float centerY = 525;
+
+    Mesh* cloud = duck->CreateCircle("clouds", centerX, centerY, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
+
+    cloud = duck->CreateCircle("clouds", centerX + 100, centerY + 20, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
+
+    cloud = duck->CreateCircle("clouds", centerX - 100, centerY + 20, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
 
     // Reset transform matrix for next frame
     modelMatrix = glm::mat3(1);

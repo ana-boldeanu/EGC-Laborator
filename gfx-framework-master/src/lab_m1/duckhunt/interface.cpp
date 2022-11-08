@@ -18,6 +18,15 @@ Interface::Interface()
     maxScoreBox = CreateWireframeBox();
     currScoreBox = CreateScoreBox();
 
+    glm::vec3 color_0 = glm::vec3(0.596f, 0.988f, 0);
+    glm::vec3 color_1 = glm::vec3(0.455f, 0.749f, 0);
+    grass_lower = CreateGrass(grassPosX, grassPosY, color_0, color_1);
+    grassPosX += 50;
+    grassPosY += 60;
+    color_0 = glm::vec3(0.40f, 0.65f, 0);
+    color_1 = glm::vec3(0.30f, 0.45f, 0);
+    grass_upper = CreateGrass(grassPosX, grassPosY, color_0, color_1);
+
     lifePosX = 30; lifePosY = 690; lifePosDist = 50;
     bulletPosX = 205; bulletPosY = 675; bulletPosDist = 50;
     scorePosX = 15; scorePosY = 625;
@@ -49,6 +58,21 @@ Mesh* Interface::GetCurrScoreBox()
     return currScoreBox;
 }
 
+Mesh* Interface::GetGrass(bool lower) 
+{
+    if (lower) {
+        return grass_lower;
+    }
+    else {
+        return grass_upper;
+    }
+}
+
+std::vector<Mesh*> Interface::GetClouds() 
+{
+    return clouds;
+}
+
 Mesh* Interface::CreateLife()
 {
     float radius = 15;
@@ -69,7 +93,6 @@ Mesh* Interface::CreateBullet()
 
 	return bullet;
 }
-
 
 Mesh* Interface::CreateWireframeBox() 
 {
@@ -92,6 +115,63 @@ Mesh* Interface::CreateScoreBox()
     return scoreBox;
 }
 
+
+Mesh* Interface::CreateGrass(float grassPosX, float grassPosY, glm::vec3 color_0, glm::vec3 color_1)
+{
+    glm::vec3 vtx_0 = glm::vec3(grassPosX, grassPosY, 0);
+    glm::vec3 vtx_1 = glm::vec3(grassPosX + 120, grassPosY, 0);
+    glm::vec3 vtx_2 = glm::vec3(0, 150 + grassPosY, 0);
+    int idx = 0;
+
+    glm::vec3 temp;
+
+    Mesh* grass = new Mesh("grass");
+    std::vector<VertexFormat> vertices;
+    std::vector<unsigned int> indices;
+
+    while (vtx_0.x < 1280) {
+        vertices.push_back(VertexFormat(vtx_0, color_0));
+        vertices.push_back(VertexFormat(vtx_1, color_0));
+        vertices.push_back(VertexFormat(vtx_2, color_0));
+
+        vtx_0.x += 70;
+        vtx_1.x += 70;
+        vtx_2.x += 70;
+
+        indices.push_back(idx++);
+        indices.push_back(idx++);
+        indices.push_back(idx++);
+
+        temp = color_0;
+        color_0 = color_1;
+        color_1 = temp;
+    }
+
+    grass->InitFromData(vertices, indices);
+
+    return grass;
+}
+
+std::vector<Mesh*> Interface::CreateClouds()
+{
+    std::vector<Mesh*> clouds;
+    Duck* duck = new Duck();
+
+    float radius = 50;
+    float centerX = 925;
+    float centerY = 625;
+    
+    Mesh* cloud = duck->CreateCircle("clouds", centerX, centerY, radius, glm::vec3(1, 1, 1));
+    clouds.push_back(cloud);
+
+    cloud = duck->CreateCircle("clouds", centerX + 50, centerY + 30, radius, glm::vec3(1, 1, 1));
+    clouds.push_back(cloud);
+
+    cloud = duck->CreateCircle("clouds", centerX - 50, centerY + 30, radius, glm::vec3(1, 1, 1));
+    clouds.push_back(cloud);
+
+    return clouds;
+}
 
 Mesh* Interface::CreateSquare(const std::string &name, float length, glm::vec3 color, bool fill)
 {
