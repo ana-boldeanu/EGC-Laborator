@@ -30,7 +30,7 @@ Flight::~Flight()
 
 
 glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix) {
-    float step = 0.1f;
+    float step = 0.2f;
 
     modelMatrix *= transform2D::Translate(duckCenterX, duckCenterY);
     modelMatrix *= transform2D::Scale(1, scaleY);
@@ -58,8 +58,9 @@ glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix) {
 
 glm::mat3 Flight::TranslateDuck(glm::mat3 modelMatrix, float deltaTime, float angle, float &translateX, float &translateY)
 {
-    float deltaX = flightSpeed * cos(angle);
-    float deltaY = flightSpeed * sin(angle);
+    // Jocul incepe mereu cu o secunda intarziere (cel putin pe laptopul meu), iar rata va aparea un pic mai sus doar in primul frame
+    float deltaX = flightSpeed * cos(angle) * deltaTime;
+    float deltaY = flightSpeed * sin(angle) * deltaTime;
 
     translateX += deltaX;
     translateY += deltaY;

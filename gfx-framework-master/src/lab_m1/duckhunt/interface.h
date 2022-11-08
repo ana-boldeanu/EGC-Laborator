@@ -19,7 +19,6 @@ namespace m1
         Mesh* Interface::GetCurrScoreBox();
         Mesh* Interface::GetMaxScoreBox();
         Mesh* Interface::GetGrass(bool lower);
-        std::vector<Mesh*> Interface::GetClouds();
         float lifePosX, lifePosY, lifePosDist;
         float bulletPosX, bulletPosY, bulletPosDist;
         float scorePosX, scorePosY;
@@ -33,7 +32,6 @@ namespace m1
         Mesh* Interface::CreateWireframeBox();
         Mesh* Interface::CreateScoreBox();
         Mesh* Interface::CreateGrass(float grassPosX, float grassPosY, glm::vec3 color_0, glm::vec3 color_1);
-        std::vector<Mesh*> Interface::CreateClouds();
 
     protected:
         Mesh* lifeSymbol;
@@ -42,6 +40,5 @@ namespace m1
         Mesh* currScoreBox;
         Mesh* grass_lower;
         Mesh* grass_upper;
-        std::vector<Mesh*> clouds;
     };
 }

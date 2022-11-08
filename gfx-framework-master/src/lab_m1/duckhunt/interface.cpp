@@ -18,13 +18,13 @@ Interface::Interface()
     maxScoreBox = CreateWireframeBox();
     currScoreBox = CreateScoreBox();
 
-    glm::vec3 color_0 = glm::vec3(0.596f, 0.988f, 0);
-    glm::vec3 color_1 = glm::vec3(0.455f, 0.749f, 0);
+    glm::vec3 color_0 = glm::vec3(0.4f, 0.85f, 0.05);
+    glm::vec3 color_1 = glm::vec3(0.45f, 0.9f, 0.05);
     grass_lower = CreateGrass(grassPosX, grassPosY, color_0, color_1);
     grassPosX += 50;
     grassPosY += 60;
-    color_0 = glm::vec3(0.40f, 0.65f, 0);
-    color_1 = glm::vec3(0.30f, 0.45f, 0);
+    color_0 = glm::vec3(0.27f, 0.6f, 0.05f);
+    color_1 = glm::vec3(0.30f, 0.65f, 0.05f);
     grass_upper = CreateGrass(grassPosX, grassPosY, color_0, color_1);
 
     lifePosX = 30; lifePosY = 690; lifePosDist = 50;
@@ -68,11 +68,6 @@ Mesh* Interface::GetGrass(bool lower)
     }
 }
 
-std::vector<Mesh*> Interface::GetClouds() 
-{
-    return clouds;
-}
-
 Mesh* Interface::CreateLife()
 {
     float radius = 15;
@@ -107,7 +102,7 @@ Mesh* Interface::CreateWireframeBox()
 
 Mesh* Interface::CreateScoreBox() 
 {
-    float length = 40;
+    float length = 20;
     glm::vec3 color = glm::vec3(0, 0.5, 1);
 
     Mesh* scoreBox = CreateSquare("bullet", length, color, true);
@@ -150,27 +145,6 @@ Mesh* Interface::CreateGrass(float grassPosX, float grassPosY, glm::vec3 color_0
     grass->InitFromData(vertices, indices);
 
     return grass;
-}
-
-std::vector<Mesh*> Interface::CreateClouds()
-{
-    std::vector<Mesh*> clouds;
-    Duck* duck = new Duck();
-
-    float radius = 50;
-    float centerX = 925;
-    float centerY = 625;
-    
-    Mesh* cloud = duck->CreateCircle("clouds", centerX, centerY, radius, glm::vec3(1, 1, 1));
-    clouds.push_back(cloud);
-
-    cloud = duck->CreateCircle("clouds", centerX + 50, centerY + 30, radius, glm::vec3(1, 1, 1));
-    clouds.push_back(cloud);
-
-    cloud = duck->CreateCircle("clouds", centerX - 50, centerY + 30, radius, glm::vec3(1, 1, 1));
-    clouds.push_back(cloud);
-
-    return clouds;
 }
 
 Mesh* Interface::CreateSquare(const std::string &name, float length, glm::vec3 color, bool fill)

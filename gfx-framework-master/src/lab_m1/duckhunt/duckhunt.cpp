@@ -21,8 +21,10 @@ DuckHunt::DuckHunt()
     currY = initialY;
     translateX = 0; translateY = 0;
 
-    flightAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
-    flightSpeed = 10;
+    while (flightAngle < PI / 6) {
+        flightAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
+    }
+    flightSpeed = 500;
     flyRight = (flightAngle < PI / 2); flyUp = true;
     flight = new Flight(flightAngle, flightSpeed);
 
@@ -126,22 +128,63 @@ void DuckHunt::RenderInterface(int lifeCount, int bulletCount, float score)
 
 void DuckHunt::RenderEnvironment() 
 {
-    RenderMesh2D(meshes["grass_upper"], shaders["VertexColor"], interfaceMatrix);
-    RenderMesh2D(meshes["grass_lower"], shaders["VertexColor"], interfaceMatrix);
+    float radius = 70;
+    float centerX = 925;
+    float centerY = 525;
+
+    Mesh* cloud = duck->CreateCircle("clouds", centerX, centerY, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
+
+    cloud = duck->CreateCircle("clouds", centerX + 100, centerY + 20, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
+
+    cloud = duck->CreateCircle("clouds", centerX - 100, centerY + 20, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
+
+    radius = 50;
+    centerX = 225;
+    centerY = 425;
+
+    cloud = duck->CreateCircle("clouds", centerX, centerY, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
+
+    cloud = duck->CreateCircle("clouds", centerX + 70, centerY + 15, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
+
+    cloud = duck->CreateCircle("clouds", centerX - 70, centerY + 15, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
+
+    radius = 45;
+    centerX = 505;
+    centerY = 615;
+
+    cloud = duck->CreateCircle("clouds", centerX, centerY, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
+
+    cloud = duck->CreateCircle("clouds", centerX - 70, centerY - 15, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
+
+    cloud = duck->CreateCircle("clouds", centerX + 70, centerY - 15, radius, glm::vec3(1, 1, 1));
+    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
 }
 
 
-
-// incerc aici sa repar faptul ca iese din ecran in functie de translatia initiala care s-a adaugat deja la currX
 void DuckHunt::ResetDuck() 
 {
     initialX = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / maxInitialX)); initialY = 0;
     currX = initialX;
     currY = initialY;
     translateX = 0; translateY = 0;
+    ducksCount++;
+
+    if (ducksCount % 5 == 0) {
+        flightSpeed *= 1.25f;
+    }
     
-    flightAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
-    flightSpeed = 10;
+    flightAngle = 0;
+    while (flightAngle < PI / 6) {
+        flightAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
+    }
     flyRight = (flightAngle < PI / 2); flyUp = true;
     flight = new Flight(flightAngle, flightSpeed);
 
@@ -159,18 +202,27 @@ void DuckHunt::Update(float deltaTimeSeconds)
 {
     glm::ivec2 resolution = window->GetResolution();
     
-    timePassed += deltaTimeSeconds;
+    if (duckActive && !gameOver) {
+        timePassed += deltaTimeSeconds;
+    }
+    
     currX = initialX + translateX;
     currY = initialY + translateY;
 
-    if (duckActive && timePassed >= timeLimit) {
+    if (duckActive && (timePassed >= timeLimit || bulletCount <= 0)) {
         skyColor = glm::vec3(1, 0.8f, 0.8f);
         duckActive = false;
         duckEvaded = true;
         timePassed = 0;
+        lifeCount--;
     }
 
-    if (duckActive && deadlyShot) {
+    if (lifeCount == 0) {
+        gameOver = true;
+        skyColor = glm::vec3(0.4f, 0.4f, 0.4f);
+    }
+
+    if (duckActive && deadlyShot && !gameOver) {
         skyColor = glm::vec3(0.8f, 1, 0.8f);
         duckActive = false;
         duckDead = true;
@@ -199,7 +251,7 @@ void DuckHunt::Update(float deltaTimeSeconds)
             flightAngle = -flightAngle;
         }
     }
-    else if (duckEvaded) {
+    else if (duckEvaded && !gameOver) {
         flyUp = true;
         flightAngle = PI / 2;
 
@@ -207,7 +259,7 @@ void DuckHunt::Update(float deltaTimeSeconds)
             ResetDuck();
         }
     }
-    else if (duckDead) {
+    else if (duckDead && !gameOver) {
         flyUp = false;
         flightAngle = -PI / 2;
 
@@ -226,43 +278,38 @@ void DuckHunt::Update(float deltaTimeSeconds)
 
     flightMatrix *= transform2D::Scale(duckScale, duckScale);
 
-    wingsMatrix = flight->FlapWing(flightMatrix);
+    if (!duckDead) {
+        wingsMatrix = flight->FlapWing(flightMatrix);
+    }
+    else {
+        wingsMatrix = flightMatrix;
+    }
 
+    RenderInterface(lifeCount, bulletCount, score);
     
     RenderMesh2D(meshes["grass_lower"], shaders["VertexColor"], interfaceMatrix);
 
-    RenderMesh2D(meshes["duck_wing_front"], shaders["VertexColor"], wingsMatrix);
+    if (!gameOver) {
+        RenderMesh2D(meshes["duck_wing_front"], shaders["VertexColor"], wingsMatrix);
 
-    RenderMesh2D(meshes["duck_body"], shaders["VertexColor"], flightMatrix);
+        RenderMesh2D(meshes["duck_body"], shaders["VertexColor"], flightMatrix);
 
-    RenderMesh2D(meshes["duck_wing_back"], shaders["VertexColor"], wingsMatrix);
+        RenderMesh2D(meshes["duck_wing_back"], shaders["VertexColor"], wingsMatrix);
 
-    RenderMesh2D(meshes["duck_head"], shaders["VertexColor"], flightMatrix);
+        RenderMesh2D(meshes["duck_head"], shaders["VertexColor"], flightMatrix);
+    }
 
     RenderMesh2D(meshes["grass_upper"], shaders["VertexColor"], interfaceMatrix);
 
-    RenderInterface(lifeCount, bulletCount, score);
-
-
-    float radius = 70;
-    float centerX = 925;
-    float centerY = 525;
-
-    Mesh* cloud = duck->CreateCircle("clouds", centerX, centerY, radius, glm::vec3(1, 1, 1));
-    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
-
-    cloud = duck->CreateCircle("clouds", centerX + 100, centerY + 20, radius, glm::vec3(1, 1, 1));
-    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
-
-    cloud = duck->CreateCircle("clouds", centerX - 100, centerY + 20, radius, glm::vec3(1, 1, 1));
-    RenderMesh2D(cloud, shaders["VertexColor"], interfaceMatrix);
+    RenderEnvironment();
+    
 
     // Reset transform matrix for next frame
     modelMatrix = glm::mat3(1);
     flightMatrix = glm::mat3(1);
     wingsMatrix = glm::mat3(1);
 
-    //printf("currX = %f ?? translateX = %f  ||  currY = %f ??  translateX = %f\n", currX, translateX, currY, translateY);
+    //printf("currX = %f ?? translateX = %f  ||  currY = %f ??  translateY = %f  ||  deltaTime = %f\n", currX, translateX, currY, translateY, deltaTimeSeconds);
 }
 
 
@@ -273,19 +320,52 @@ void DuckHunt::FrameEnd()
 
 void DuckHunt::OnKeyPress(int key, int mods)
 {
-    if (key == GLFW_KEY_D) {
-        deadlyShot = true;
+    if (key == GLFW_KEY_R) {
+        gameOver = false;
+        bulletCount = 3;
+        lifeCount = 3;
+        ResetDuck();
     }
 }
 
 
 void DuckHunt::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
-    //printf("mouseX = %d  ||  mouseY = %d\n", mouseX, mouseY);    
+    //printf("%d || %d\n", mouseX, mouseY);
 }
 
 
 void DuckHunt::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {    
-    printf("Nice!\n");
+    glm::ivec2 resolution = window->GetResolution();
+    float revY = resolution.y - currY;
+
+    if (mouseX <= currX + duckLength / 2) {
+        if (mouseX >= currX - duckLength / 2) {
+            if (mouseY <= revY + duckWidth / 2) {
+                if (mouseY >= revY - duckWidth / 2) {
+                    deadlyShot = true;
+                }
+                else {
+                    deadlyShot = false;
+                }
+            }
+            else {
+                deadlyShot = false;
+            }
+        }
+        else {
+            deadlyShot = false;
+        }
+    }
+    else {
+        deadlyShot = false;
+    }
+
+    if (deadlyShot) {
+        score += pointsPerDuck * flightSpeed / 400;
+    }
+    else {
+        bulletCount--;
+    }
 }

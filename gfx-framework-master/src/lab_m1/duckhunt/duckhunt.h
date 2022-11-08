@@ -44,18 +44,22 @@ namespace m1
         float duckWidth;
         float duckScale;
         float timePassed = 0;
-        float timeLimit = 7;
+        float timeLimit = 5;
 
         float initialX, initialY;
         float currX, currY;     // Current coordinates for duck center
         float translateX, translateY;
-        float flightAngle;
+        float flightAngle = 0;
         float flightSpeed;
         bool flyRight, flyUp;
         
         int lifeCount;
         int bulletCount;
         float score;
+
+        float pointsPerDuck = 3.5;
+        int ducksCount = 1;
+        bool gameOver = false;
 
         bool deadlyShot = false;
         bool duckActive = true;
