@@ -7,6 +7,7 @@
 using namespace std;
 using namespace m1;
 
+
 Flight::Flight(float angle, float speed)
 {
     duck = new Duck();
@@ -21,11 +22,6 @@ Flight::Flight(float angle, float speed)
     scaleDown = true;
     flightAngle = angle;
     flightSpeed = speed;
-}
-
-
-Flight::~Flight()
-{
 }
 
 
@@ -78,4 +74,9 @@ glm::mat3 Flight::RotateDuck(glm::mat3 modelMatrix, float angle)
     modelMatrix *= transform2D::Translate(-duckCenterX, -duckCenterY);
 
     return modelMatrix;
+}
+
+
+Flight::~Flight()
+{
 }

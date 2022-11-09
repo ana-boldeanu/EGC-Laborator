@@ -7,6 +7,7 @@
 using namespace std;
 using namespace m1;
 
+
 Interface::Interface()
 {
 	lifeCount = 3;
@@ -144,6 +145,7 @@ Mesh* Interface::CreateGrass(float grassPosX, float grassPosY, glm::vec3 color_0
     return grass;
 }
 
+
 Mesh* Interface::CreateSquare(const std::string &name, float length, glm::vec3 color, bool fill)
 {
     Mesh* square = new Mesh(name);
@@ -176,7 +178,6 @@ Mesh* Interface::CreateSquare(const std::string &name, float length, glm::vec3 c
 Interface::~Interface()
 {
 }
-
 
 Mesh* Interface::GetLifeSymbol()
 {

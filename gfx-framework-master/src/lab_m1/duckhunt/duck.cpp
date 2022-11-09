@@ -16,56 +16,6 @@ Duck::Duck()
 }
 
 
-Duck::~Duck()
-{
-}
-
-
-Mesh* Duck::GetHead() 
-{
-    return head;
-}
-
-
-Mesh* Duck::GetBody()
-{
-    return body;
-}
-
-
-Mesh* Duck::GetWingFront()
-{
-    return wingFront;
-}
-
-
-Mesh* Duck::GetWingBack()
-{
-    return wingBack;
-}
-
-
-float Duck::GetCenterX()
-{
-    return (beakTipX - tailTipX) / 2;
-}
-
-
-float Duck::GetCenterY()
-{
-    return centerY;
-}
-
-float Duck::GetLength() 
-{
-    return beakTipX - tailTipX;
-}
-
-float Duck::GetWidth()
-{
-    return 2 * centerY;
-}
-
 Mesh* Duck::CreateDuckWingFront()
 {
     // Duck front wing triangles
@@ -188,4 +138,49 @@ Mesh* Duck::CreateDuckBody()
     Mesh* duckBody = new Mesh("duck_body");
     duckBody->InitFromData(vertices, indices);
     return duckBody;
+}
+
+
+Duck::~Duck()
+{
+}
+
+Mesh* Duck::GetHead()
+{
+    return head;
+}
+
+Mesh* Duck::GetBody()
+{
+    return body;
+}
+
+Mesh* Duck::GetWingFront()
+{
+    return wingFront;
+}
+
+Mesh* Duck::GetWingBack()
+{
+    return wingBack;
+}
+
+float Duck::GetCenterX()
+{
+    return (beakTipX - tailTipX) / 2;
+}
+
+float Duck::GetCenterY()
+{
+    return centerY;
+}
+
+float Duck::GetLength()
+{
+    return beakTipX - tailTipX;
+}
+
+float Duck::GetWidth()
+{
+    return 2 * centerY;
 }
