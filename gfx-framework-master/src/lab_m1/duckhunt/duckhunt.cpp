@@ -276,7 +276,7 @@ void DuckHunt::Update(float deltaTimeSeconds)
 
     flightMatrix *= transform2D::Scale(duckScale, duckScale);
 
-    if (!duckDead) {
+    if (!duckDead && !gameOver) {
         wingsMatrix = flight->FlapWing(flightMatrix);
     }
     else {
@@ -330,7 +330,7 @@ void DuckHunt::OnKeyPress(int key, int mods)
 
     // Hack to increase score B-)
     if (key == GLFW_KEY_V) {
-        score += 100;
+        score += 99;
     }
 }
 
