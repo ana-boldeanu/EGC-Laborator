@@ -30,32 +30,34 @@ namespace m1
         void OnMouseBtnPress(int mouseX, int mouseY, int button, int mods) override;
 
      protected:
-        glm::mat3 flightMatrix; // Matrix used to translate the whole model
-        glm::mat3 modelMatrix;  // Matrix used to scale or rotate the whole model
-        glm::mat3 wingsMatrix;  // Matrix used for wings flapping animation
-        glm::mat3 interfaceMatrix;
-        glm::vec3 skyColor;
+        glm::mat3 flightMatrix = glm::mat3(1); // Matrix used to translate the whole model
+        glm::mat3 modelMatrix = glm::mat3(1);  // Matrix used to scale or rotate the whole model
+        glm::mat3 wingsMatrix = glm::mat3(1);  // Matrix used for wings flapping animation
+        glm::mat3 interfaceMatrix = glm::mat3(1);
+        glm::vec3 skyColor = glm::vec3(0.8f, 1, 1);
 
-        Duck* duck;
         Flight* flight;
-        Interface* gameStats;
+        Duck* duck = new Duck();
+        Interface* gameStats = new Interface();
 
         float duckLength;
         float duckWidth;
-        float duckScale;
+        float duckScale = 0.8f;
         float timePassed = 0;
         float timeLimit = 5;
 
         float initialX, initialY;
         float currX, currY;     // Current coordinates for duck center
-        float translateX, translateY;
+        float translateX = 0; 
+        float translateY = 0;
         float flightAngle = 0;
+        float initialFlightSpeed = 500;
         float flightSpeed;
-        bool flyRight, flyUp;
+        bool flyRight, flyUp = true;
         
-        int lifeCount;
-        int bulletCount;
-        float score;
+        int lifeCount = 3;
+        int bulletCount = 3;
+        float score = 0;
 
         float pointsPerDuck = 4;
         int ducksCount = 1;

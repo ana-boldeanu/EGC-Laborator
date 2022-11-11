@@ -10,34 +10,22 @@ using namespace m1;
 DuckHunt::DuckHunt()
 {
     srand(static_cast <unsigned> (time(0)));
-    
-    duck = new Duck();
-    duckScale = 0.8f;
     duckLength = (duck->GetLength()) * duckScale;
     duckWidth = (duck->GetWidth()) * duckScale;
 
-    initialX = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / maxInitialX)); initialY = 0;
+    initialX = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / maxInitialX));
+    initialY = 0;
     currX = initialX;
     currY = initialY;
-    translateX = 0; translateY = 0;
 
-    while (flightAngle < PI / 6) {
-        flightAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
+    flyRight = rand() % 2; 
+    flightAngle = (float(rand() % 5 + 3) / 10) * PI / 2; // Angle between 30% and 70% of PI/2
+    if (!flyRight) {
+        flightAngle += PI / 2;
     }
-    flightSpeed = 500;
-    flyRight = (flightAngle < PI / 2); flyUp = true;
+
+    flightSpeed = initialFlightSpeed;
     flight = new Flight(flightAngle, flightSpeed);
-
-    lifeCount = 3; 
-    bulletCount = 3; 
-    score = 0;
-    gameStats = new Interface();
-
-    modelMatrix = glm::mat3(1);
-    flightMatrix = glm::mat3(1);
-    wingsMatrix = glm::mat3(1);
-    interfaceMatrix = glm::mat3(1);
-    skyColor = glm::vec3(0.8f, 1, 1);
 }
 
 
@@ -181,11 +169,11 @@ void DuckHunt::ResetDuck()
         flightSpeed *= 1.15f;
     }
     
-    flightAngle = 0;
-    while (flightAngle < PI / 6) {
-        flightAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
+    flyRight = rand() % 2; flyUp = true;
+    flightAngle = (float(rand() % 5 + 3) / 10) * PI / 2; // Angle between 30% and 70% of PI/2
+    if (!flyRight) {
+        flightAngle += PI / 2;
     }
-    flyRight = (flightAngle < PI / 2); flyUp = true;
     flight = new Flight(flightAngle, flightSpeed);
 
     bulletCount = 3;
@@ -327,15 +315,17 @@ void DuckHunt::FrameEnd()
 
 void DuckHunt::OnKeyPress(int key, int mods)
 {
+    // Start or Reset the game
     if (key == GLFW_KEY_R) {
         gameOver = false;
         bulletCount = 3;
         lifeCount = 3;
         score = 0;
-        flightSpeed = 500;
+        flightSpeed = initialFlightSpeed;
         ResetDuck();
     }
 
+    // Hack to increase score B-)
     if (key == GLFW_KEY_V) {
         score += 100;
     }
