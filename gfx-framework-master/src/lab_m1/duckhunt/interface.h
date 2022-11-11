@@ -11,19 +11,30 @@ namespace m1
     public:
         Interface();
         ~Interface();
-        int lifeCount;
-        int bulletCount;
-        float score, maxScore;
         Mesh* Interface::GetLifeSymbol();
         Mesh* Interface::GetBulletSymbol();
         Mesh* Interface::GetCurrScoreBox();
         Mesh* Interface::GetMaxScoreBox();
         Mesh* Interface::GetGrass(bool lower);
-        float lifePosX, lifePosY, lifePosDist;
-        float bulletPosX, bulletPosY, bulletPosDist;
-        float scorePosX, scorePosY;
+
+        int lifeCount = 3;
+        int bulletCount = 3;
+        float score = 0;
+        float maxScore = 300;
+
         float grassPosX = -20;
         float grassPosY = 0;
+
+        float lifePosX = 15;
+        float lifePosY = 665;
+        float lifePosDist = 50;
+
+        float bulletPosX = 1160;
+        float bulletPosY = 655;
+        float bulletPosDist = 40;
+
+        float scorePosX = 15;
+        float scorePosY = 625;
         
     private:
         Mesh* Interface::CreateLife();

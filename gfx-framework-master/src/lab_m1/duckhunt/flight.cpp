@@ -8,19 +8,11 @@ using namespace std;
 using namespace m1;
 
 
-Flight::Flight(float angle, float speed)
+Flight::Flight(float speed)
 {
-    duck = new Duck();
+    Duck* duck = new Duck();
     duckCenterX = duck->GetCenterX();
     duckCenterY = duck->GetCenterY();
-    translateX = 0;
-    translateY = 0;
-    scaleX = 1;
-    scaleY = 1;
-    scaledSoFarX = scaleX;
-    scaledSoFarY = scaleY;
-    scaleDown = true;
-    flightAngle = angle;
     flightSpeed = speed;
 }
 

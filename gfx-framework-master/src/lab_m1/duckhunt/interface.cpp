@@ -9,11 +9,7 @@ using namespace m1;
 
 
 Interface::Interface()
-{
-	lifeCount = 3;
-	bulletCount = 3;
-	score = 0;
-    maxScore = 300;
+{    
 	lifeSymbol = CreateLife();
 	bulletSymbol = CreateBullet();
     maxScoreBox = CreateWireframeBox();
@@ -22,15 +18,12 @@ Interface::Interface()
     glm::vec3 color_0 = glm::vec3(0.4f, 0.85f, 0.05);
     glm::vec3 color_1 = glm::vec3(0.45f, 0.9f, 0.05);
     grass_lower = CreateGrass(grassPosX, grassPosY, color_0, color_1);
+
     grassPosX += 50;
     grassPosY += 60;
-    color_0 = glm::vec3(0.27f, 0.6f, 0.05f);
-    color_1 = glm::vec3(0.30f, 0.65f, 0.05f);
-    grass_upper = CreateGrass(grassPosX, grassPosY, color_0, color_1);
-
-    lifePosX = 15; lifePosY = 665; lifePosDist = 50;
-    bulletPosX = 1160; bulletPosY = 655; bulletPosDist = 40;
-    scorePosX = 15; scorePosY = 625;
+    glm::vec3 color_2 = glm::vec3(0.27f, 0.6f, 0.05f);
+    glm::vec3 color_3 = glm::vec3(0.30f, 0.65f, 0.05f);
+    grass_upper = CreateGrass(grassPosX, grassPosY, color_2, color_3);
 }
 
 

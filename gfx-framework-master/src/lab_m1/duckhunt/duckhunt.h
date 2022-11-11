@@ -26,7 +26,6 @@ namespace m1
         void DuckHunt::ResetDuck();
 
         void DuckHunt::OnKeyPress(int key, int mods) override;
-        void OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY) override;
         void OnMouseBtnPress(int mouseX, int mouseY, int button, int mods) override;
 
      protected:
@@ -55,11 +54,10 @@ namespace m1
         float flightSpeed;
         bool flyRight, flyUp = true;
         
-        int lifeCount = 3;
-        int bulletCount = 3;
+        int lifeCount, bulletCount;
         float score = 0;
 
-        float pointsPerDuck = 4;
+        float pointsPerDuck = 3;
         int ducksCount = 1;
         bool gameOver = true;
 
