@@ -9,20 +9,19 @@ namespace m1
     class Flight : public gfxc::SimpleScene
     {
     public:
-        Flight(float angle, float speed);
+        Flight(float speed);
         ~Flight();
         glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix);
         glm::mat3 Flight::TranslateDuck(glm::mat3 modelMatrix, float deltaTime, float flightAngle, float &translateX, float &translateY);
         glm::mat3 Flight::RotateDuck(glm::mat3 modelMatrix, float angle);
-        float flightAngle;
         
     private:
-        Duck* duck;
         float duckCenterX, duckCenterY;
-        float scaleX, scaleY;               // Wings scale factor, used for flapping animation
-        float scaledSoFarX, scaledSoFarY;   // Wings current scale factor
-        bool scaleDown;                     // Wings scaling direction
-        float translateX, translateY;
+        float scaleX = 1;
+        float scaleY = 1;               // Wings scale factor, used for flapping animation
+        float scaledSoFarX = 1;
+        float scaledSoFarY = 1;   // Wings current scale factor
+        bool scaleDown = true;                     // Wings scaling direction
         float flightSpeed;
         const float PI = 3.1415926f;
 

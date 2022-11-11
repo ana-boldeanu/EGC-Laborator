@@ -25,7 +25,10 @@ DuckHunt::DuckHunt()
     }
 
     flightSpeed = initialFlightSpeed;
-    flight = new Flight(flightAngle, flightSpeed);
+    flight = new Flight(flightSpeed);
+
+    bulletCount = gameStats->bulletCount;
+    lifeCount = gameStats->lifeCount;
 }
 
 
@@ -174,7 +177,7 @@ void DuckHunt::ResetDuck()
     if (!flyRight) {
         flightAngle += PI / 2;
     }
-    flight = new Flight(flightAngle, flightSpeed);
+    flight = new Flight(flightSpeed);
 
     bulletCount = 3;
 
@@ -318,8 +321,8 @@ void DuckHunt::OnKeyPress(int key, int mods)
     // Start or Reset the game
     if (key == GLFW_KEY_R) {
         gameOver = false;
-        bulletCount = 3;
-        lifeCount = 3;
+        bulletCount = gameStats->bulletCount;
+        lifeCount = gameStats->lifeCount;
         score = 0;
         flightSpeed = initialFlightSpeed;
         ResetDuck();
@@ -332,23 +335,20 @@ void DuckHunt::OnKeyPress(int key, int mods)
 }
 
 
-void DuckHunt::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
-{
-    //printf("%d || %d\n", mouseX, mouseY);
-}
-
-
 void DuckHunt::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {    
     glm::ivec2 resolution = window->GetResolution();
-    float revY = resolution.y - currY;
+    glm::vec3 mousePosition = glm::vec3(mouseX, resolution.y - mouseY, 1);
 
-    bulletCount--;
+    glm::mat3 reverseTransform = glm::mat3(1);
+    reverseTransform *= transform2D::Rotate(-flightAngle);
+    reverseTransform *= transform2D::Translate(-currX, -currY);
+    mousePosition = reverseTransform * mousePosition;
 
-    if (mouseX <= currX + duckLength / 2) {
-        if (mouseX >= currX - duckLength / 2) {
-            if (mouseY <= revY + duckWidth / 2) {
-                if (mouseY >= revY - duckWidth / 2) {
+    if (mousePosition.x <= duckLength / 2) {
+        if (mousePosition.x >= -duckLength / 2) {
+            if (mousePosition.y <= duckWidth / 2) {
+                if (mousePosition.y >= -duckWidth / 2) {
                     deadlyShot = true;
                 }
                 else {
@@ -366,6 +366,8 @@ void DuckHunt::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
     else {
         deadlyShot = false;
     }
+
+    bulletCount--;
 
     if (deadlyShot) {
         score += pointsPerDuck * flightSpeed / 400;
