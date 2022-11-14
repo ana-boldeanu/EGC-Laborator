@@ -16,8 +16,8 @@ Flight::Flight(float speed)
 }
 
 
-glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix) {
-    float step = 0.2f;
+glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix, float deltaTime) {
+    float step = 7;     // Looks nice enough :)
 
     modelMatrix *= transform2D::Translate(duckCenterX, duckCenterY);
     modelMatrix *= transform2D::Scale(1, scaleY);
@@ -31,11 +31,11 @@ glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix) {
     }
 
     if (scaleDown) {
-        scaleY -= step;
+        scaleY -= step * deltaTime;
         scaledSoFarY = scaleY;
     }
     else {
-        scaleY += step;
+        scaleY += step * deltaTime;
         scaledSoFarY = scaleY;
     }
 

@@ -20,7 +20,7 @@ namespace m1
         glm::mat3 Flight::RotateDuck(glm::mat3 modelMatrix, float angle);
 
         // Add wings flapping animation (relative to duck center)
-        glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix);
+        glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix, float deltaTime);
         
     private:
         float duckCenterX, duckCenterY; // Center of the duck

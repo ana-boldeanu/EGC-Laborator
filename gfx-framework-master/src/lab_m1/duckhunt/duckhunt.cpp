@@ -107,7 +107,7 @@ void DuckHunt::Update(float deltaTimeSeconds)
 
     // Add flying animation to the duck wings model matrix
     if (!duckDead && !gameOver) {
-        wingsMatrix = flight->FlapWing(flightMatrix);
+        wingsMatrix = flight->FlapWing(flightMatrix, deltaTimeSeconds);
     }
     else {
         wingsMatrix = flightMatrix;
