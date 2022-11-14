@@ -1,6 +1,5 @@
 #include "lab_m1/duckhunt/interface.h"
 
-
 #include <vector>
 #include <iostream>
 
@@ -15,10 +14,12 @@ Interface::Interface()
     maxScoreBox = CreateWireframeBox();
     currScoreBox = CreateScoreBox();
 
+    // Create front grass mesh
     glm::vec3 color_0 = glm::vec3(0.4f, 0.85f, 0.05);
     glm::vec3 color_1 = glm::vec3(0.45f, 0.9f, 0.05);
     grass_lower = CreateGrass(grassPosX, grassPosY, color_0, color_1);
 
+    // Create background grass mesh
     grassPosX += 50;
     grassPosY += 60;
     glm::vec3 color_2 = glm::vec3(0.27f, 0.6f, 0.05f);

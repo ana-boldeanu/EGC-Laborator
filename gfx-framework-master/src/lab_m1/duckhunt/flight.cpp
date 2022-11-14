@@ -1,6 +1,5 @@
 #include "lab_m1/duckhunt/flight.h"
 
-
 #include <vector>
 #include <iostream>
 
@@ -46,7 +45,6 @@ glm::mat3 Flight::FlapWing(glm::mat3 modelMatrix) {
 
 glm::mat3 Flight::TranslateDuck(glm::mat3 modelMatrix, float deltaTime, float angle, float &translateX, float &translateY)
 {
-    // Jocul incepe mereu cu o secunda intarziere (cel putin pe laptopul meu), iar rata va aparea un pic mai sus doar in primul frame
     float deltaX = flightSpeed * cos(angle) * deltaTime;
     float deltaY = flightSpeed * sin(angle) * deltaTime;
 

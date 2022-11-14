@@ -5,6 +5,7 @@
 
 namespace m1
 {
+    // Class containing data and meshes for the duck model and the functions used to create them
     class Duck : public gfxc::SimpleScene
     {
     public:
@@ -14,15 +15,16 @@ namespace m1
         Mesh* Duck::GetBody();
         Mesh* Duck::GetWingFront();
         Mesh* Duck::GetWingBack();
-        float Duck::GetCenterX();
+        float Duck::GetCenterX();       // Returns center coordinates
         float Duck::GetCenterY();
-        float Duck::GetLength();
+        float Duck::GetLength();        // Returns duck sizes
         float Duck::GetWidth();
         Mesh* CreateCircle(const std::string& name, float centerX, float centerY,
-            float radius, glm::vec3 color);
+            float radius, glm::vec3 color);     // Returns a circle mesh
 
 
     private:
+        // Create meshes for all duck parts
         Mesh* Duck::CreateDuckWingFront();
         Mesh* Duck::CreateDuckWingBack();
         Mesh* Duck::CreateDuckBody();

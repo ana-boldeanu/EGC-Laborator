@@ -9,6 +9,7 @@ using namespace m1;
 
 Duck::Duck()
 {
+    // Create meshes for all duck parts
     body = CreateDuckBody();
     head = CreateDuckHead();
     wingFront = CreateDuckWingFront();
@@ -18,7 +19,7 @@ Duck::Duck()
 
 Mesh* Duck::CreateDuckWingFront()
 {
-    // Duck front wing triangles
+    // Duck front wing vertices
     vector<VertexFormat> vertices
     {
         VertexFormat(glm::vec3(125, 42, 0), glm::vec3(0.47, 0, 0)),
@@ -39,7 +40,7 @@ Mesh* Duck::CreateDuckWingFront()
 
 Mesh* Duck::CreateDuckWingBack()
 {
-    // Duck back wing triangles
+    // Duck back wing vertices
     vector<VertexFormat> vertices
     {
         VertexFormat(glm::vec3(131, 42, 0), glm::vec3(0.27, 0, 0)),
@@ -67,13 +68,17 @@ Mesh* Duck::CreateCircle(const std::string& name, float centerX, float centerY,
 
     circle->SetDrawMode(GL_TRIANGLE_FAN);
 
+    // Add center vertex
     indices.push_back(0);
     vertices.push_back(VertexFormat(glm::vec3(centerX, centerY, 0), color));
+
+    // Add all points on radius
     for (int i = 1; i <= 16; i++) {
         indices.push_back(i);
         vertices.push_back(VertexFormat(glm::vec3(centerX + (radius * cos(i * 2 * 3.1415 / 16)),
             centerY + (radius * sin(i * 2 * 3.1415 / 16)), 0), color));
     }
+    // Add the first point again (close the triangle fan)
     indices.push_back(1);
 
     circle->InitFromData(vertices, indices);
@@ -91,7 +96,7 @@ Mesh* Duck::CreateDuckHead()
 Mesh* Duck::CreateDuckBody()
 {
     // Set limits for the model (drawing of the duck should be relative to these coordinates, i.e. x = tailTip + 64,
-    // but for now I used global distances, tailTip set to 0, 0 anyway)
+    // but for now I used global distances as tailTip is set to (0, 0) anyway)
     tailTipX = 0; tailTipY = 0;
     beakTipX = 323; beakTipY = 59;
     centerY = 50;
