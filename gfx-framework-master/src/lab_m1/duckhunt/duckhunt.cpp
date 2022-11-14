@@ -115,16 +115,15 @@ void DuckHunt::Update(float deltaTimeSeconds)
 
     // Render UI
     RenderInterface(lifeCount, bulletCount, score);
-
     if (gameOver) {
         if (lifeCount == 3) {
             // This is the start of the game
-            textRenderer->RenderText("Press R to start!", 500, 300, 1.25, text_color);
+            textRenderer->RenderText("Press R to start!", 500, 300, 1.25, textColor);
         }
         else {
             // This is when the game is lost, but can be restarted
-            textRenderer->RenderText("You lost!", 570, 300, 1.25, text_color);
-            textRenderer->RenderText("Press R to try again", 500, 335, 1.25, text_color);
+            textRenderer->RenderText("You lost! :(", 570, 300, 1.25, textColor);
+            textRenderer->RenderText("Press R to try again", 500, 335, 1.25, textColor);
         }
         
     }
@@ -169,7 +168,7 @@ void DuckHunt::UpdateRoundState(float deltaTimeSeconds)
         duckActive = false;
         duckEvaded = false;
         duckDead = false;
-        textRenderer->RenderText("You win!", 600, 300, 1.25, text_color);
+        textRenderer->RenderText("You won! ^-^", 550, 300, 1.25, textColor);
     }
 
     // Update round timer

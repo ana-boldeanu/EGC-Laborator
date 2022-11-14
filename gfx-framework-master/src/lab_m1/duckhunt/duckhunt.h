@@ -50,7 +50,7 @@ namespace m1
         glm::mat3 wingsMatrix = glm::mat3(1);       // Matrix used for wings flapping animation
         glm::mat3 interfaceMatrix = glm::mat3(1);   // Matrix used for UI transformations
         glm::vec3 skyColor = glm::vec3(0.8f, 1, 1); // Cyan (round), Red (evaded), Green (shot)
-        glm::vec3 text_color = glm::vec3(0.30f, 0.65f, 0.05f);
+        glm::vec3 textColor = glm::vec3(0.47, 0, 0);
 
         gfxc::TextRenderer *textRenderer;            // Used to render on-screen text updates
 

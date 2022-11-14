@@ -19,12 +19,14 @@ Duck::Duck()
 
 Mesh* Duck::CreateDuckWingFront()
 {
+    glm::vec3 wingColor = glm::vec3(0.47, 0, 0);
+
     // Duck front wing vertices
     vector<VertexFormat> vertices
     {
-        VertexFormat(glm::vec3(125, 42, 0), glm::vec3(0.47, 0, 0)),
-        VertexFormat(glm::vec3(211, 63, 0), glm::vec3(0.47, 0, 0)),
-        VertexFormat(glm::vec3(105, 225, 0), glm::vec3(0.47, 0, 0))
+        VertexFormat(glm::vec3(125, 42, 0), wingColor),
+        VertexFormat(glm::vec3(211, 63, 0), wingColor),
+        VertexFormat(glm::vec3(105, 225, 0), wingColor)
     };
 
     vector<unsigned int> indices =
@@ -40,12 +42,14 @@ Mesh* Duck::CreateDuckWingFront()
 
 Mesh* Duck::CreateDuckWingBack()
 {
+    glm::vec3 wingColor = glm::vec3(0.27, 0, 0);
+    
     // Duck back wing vertices
     vector<VertexFormat> vertices
     {
-        VertexFormat(glm::vec3(131, 42, 0), glm::vec3(0.27, 0, 0)),
-        VertexFormat(glm::vec3(211, 63, 0), glm::vec3(0.27, 0, 0)),
-        VertexFormat(glm::vec3(185, 218, 0), glm::vec3(0.27, 0, 0))
+        VertexFormat(glm::vec3(131, 42, 0), wingColor),
+        VertexFormat(glm::vec3(211, 63, 0), wingColor),
+        VertexFormat(glm::vec3(185, 218, 0), wingColor)
     };
 
     vector<unsigned int> indices =
@@ -101,30 +105,35 @@ Mesh* Duck::CreateDuckBody()
     beakTipX = 323; beakTipY = 59;
     centerY = 50;
 
+    glm::vec3 bodyColor = glm::vec3(0.4, 0, 0);
+    glm::vec3 headColor = glm::vec3(0, 0.4, 0);
+    glm::vec3 neckColor = glm::vec3(1, 1, 1);
+    glm::vec3 beakColor = glm::vec3(1, 0.4, 0);
+
     // Duck body & beak triangles
     vector<VertexFormat> vertices
     {
         VertexFormat(glm::vec3(tailTipX, tailTipY, 0), glm::vec3(0.33, 0, 0)),
-        VertexFormat(glm::vec3(64, 22, 0), glm::vec3(0.4, 0, 0)),  // 1
-        VertexFormat(glm::vec3(94, 80, 0), glm::vec3(0.4, 0, 0)),  // 2
-        VertexFormat(glm::vec3(153, 14, 0), glm::vec3(0.42, 0, 0)),// 3
-        VertexFormat(glm::vec3(186, 90, 0), glm::vec3(0.4, 0, 0)), // 4
-        VertexFormat(glm::vec3(204, 22, 0), glm::vec3(0.4, 0, 0)), // 5
-        VertexFormat(glm::vec3(233, 57, 0), glm::vec3(0, 0.4, 0)), // 6
-        VertexFormat(glm::vec3(229, 85, 0), glm::vec3(0.4, 0, 0)), // 7
-        VertexFormat(glm::vec3(310, 56, 0), glm::vec3(0, 0.4, 0)), // 8
-        VertexFormat(glm::vec3(308, 54, 0), glm::vec3(1, 0.4, 0)), // beak base
-        VertexFormat(glm::vec3(308, 63, 0), glm::vec3(1, 0.4, 0)), // beak base
-        VertexFormat(glm::vec3(beakTipX, beakTipY, 0), glm::vec3(1, 0.4, 0)), // beak tip
+        VertexFormat(glm::vec3(64, 22, 0), bodyColor),  // 1
+        VertexFormat(glm::vec3(94, 80, 0), bodyColor),  // 2
+        VertexFormat(glm::vec3(153, 14, 0), bodyColor),// 3
+        VertexFormat(glm::vec3(186, 90, 0), bodyColor), // 4
+        VertexFormat(glm::vec3(204, 22, 0), bodyColor), // 5
+        VertexFormat(glm::vec3(233, 57, 0), headColor), // 6
+        VertexFormat(glm::vec3(229, 85, 0), bodyColor), // 7
+        VertexFormat(glm::vec3(310, 56, 0), headColor), // 8
+        VertexFormat(glm::vec3(308, 54, 0), beakColor), // beak base
+        VertexFormat(glm::vec3(308, 63, 0), beakColor), // beak base
+        VertexFormat(glm::vec3(beakTipX, beakTipY, 0), beakColor), // beak tip
 
         // Some copies for colors (white neck detail)
-        VertexFormat(glm::vec3(204, 22, 0), glm::vec3(1, 1, 1)), // 12
-        VertexFormat(glm::vec3(233, 57, 0), glm::vec3(1, 1, 1)), // 13
-        VertexFormat(glm::vec3(229, 85, 0), glm::vec3(1, 1, 1)), // 14
+        VertexFormat(glm::vec3(204, 22, 0), neckColor), // 12
+        VertexFormat(glm::vec3(233, 57, 0), neckColor), // 13
+        VertexFormat(glm::vec3(229, 85, 0), neckColor), // 14
 
-        VertexFormat(glm::vec3(204, 22, 0), glm::vec3(0, 0.4, 0)), // 15
-        VertexFormat(glm::vec3(233, 57, 0), glm::vec3(0, 0.4, 0)), // 16
-        VertexFormat(glm::vec3(229, 85, 0), glm::vec3(0, 0.4, 0)), // 17
+        VertexFormat(glm::vec3(204, 22, 0), headColor), // 15
+        VertexFormat(glm::vec3(233, 57, 0), headColor), // 16
+        VertexFormat(glm::vec3(229, 85, 0), headColor), // 17
     };
 
     vector<unsigned int> indices =
