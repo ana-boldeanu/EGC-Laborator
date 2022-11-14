@@ -50,8 +50,8 @@ bottom of the screen, flying upwards in a random direction (i.e. with a random
 rotation angle) - The sky is blue!
 
 	- The rotation angle and the duck model are flipped ever time the duck hits
-a window border, changing its flying direction so that it doesn't fly outside the
-window.
+a window border, changing its flying direction so that it doesn't fly outside 
+the window.
 
 	- When Evaded (round time limit reached or player out of bullets), the duck
 flights upward at a 90 degrees angle - The sky turns red :(
@@ -71,11 +71,14 @@ ducks.
 	- Window collisions calculated using current duck position relative to window
 resolution limits.
 
-	- Duck collision upon clicking calculated using the mouse position, transformed
-(translated and rotated) so that it corresponds to the initial system of coordinates
-for the duck, where its body has the hitbox of a rectangle.
+	- Duck collision upon clicking calculated using the mouse position, 
+transformed (translated and rotated) so that it corresponds to the initial system
+of coordinates for the duck, where its body has the hitbox of a rectangle.
 
-	- Frame update animations are calculated using the current deltaTime, to determine
-the distance that the duck has travelled inside it.
+	- Frame update animations are calculated using the current deltaTime, to 
+determine the distance that the duck has travelled inside it.
 
-	- Some text is rendered to indicate when the game is won/lost and how to restart.
+	- Some text is rendered to indicate when the game is won/lost and how to
+restart.
+
+===============================================================================
