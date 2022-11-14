@@ -28,7 +28,7 @@ namespace m1
         void OnWindowResize(int width, int height) override;
 
         // TODO(student): Class variables go here
-        double redVal, greenVal, blueVal;
+        GLclampf redVal, greenVal, blueVal;
         int renderedObj;
         Mesh *toRender;
         float posX, posY, posZ;

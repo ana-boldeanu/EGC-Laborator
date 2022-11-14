@@ -56,7 +56,7 @@ void Lab4::Init()
 
     // Sets the resolution of the small viewport
     glm::ivec2 resolution = window->GetResolution();
-    miniViewportArea = ViewportArea(50, 50, resolution.x / 5.f, resolution.y / 5.f);
+    miniViewportArea = ViewportArea(50, 50, resolution.x / 5, resolution.y / 5);
 }
 
 void Lab4::FrameStart()
@@ -242,7 +242,7 @@ void Lab4::OnKeyPress(int key, int mods)
     
     // TODO(student): Add viewport movement and scaling logic
     int moveStep = 20;
-    float scaleFactor = 1.5;
+    int scaleFactor = 2;
 
     // Moving the viewport
     if (key == GLFW_KEY_I) {

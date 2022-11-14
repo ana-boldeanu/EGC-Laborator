@@ -118,7 +118,7 @@ void Lab1::OnKeyPress(int key, int mods)
     if (key == GLFW_KEY_F) {
         // TODO(student): Change the values of the color components.
         if (redVal == 0) {
-            redVal = blueVal = 0.3;
+            redVal = blueVal = (GLclampf)0.3;
         }
         else {
             redVal = blueVal = 0;
@@ -140,27 +140,27 @@ void Lab1::OnKeyPress(int key, int mods)
     }
 
     if (key == GLFW_KEY_W) {
-        posX += 0.1;
+        posX += 0.1f;
     }
 
     if (key == GLFW_KEY_S) {
-        posX -= 0.1;
+        posX -= 0.1f;
     }
 
     if (key == GLFW_KEY_A) {
-        posY -= 0.1;
+        posY -= 0.1f;
     }
 
     if (key == GLFW_KEY_D) {
-        posY += 0.1;
+        posY += 0.1f;
     }
 
     if (key == GLFW_KEY_E) {
-        posZ += 0.1;
+        posZ += 0.1f;
     }
 
     if (key == GLFW_KEY_Q) {
-        posZ -= 0.1;
+        posZ -= 0.1f;
     }
 }
 
@@ -173,8 +173,8 @@ void Lab1::OnKeyRelease(int key, int mods)
 
 void Lab1::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
-    posX += deltaX * 0.003;
-    posY -= deltaY * 0.003;
+    posX += deltaX * 0.003f;
+    posY -= deltaY * 0.003f;
 }
 
 

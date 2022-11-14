@@ -95,7 +95,7 @@ void Lab3::Update(float deltaTimeSeconds)
     // in order to create animations. Use the class variables in the
     // class header, and if you need more of them to complete the task,
     // add them over there!
-    float step = 0.5 * deltaTimeSeconds;
+    float step = 0.5f * deltaTimeSeconds;
 
     modelMatrix = glm::mat3(1);
     modelMatrix *= transform2D::Translate(150, 250);
@@ -150,7 +150,7 @@ void Lab3::Update(float deltaTimeSeconds)
     modelMatrix *= transform2D::Translate(85, 140);
     modelMatrix *= transform2D::Translate(translateX, 0);
     modelMatrix *= transform2D::Translate(cx, cy);
-    modelMatrix *= transform2D::Scale(1.5, 0.7);
+    modelMatrix *= transform2D::Scale(1.5f, 0.7f);
     modelMatrix *= transform2D::Translate(-cx, -cy);
 
     RenderMesh2D(meshes["car_top"], shaders["VertexColor"], modelMatrix);
@@ -159,7 +159,7 @@ void Lab3::Update(float deltaTimeSeconds)
     modelMatrix *= transform2D::Translate(20, 20);
     modelMatrix *= transform2D::Translate(translateX, 0);
     modelMatrix *= transform2D::Translate(cx, cy);
-    modelMatrix *= transform2D::Scale(0.7, 0.7);
+    modelMatrix *= transform2D::Scale(0.7f, 0.7f);
     modelMatrix *= transform2D::Rotate(-angularStep * 5);
     modelMatrix *= transform2D::Translate(-cx, -cy);
 
@@ -169,7 +169,7 @@ void Lab3::Update(float deltaTimeSeconds)
     modelMatrix *= transform2D::Translate(140, 20);
     modelMatrix *= transform2D::Translate(translateX, 0);
     modelMatrix *= transform2D::Translate(cx, cy);
-    modelMatrix *= transform2D::Scale(0.7, 0.7);
+    modelMatrix *= transform2D::Scale(0.7f, 0.7f);
     modelMatrix *= transform2D::Rotate(-angularStep * 5);
     modelMatrix *= transform2D::Translate(-cx, -cy);
 
