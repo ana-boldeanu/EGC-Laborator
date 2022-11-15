@@ -131,7 +131,7 @@ namespace implemented
             // TODO(student): Rotate the camera in third-person mode around
             // the OY axis.
             TranslateForward(distanceToTarget);
-            RotateFirstPerson_OZ(angle);
+            RotateFirstPerson_OY(angle);
             TranslateForward(-distanceToTarget);
         }
 

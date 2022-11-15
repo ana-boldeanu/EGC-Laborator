@@ -100,9 +100,8 @@ void Lab5::Update(float deltaTimeSeconds)
     {
         glm::mat4 modelMatrix = glm::mat4(1);
         modelMatrix = glm::translate(modelMatrix, glm::vec3(4, 0.5f, 0));
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(2, 0.5, 0.5));
         modelMatrix = glm::rotate(modelMatrix, RADIANS(60.0f), glm::vec3(0, 0, 1));
-        RenderMesh(meshes["sphere"], shaders["VertexNormal"], modelMatrix);
+        RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
     }
 
     // Render the camera target. This is useful for understanding where
@@ -149,8 +148,6 @@ void Lab5::OnInputUpdate(float deltaTime, int mods)
     // move the camera only if MOUSE_RIGHT button is pressed
     if (window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
     {
-        float cameraSpeed = 2.0f;
-
         if (window->KeyHold(GLFW_KEY_W)) {
             // TODO(student): Translate the camera forward
             camera->MoveForward(cameraSpeed * deltaTime);
@@ -187,6 +184,71 @@ void Lab5::OnInputUpdate(float deltaTime, int mods)
     // for any hardcoded projection arguments (can you find any?) and
     // replace them with those extra variables.
 
+    // Task 8
+    if (window->KeyHold(GLFW_KEY_N))
+    {
+        FoV -= deltaTime * 10;
+
+        if (!projectOrtho)
+        {
+            projectionMatrix = glm::perspective(RADIANS(FoV), window->props.aspectRatio, Z_NEAR, Z_FAR);
+        }
+    }
+
+    if (window->KeyHold(GLFW_KEY_M))
+    {
+        FoV += deltaTime * 10;
+
+        if (!projectOrtho)
+        {
+            projectionMatrix = glm::perspective(RADIANS(FoV), window->props.aspectRatio, Z_NEAR, Z_FAR);
+        }
+    }
+
+    // Task 9
+    if (window->KeyHold(GLFW_KEY_I))
+    {
+        bottom -= deltaTime;
+        top += deltaTime;
+
+        if (projectOrtho)
+        {
+            projectionMatrix = glm::ortho(left, right, bottom, top, Z_NEAR, Z_FAR);
+        }
+    }
+
+    if (window->KeyHold(GLFW_KEY_K))
+    {
+        bottom += deltaTime;
+        top -= deltaTime;
+
+        if (projectOrtho)
+        {
+            projectionMatrix = glm::ortho(left, right, bottom, top, Z_NEAR, Z_FAR);
+        }
+    }
+
+    if (window->KeyHold(GLFW_KEY_J))
+    {
+        left -= deltaTime;
+        right += deltaTime;
+
+        if (projectOrtho)
+        {
+            projectionMatrix = glm::ortho(left, right, bottom, top, Z_NEAR, Z_FAR);
+        }
+    }
+
+    if (window->KeyHold(GLFW_KEY_L))
+    {
+        left += deltaTime;
+        right -= deltaTime;
+
+        if (projectOrtho)
+        {
+            projectionMatrix = glm::ortho(left, right, bottom, top, Z_NEAR, Z_FAR);
+        }
+    }
 }
 
 
@@ -198,7 +260,16 @@ void Lab5::OnKeyPress(int key, int mods)
         renderCameraTarget = !renderCameraTarget;
     }
     // TODO(student): Switch projections
-
+    if (key == GLFW_KEY_O)
+    {
+        projectOrtho = true;
+        projectionMatrix = glm::ortho(left, right, bottom, top, Z_NEAR, Z_FAR);
+    }
+    if (key == GLFW_KEY_P)
+    {
+        projectOrtho = false;
+        projectionMatrix = glm::perspective(RADIANS(60), window->props.aspectRatio, Z_NEAR, Z_FAR);
+    }
 }
 
 
