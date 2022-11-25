@@ -24,18 +24,11 @@ namespace m1
 
         void OnInputUpdate(float deltaTime, int mods) override;
         void OnKeyPress(int key, int mods) override;
-        void OnKeyRelease(int key, int mods) override;
-        void OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY) override;
-        void OnMouseBtnPress(int mouseX, int mouseY, int button, int mods) override;
-        void OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods) override;
-        void OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY) override;
-        void OnWindowResize(int width, int height) override;
 
      protected:
         Camera *camera;
-        glm::mat4 projectionMatrix;
+        glm::mat4 projectionMatrix = glm::mat4(1);
 
-        // TODO(student): If you need any other class variables, define them here.
         float cameraSpeed = 1.0f;
         bool projectOrtho = false;
         float FoV = 90.0f;
@@ -45,5 +38,19 @@ namespace m1
         float bottom = -2;
         float Z_NEAR = 0.01f;
         float Z_FAR = 200.0f;
+        float PI = glm::pi<float>();
+
+        // Car position variables
+        float center_x, center_y, center_z;
+        float initial_x = 0, initial_z = 0, initial_y = 0.5f;
+        float translate_x = 0, translate_z = 0, translate_y = initial_y;
+        float move_angle = 0;
+        float move_speed = 3;
+        float rotate_speed = 50;
+
+        // Camera variables
+        glm::vec3 camera_position;
+        glm::vec3 camera_center;
+        glm::vec3 camera_up;
     };
 }   // namespace m1
