@@ -18,6 +18,9 @@ Race::Race()
     center_x = initial_x;
     center_y = initial_y;
     center_z = initial_z;
+
+    glm::ivec2 resolution = window->GetResolution();
+    minimap = ViewportArea(1000, 20, resolution.x / 5, resolution.y / 5);
 }
 
 
@@ -36,7 +39,31 @@ void Race::Init()
         meshes[mesh->GetMeshID()] = mesh;
     }
 
-    projectionMatrix = glm::perspective(RADIANS(FoV), window->props.aspectRatio, Z_NEAR, Z_FAR);
+    meshes["course"] = course->course;
+
+    projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
+
+    
+
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+
+    
+    for (auto& i : course->polygon_points) {
+        cout << i << endl;
+    }
+
+    cout << endl;
+
+    for (auto& i : course->inner_points) {
+        cout << i << endl;
+    }
+
+    cout << endl;
+
+    for (auto& i : course->outer_points) {
+        cout << i << endl;
+    }
 }
 
 
@@ -52,7 +79,7 @@ void Race::FrameStart()
 }
 
 
-void Race::Update(float deltaTimeSeconds)
+void Race::RenderScene()
 {
     {
         glm::mat4 modelMatrix = glm::mat4(1);
@@ -68,12 +95,31 @@ void Race::Update(float deltaTimeSeconds)
         modelMatrix *= transform3D::RotateOX(RADIANS(60.0f));
         RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
     }
+
+    glm::mat4 modelMatrix = glm::mat4(1);
+    RenderMesh(meshes["course"], shaders["VertexColor"], modelMatrix);
+}
+
+void Race::Update(float deltaTimeSeconds)
+{
+    // Render the scene
+    projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
+    RenderScene();
+    DrawCoordinateSystem(camera->GetViewMatrix(), projectionMatrix);
+
+    // Render the scene again, in the minimap
+    glClear(GL_DEPTH_BUFFER_BIT);
+    projectionMatrix = glm::ortho(left, right, bottom, top, z_near, z_far);
+
+    glViewport(minimap.x, minimap.y, minimap.width, minimap.height);
+
+    RenderScene();
+    DrawCoordinateSystem(camera->GetViewMatrix(), projectionMatrix);
 }
 
 
 void Race::FrameEnd()
 {
-    DrawCoordinateSystem(camera->GetViewMatrix(), projectionMatrix);
 }
 
 
@@ -125,6 +171,9 @@ void Race::OnInputUpdate(float deltaTime, int mods)
 
         camera->MoveForward(-step);
     }
+
+    center_x = translate_x;
+    center_z = translate_z;
 }
 
 

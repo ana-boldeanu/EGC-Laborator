@@ -42,8 +42,8 @@ namespace m1
         float left = -15;
         float right = 15;
         float top = 15;
-        float bottom = -2;
+        float bottom = -15;
         float Z_NEAR = 0.01f;
-        float Z_FAR = 200.0f;
+        float Z_FAR = 100.0f;
     };
 }   // namespace m1
