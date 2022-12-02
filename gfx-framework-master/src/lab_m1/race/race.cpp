@@ -10,14 +10,19 @@ using namespace m1;
 
 Race::Race()
 {
-    camera = new Camera();
-    camera_position = glm::vec3(0, camera->distanceToTarget, -camera->distanceToTarget);
-    camera_center = glm::vec3(initial_x, initial_y, initial_z);
-    camera_up = glm::vec3(0, 1, 0);
-
     center_x = initial_x;
     center_y = initial_y;
     center_z = initial_z;
+
+    main_camera = new Camera();
+    main_camera_position = glm::vec3(0, main_camera->distanceToTarget, main_camera->distanceToTarget);
+    main_camera_center = glm::vec3(center_x, center_y, center_z);
+    main_camera_up = glm::vec3(0, 1, 0);
+
+    minimap_camera = new Camera();
+    minimap_camera_position = glm::vec3(0, minimap_camera->distanceToTarget, z_near);
+    minimap_camera_center = glm::vec3(center_x, center_y, center_z);
+    minimap_camera_up = glm::vec3(0, 1, 0);
 
     glm::ivec2 resolution = window->GetResolution();
     minimap = ViewportArea(1000, 20, resolution.x / 5, resolution.y / 5);
@@ -31,7 +36,11 @@ Race::~Race()
 
 void Race::Init()
 {
-    camera->Set(camera_position, camera_center, camera_up);
+    main_camera->Set(main_camera_position, main_camera_center, main_camera_up);
+    minimap_camera->Set(minimap_camera_position, minimap_camera_center, minimap_camera_up);
+
+    projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
+    orthoMatrix = glm::ortho(left, right, bottom, top, z_near, z_far);
 
     {
         Mesh* mesh = new Mesh("box");
@@ -40,30 +49,6 @@ void Race::Init()
     }
 
     meshes["course"] = course->course;
-
-    projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
-
-    
-
-    /////////////////////////////////////////////
-    /////////////////////////////////////////////
-
-    
-    for (auto& i : course->polygon_points) {
-        cout << i << endl;
-    }
-
-    cout << endl;
-
-    for (auto& i : course->inner_points) {
-        cout << i << endl;
-    }
-
-    cout << endl;
-
-    for (auto& i : course->outer_points) {
-        cout << i << endl;
-    }
 }
 
 
@@ -96,25 +81,36 @@ void Race::RenderScene()
         RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
     }
 
-    glm::mat4 modelMatrix = glm::mat4(1);
-    RenderMesh(meshes["course"], shaders["VertexColor"], modelMatrix);
+    {
+        glm::mat4 modelMatrix = glm::mat4(1);
+        float scale = 6;
+        modelMatrix *= transform3D::Scale(scale, scale, scale);
+        RenderMesh(meshes["course"], shaders["VertexColor"], modelMatrix);
+    }
+
+
+    //cout << "x = " << center_x << " y = " << center_y << " z = " << center_z << endl;
 }
 
 void Race::Update(float deltaTimeSeconds)
 {
     // Render the scene
+    project_ortho = false;
     projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
+
     RenderScene();
-    DrawCoordinateSystem(camera->GetViewMatrix(), projectionMatrix);
 
     // Render the scene again, in the minimap
     glClear(GL_DEPTH_BUFFER_BIT);
-    projectionMatrix = glm::ortho(left, right, bottom, top, z_near, z_far);
+
+    project_ortho = true;
+    orthoMatrix = glm::ortho(left, right, bottom, top, z_near, z_far);
 
     glViewport(minimap.x, minimap.y, minimap.width, minimap.height);
+    
+    minimap_camera->Set(minimap_camera_position, minimap_camera_center, minimap_camera_up);
 
     RenderScene();
-    DrawCoordinateSystem(camera->GetViewMatrix(), projectionMatrix);
 }
 
 
@@ -133,8 +129,16 @@ void Race::RenderMesh(Mesh * mesh, Shader * shader, const glm::mat4 & modelMatri
 
     // Render an object using the specified shader and the specified position
     shader->Use();
-    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
-    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+    
+    if (project_ortho) {
+        glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(minimap_camera->GetViewMatrix()));
+        glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(orthoMatrix));
+    }
+    else {
+        glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(main_camera->GetViewMatrix()));
+        glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+    }
+
     glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
     mesh->Render();
@@ -148,32 +152,35 @@ void Race::OnInputUpdate(float deltaTime, int mods)
 
     if (window->KeyHold(GLFW_KEY_A)) {
         move_angle += angle;
-        camera->RotateThirdPerson_OY(angle);
+        main_camera->RotateThirdPerson_OY(angle);
     }
 
     if (window->KeyHold(GLFW_KEY_D)) {
         move_angle -= angle;
-        camera->RotateThirdPerson_OY(-angle);
+        main_camera->RotateThirdPerson_OY(-angle);
     }
 
     float step = move_speed * deltaTime;
 
     if (window->KeyHold(GLFW_KEY_W)) {
-        translate_x += step * sin(move_angle);
-        translate_z += step * cos(move_angle);
-
-        camera->MoveForward(step);
-    }
-
-    if (window->KeyHold(GLFW_KEY_S)) {
         translate_x -= step * sin(move_angle);
         translate_z -= step * cos(move_angle);
 
-        camera->MoveForward(-step);
+        main_camera->MoveForward(step);
+    }
+
+    if (window->KeyHold(GLFW_KEY_S)) {
+        translate_x += step * sin(move_angle);
+        translate_z += step * cos(move_angle);
+
+        main_camera->MoveForward(-step);
     }
 
     center_x = translate_x;
     center_z = translate_z;
+
+    minimap_camera_position = glm::vec3(center_x, 50, center_z + z_near);
+    minimap_camera_center = glm::vec3(center_x, center_y, center_z);
 }
 
 

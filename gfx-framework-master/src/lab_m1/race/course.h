@@ -25,10 +25,7 @@ namespace m1
 
 
     protected:
-        
-        
-
-        float inner_dist = 0.2f;
+        float inner_dist = 0.5f;
         float outer_dist = inner_dist;
 
         glm::vec3 color = glm::vec3(1, 1, 1);

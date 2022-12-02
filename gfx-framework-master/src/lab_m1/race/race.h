@@ -27,18 +27,20 @@ namespace m1
         void OnKeyPress(int key, int mods) override;
 
      protected:
-        Camera *camera;
+        Camera *main_camera;
+        Camera *minimap_camera;
         glm::mat4 projectionMatrix = glm::mat4(1);
+        glm::mat4 orthoMatrix = glm::mat4(1);
 
         float PI = glm::pi<float>();
 
         float cameraSpeed = 1.0f;
-        bool projectOrtho = false;
         float fov = PI/2;
-        float left = -15;
-        float right = 15;
-        float top = 15;
-        float bottom = -2;
+        float dist = 100;
+        float left = -dist;
+        float right = dist;
+        float bottom = -dist;
+        float top = dist;
         float z_near = 0.01f;
         float z_far = 200.0f;
 
@@ -51,9 +53,15 @@ namespace m1
         float rotate_speed = 50;
 
         // Camera variables
-        glm::vec3 camera_position;
-        glm::vec3 camera_center;
-        glm::vec3 camera_up;
+        glm::vec3 main_camera_position;
+        glm::vec3 main_camera_center;
+        glm::vec3 main_camera_up;
+
+        glm::vec3 minimap_camera_position;
+        glm::vec3 minimap_camera_center;
+        glm::vec3 minimap_camera_up;
+
+        bool project_ortho = false;
 
         // Course variables
         Course* course = new Course();
