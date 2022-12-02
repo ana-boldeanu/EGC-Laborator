@@ -9,7 +9,109 @@ Course::Course()
 	SetPolygonPoints();
 	ComputeInnerOuterPoints();
 	ComputeCourseMesh();
+	ComputeLinesMesh();
 }
+
+
+void Course::ComputeInnerOuterPoints() 
+{
+	size_t size = polygon_points.size();
+	glm::vec3 P1, P2;	// End points for a segment
+	glm::vec3 D;		// Direction vector from P1 to P2
+	glm::vec3 P;		// Perpendicular on D
+	glm::vec3 up = glm::vec3(0, 1, 0);	// Perpendicular on XoZ plane
+	glm::vec3 inner, outer;				// Resulting points
+	glm::vec3 tree_0, tree_1, tree_2, tree_3;		// Same for tree locations
+
+	for (int i = 0; i < size - 1; i++) {
+		P1 = polygon_points[i];
+		P2 = polygon_points[i + 1];
+
+		D = glm::normalize(P2 - P1);
+		P = glm::normalize(cross(D, up));
+
+		inner = P1 - inner_dist * P;
+		outer = P1 + outer_dist * P;
+
+		inner_points.push_back(inner);
+		outer_points.push_back(outer);
+
+		// Same for tree locations
+		tree_0 = P1 - tree_dist_0 * P;
+		tree_1 = P1 + tree_dist_0 * P;
+		tree_2 = P1 - tree_dist_1 * P;
+		tree_3 = P1 + tree_dist_1 * P;
+
+		tree_locations_0.push_back(tree_0);
+		tree_locations_1.push_back(tree_1); 
+		tree_locations_2.push_back(tree_2);
+		tree_locations_3.push_back(tree_3);
+	}
+
+	// Compute vector to hold which (random) side to place a tree on
+	srand(static_cast <unsigned> (time(0)));
+	int side;
+
+	for (int i = 0; i < size; i++) {
+		side = rand() % 4;
+		locations.push_back(side);
+	}
+
+	int rotation;
+	for (int i = 0; i < size; i++) {
+		rotation = rand() % 12;
+		rotations.push_back(rotation);
+	}
+}
+
+
+void Course::ComputeLinesMesh() 
+{
+	lines = new Mesh("lines");
+
+	vector<VertexFormat> vertices;
+	vector<unsigned int> indices;
+	glm::vec3 color = glm::vec3(1, 1, 1);
+	int k = 0;
+
+	lines->SetDrawMode(GL_LINES);
+	glLineWidth(3);
+
+	for (int i = 0; i < polygon_points.size() - 1; i++) {
+		vertices.push_back(VertexFormat(polygon_points[i++], color));
+		vertices.push_back(VertexFormat(polygon_points[i], color));
+
+		indices.push_back(k++);
+		indices.push_back(k++);
+	}
+
+	//lines->InitFromData(vertices, indices);
+}
+
+
+void Course::ComputeCourseMesh() 
+{
+	vector<VertexFormat> vertices;
+	vector<unsigned int> indices;
+	int k = 0;
+
+	course = new Mesh("course");
+	course->SetDrawMode(GL_TRIANGLE_STRIP);
+
+	for (int i = 0; i < inner_points.size(); i++) {
+		vertices.push_back(VertexFormat(inner_points[i], color));
+		vertices.push_back(VertexFormat(outer_points[i], color));
+
+		indices.push_back(k++);
+		indices.push_back(k++);
+	}
+
+	indices.push_back(0);
+	indices.push_back(1);
+	
+	course->InitFromData(vertices, indices);
+}
+
 
 
 void Course::SetPolygonPoints()
@@ -149,55 +251,6 @@ void Course::SetPolygonPoints()
 		glm::vec3(-0.84, 0, 0.91),	// -E
 		glm::vec3(-0.4, 0, 0.99),	// -D
 	};
-}
-
-
-void Course::ComputeInnerOuterPoints() 
-{
-	size_t size = polygon_points.size();
-	glm::vec3 P1, P2;	// End points for a segment
-	glm::vec3 D;		// Direction vector from P1 to P2
-	glm::vec3 P;		// Perpendicular on D
-	glm::vec3 up = glm::vec3(0, 1, 0);	// Perpendicular on XoZ plane
-	glm::vec3 inner, outer;				// Resulting points
-
-	for (int i = 0; i < size - 1; i++) {
-		P1 = polygon_points[i];
-		P2 = polygon_points[i + 1];
-
-		D = glm::normalize(P2 - P1);
-		P = glm::normalize(cross(D, up));
-
-		inner = P1 - inner_dist * P;
-		outer = P1 + outer_dist * P;
-
-		inner_points.push_back(inner);
-		outer_points.push_back(outer);
-	}
-}
-
-
-void Course::ComputeCourseMesh() 
-{
-	vector<VertexFormat> vertices;
-	vector<unsigned int> indices;
-	int k = 0;
-
-	course = new Mesh("course");
-	course->SetDrawMode(GL_TRIANGLE_STRIP);
-
-	for (int i = 0; i < inner_points.size(); i++) {
-		vertices.push_back(VertexFormat(inner_points[i], color));
-		vertices.push_back(VertexFormat(outer_points[i], color));
-
-		indices.push_back(k++);
-		indices.push_back(k++);
-	}
-
-	indices.push_back(0);
-	indices.push_back(1);
-	
-	course->InitFromData(vertices, indices);
 }
 
 

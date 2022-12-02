@@ -4,6 +4,7 @@
 #include "lab_m1/race/camera.h"
 #include "lab_m1/race/transform3D.h"
 #include "lab_m1/race/course.h"
+#include "lab_m1/race/environment.h"
 
 
 namespace m1
@@ -21,6 +22,7 @@ namespace m1
         void Update(float deltaTimeSeconds) override;
         void FrameEnd() override;
         void RenderScene();
+        void RenderTrees();
         void RenderMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix) override;
 
         void OnInputUpdate(float deltaTime, int mods) override;
@@ -34,9 +36,8 @@ namespace m1
 
         float PI = glm::pi<float>();
 
-        float cameraSpeed = 1.0f;
         float fov = PI/2;
-        float dist = 100;
+        float dist = 60;
         float left = -dist;
         float right = dist;
         float bottom = -dist;
@@ -45,12 +46,16 @@ namespace m1
         float z_far = 200.0f;
 
         // Car position variables
-        float center_x, center_y, center_z;
-        float initial_x = 0, initial_z = 0, initial_y = 0.5f;
-        float translate_x = 0, translate_z = 0, translate_y = initial_y;
+        float initial_x = 0, initial_z = 7, initial_y = 0.5f;
+        float translate_x = initial_x;
+        float translate_z = initial_z;
+        float translate_y = initial_y;
+        float center_x = initial_x;
+        float center_y = initial_y;
+        float center_z = initial_z;
         float move_angle = 0;
-        float move_speed = 3;
-        float rotate_speed = 50;
+        float move_speed = 9;
+        float rotate_speed = 90;
 
         // Camera variables
         glm::vec3 main_camera_position;
@@ -64,7 +69,9 @@ namespace m1
         bool project_ortho = false;
 
         // Course variables
-        Course* course = new Course();
+        Course *course = new Course();
+        Environment* environment = new Environment();
+        float road_scale = 6;
 
         // Minimap variables
         struct ViewportArea
