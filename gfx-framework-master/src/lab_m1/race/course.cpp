@@ -7,21 +7,119 @@ using namespace m1;
 Course::Course()
 {
 	SetPolygonPoints();
+	ComputeIntermediaryPoints();
 	ComputeInnerOuterPoints();
+	ComputeInnerOuterPointsExtended();
 	ComputeCourseMesh();
 	ComputeLinesMesh();
 }
 
 
-void Course::ComputeInnerOuterPoints() 
+bool Course::IsOnRoad(glm::vec2 car_pos) 
 {
-	size_t size = polygon_points.size();
+	glm::vec2 P1, P2;	// An outer segment to check distance for
+	glm::vec2 P3, P4;	// An inner segment to check distance for
+	glm::vec2 closest;	// This is the tangent from car_position to segment [P1, P2]
+	float x, y = 0, z;
+	float u, len, distance;
+	int size = (int)outer_points.size();
+
+	// Check each segment in the main polygon
+	for (int i = 0; i < size - 1; i++) {
+		// Check outer segment
+		P1 = glm::vec2(outer_points[i].x, outer_points[i].z);
+		P2 = glm::vec2(outer_points[i + 1].x, outer_points[i + 1].z);
+
+		u = (car_pos.x - P1.x) * (P2.x - P1.x) + (car_pos.y - P1.y) * (P2.y - P1.y);
+		len = glm::length(P2 - P1);
+		u = u / (len * len);
+
+		x = P1.x + u * (P2.x - P1.x);
+		z = P1.y + u * (P2.y - P1.y);
+		closest = glm::vec2(x, z);
+
+		distance = glm::length(car_pos - closest);
+
+		if (distance * road_scale <= road_width / 2) {
+			return true;
+		}
+
+		// Then check inner segment
+		P3 = glm::vec2(inner_points[i].x, inner_points[i].z);
+		P4 = glm::vec2(inner_points[i + 1].x, inner_points[i + 1].z);
+
+		u = (car_pos.x - P3.x) * (P4.x - P3.x) + (car_pos.y - P3.y) * (P4.y - P3.y);
+		len = glm::length(P4 - P3);
+		u = u / (len * len);
+
+		x = P3.x + u * (P4.x - P3.x);
+		z = P3.y + u * (P4.y - P3.y);
+		closest = glm::vec2(x, z);
+
+		distance = glm::length(car_pos - closest);
+
+		if (distance * road_scale <= road_width / 2) {
+			
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
+// Value t is in [0, 1]
+glm::vec3 IntermediaryPoint(glm::vec3 P1, glm::vec3 P2, float t)
+{
+	glm::vec3 delta = P2 - P1;
+	glm::vec3 direction;
+	float distance = glm::length(delta);
+
+	if (distance == 0.0f)
+	{
+		return P1;
+	}
+	else
+	{
+		direction = delta / distance;
+		return P1 + direction * (distance * t);
+	}
+}
+
+
+void Course::ComputeIntermediaryPoints()
+{
+	float step = 0.001f;
+	float t = 0.0f;
+	glm::vec3 point;
+	glm::vec3 P1, P2;
+
+	int size = (int)polygon_points.size();
+
+	for (int i = 0; i < size - 1; i++) {
+		P1 = polygon_points[i];
+		P2 = polygon_points[i + 1];
+
+		while (t <= 1) {
+			point = IntermediaryPoint(P1, P2, t);
+			polygon_points_extended.push_back(point);
+			t += step;
+		}
+
+		t = 0.0f;
+	}
+}
+
+
+void Course::ComputeInnerOuterPoints()
+{
 	glm::vec3 P1, P2;	// End points for a segment
 	glm::vec3 D;		// Direction vector from P1 to P2
 	glm::vec3 P;		// Perpendicular on D
 	glm::vec3 up = glm::vec3(0, 1, 0);	// Perpendicular on XoZ plane
 	glm::vec3 inner, outer;				// Resulting points
-	glm::vec3 tree_0, tree_1, tree_2, tree_3;		// Same for tree locations
+
+	int size = (int)polygon_points.size();
 
 	for (int i = 0; i < size - 1; i++) {
 		P1 = polygon_points[i];
@@ -35,6 +133,33 @@ void Course::ComputeInnerOuterPoints()
 
 		inner_points.push_back(inner);
 		outer_points.push_back(outer);
+	}
+}
+
+
+void Course::ComputeInnerOuterPointsExtended() 
+{
+	glm::vec3 P1, P2;	// End points for a segment
+	glm::vec3 D;		// Direction vector from P1 to P2
+	glm::vec3 P;		// Perpendicular on D
+	glm::vec3 up = glm::vec3(0, 1, 0);	// Perpendicular on XoZ plane
+	glm::vec3 inner, outer;				// Resulting points
+	glm::vec3 tree_0, tree_1, tree_2, tree_3;		// Same for tree locations
+
+	int size = (int)polygon_points_extended.size();
+
+	for (int i = 0; i < size - 1; i++) {
+		P1 = polygon_points_extended[i];
+		P2 = polygon_points_extended[i + 1];
+
+		D = glm::normalize(P2 - P1);
+		P = glm::normalize(cross(D, up));
+
+		inner = P1 - inner_dist * P;
+		outer = P1 + outer_dist * P;
+
+		inner_points_extended.push_back(inner);
+		outer_points_extended.push_back(outer);
 
 		// Same for tree locations
 		tree_0 = P1 - tree_dist_0 * P;
@@ -48,15 +173,15 @@ void Course::ComputeInnerOuterPoints()
 		tree_locations_3.push_back(tree_3);
 	}
 
-	// Compute vector to hold which (random) side to place a tree on
+	// Compute vector to hold which (random) side to place a model (tree) on
 	srand(static_cast <unsigned> (time(0)));
 	int side;
-
 	for (int i = 0; i < size; i++) {
 		side = rand() % 4;
 		locations.push_back(side);
 	}
 
+	// Same for model rotations
 	int rotation;
 	for (int i = 0; i < size; i++) {
 		rotation = rand() % 12;
@@ -75,22 +200,25 @@ void Course::ComputeLinesMesh()
 	int k = 0;
 
 	lines->SetDrawMode(GL_LINES);
-	glLineWidth(3);
+	glLineWidth(5);
 
-	for (int i = 0; i < polygon_points.size() - 1; i++) {
-		vertices.push_back(VertexFormat(polygon_points[i++], color));
-		vertices.push_back(VertexFormat(polygon_points[i], color));
+	int size = (int)polygon_points_extended.size();
+	for (int i = 0; i < size - 300; i += 300) {
+		vertices.push_back(VertexFormat(polygon_points_extended[i], color));
+		i += 300;
+		vertices.push_back(VertexFormat(polygon_points_extended[i], color));
 
 		indices.push_back(k++);
 		indices.push_back(k++);
 	}
 
-	//lines->InitFromData(vertices, indices);
+	lines->InitFromData(vertices, indices);
 }
 
 
 void Course::ComputeCourseMesh() 
 {
+	int size = (int)inner_points_extended.size(); 
 	vector<VertexFormat> vertices;
 	vector<unsigned int> indices;
 	int k = 0;
@@ -98,9 +226,9 @@ void Course::ComputeCourseMesh()
 	course = new Mesh("course");
 	course->SetDrawMode(GL_TRIANGLE_STRIP);
 
-	for (int i = 0; i < inner_points.size(); i++) {
-		vertices.push_back(VertexFormat(inner_points[i], color));
-		vertices.push_back(VertexFormat(outer_points[i], color));
+	for (int i = 0; i < size; i++) {
+		vertices.push_back(VertexFormat(inner_points_extended[i], color));
+		vertices.push_back(VertexFormat(outer_points_extended[i], color));
 
 		indices.push_back(k++);
 		indices.push_back(k++);

@@ -34,17 +34,6 @@ namespace m1
         glm::mat4 projectionMatrix = glm::mat4(1);
         glm::mat4 orthoMatrix = glm::mat4(1);
 
-        float PI = glm::pi<float>();
-
-        float fov = PI/2;
-        float dist = 60;
-        float left = -dist;
-        float right = dist;
-        float bottom = -dist;
-        float top = dist;
-        float z_near = 0.01f;
-        float z_far = 200.0f;
-
         // Car position variables
         float initial_x = 0, initial_z = 7, initial_y = 0.5f;
         float translate_x = initial_x;
@@ -58,6 +47,16 @@ namespace m1
         float rotate_speed = 90;
 
         // Camera variables
+        float PI = glm::pi<float>();
+        float fov = PI / 2;
+        float dist = 20;
+        float left = -dist;
+        float right = dist;
+        float bottom = -dist;
+        float top = dist;
+        float z_near = 0.01f;
+        float z_far = 200.0f;
+
         glm::vec3 main_camera_position;
         glm::vec3 main_camera_center;
         glm::vec3 main_camera_up;
@@ -71,7 +70,6 @@ namespace m1
         // Course variables
         Course *course = new Course();
         Environment* environment = new Environment();
-        float road_scale = 6;
 
         // Minimap variables
         struct ViewportArea

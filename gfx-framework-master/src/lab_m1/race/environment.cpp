@@ -38,8 +38,8 @@ Mesh* Environment::CreateCircle(const std::string& name, float centerX, float ce
     for (int i = 1; i <= segments; i++) {
         indices.push_back(i);
 
-        x = centerX + (radius * cos(i * 2 * 3.1415 / segments));
-        z = centerZ + (radius * sin(i * 2 * 3.1415 / segments));
+        x = centerX + (radius * cos(i * 2 * 3.1415f / segments));
+        z = centerZ + (radius * sin(i * 2 * 3.1415f / segments));
         vertices.push_back(VertexFormat(glm::vec3(x, y, z), color));
     }
     // Add the first point again (close the triangle fan)
