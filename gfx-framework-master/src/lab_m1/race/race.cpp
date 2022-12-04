@@ -154,6 +154,7 @@ void Race::Update(float deltaTimeSeconds)
     projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
 
     RenderScene();
+    DrawCoordinateSystem(main_camera->GetViewMatrix(), projectionMatrix);
 
     // Render the scene again, in the minimap
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -202,7 +203,7 @@ void Race::RenderMesh(Mesh * mesh, Shader * shader, const glm::mat4 & modelMatri
 
 void Race::OnInputUpdate(float deltaTime, int mods)
 {
-    cout << course->IsOnRoad(glm::vec2(center_x, center_z)) << endl;
+    cout << course->IsOnRoad(glm::vec2(center_x, center_z)) << " " << glm::vec2(center_x, center_z) << endl;
 
     // Car and camera rotations
     float sensitivity = 0.01f;

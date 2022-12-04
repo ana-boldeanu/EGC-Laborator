@@ -40,6 +40,8 @@ bool Course::IsOnRoad(glm::vec2 car_pos)
 
 		distance = glm::length(car_pos - closest);
 
+		cout << "outer || " << distance * road_scale << " <= " << road_width / 2 << endl;
+
 		if (distance * road_scale <= road_width / 2) {
 			return true;
 		}
@@ -57,6 +59,8 @@ bool Course::IsOnRoad(glm::vec2 car_pos)
 		closest = glm::vec2(x, z);
 
 		distance = glm::length(car_pos - closest);
+
+		cout << "inner || " << distance * road_scale << " <= " << road_width / 2 << endl;
 
 		if (distance * road_scale <= road_width / 2) {
 			
