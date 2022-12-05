@@ -58,7 +58,7 @@ void Race::Init()
 void Race::FrameStart()
 {
     // Clears the color buffer (using the previously set color) and depth buffer
-    glClearColor(0.35f, 1, 1, 1);
+    glClearColor(0.45, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Set the screen area where to draw
@@ -139,6 +139,10 @@ void Race::RenderScene()
 
     {
         glm::mat4 modelMatrix = glm::mat4(1);
+        float scale = 2;
+        float length = environment->grass_length;
+        modelMatrix *= transform3D::Scale(scale, scale, scale);
+        modelMatrix *= transform3D::Translate(-length/2, 0, -length/2);
         RenderMesh(meshes["grass"], shaders["VertexColor"], modelMatrix);
     }
 }
@@ -151,7 +155,6 @@ void Race::Update(float deltaTimeSeconds)
     projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
 
     RenderScene();
-    DrawCoordinateSystem(main_camera->GetViewMatrix(), projectionMatrix);
 
     // Render the scene again, in the minimap
     glClear(GL_DEPTH_BUFFER_BIT);

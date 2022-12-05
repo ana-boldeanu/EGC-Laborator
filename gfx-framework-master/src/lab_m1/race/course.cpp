@@ -362,8 +362,6 @@ void Course::SetPolygonPoints()
 		glm::vec3(-8.7, 0, 7.46),		// P3
 		glm::vec3(-7.74, 0, 6.81),		// -Z
 
-
-
 		glm::vec3(-7.12, 0, 6.8),	// H3
 		glm::vec3(-6.43, 0, 6.77),	// G3
 		glm::vec3(-5.85, 0, 6.83),	// F3

@@ -11,13 +11,14 @@ namespace m1
         ~Environment();
 
         Mesh* grass;
+        float grass_length = 200;
 
     private:
         void Environment::CreateGrass();
-        Mesh* Environment::CreateCircle(const std::string& name, float centerX, float centerY,
-            float radius, glm::vec3 color);
+        Mesh* Environment::CreateSquare(const std::string& name, float length, glm::vec3 color_1, glm::vec3 color_2);
 
     protected:
-        glm::vec3 grass_color = glm::vec3(0.3, 0.7, 0);
+        glm::vec3 grass_color_1 = glm::vec3(0.92f, 0.4f, 0.14f);
+        glm::vec3 grass_color_2 = glm::vec3(0.4, 0.3, 0.27);
     };
 }
