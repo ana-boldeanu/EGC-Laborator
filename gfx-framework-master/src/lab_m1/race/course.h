@@ -24,6 +24,10 @@ namespace m1
         std::vector<int> rotations;
         float road_scale = 6;
 
+        std::vector<glm::vec3> polygon_points;  // Main polygon points
+        std::vector<glm::vec3> outer_points;
+        std::vector<glm::vec3> inner_points;
+
     private:
         void Course::SetPolygonPoints();
         void Course::ComputeIntermediaryPoints();
@@ -31,7 +35,7 @@ namespace m1
         void Course::ComputeInnerOuterPointsExtended();
         void Course::ComputeLinesMesh();
         void Course::ComputeCourseMesh();
-
+        float Course::TriangleArea(glm::vec2 P1, glm::vec2 P2, glm::vec2 P3);
 
     protected:
         float inner_dist = 0.5f;
@@ -39,11 +43,7 @@ namespace m1
         float road_width = (inner_dist + outer_dist) * road_scale;
 
         float tree_dist_0 = inner_dist + 0.3f;
-        float tree_dist_1 = inner_dist + 1;
-
-        std::vector<glm::vec3> polygon_points;  // Main polygon points
-        std::vector<glm::vec3> outer_points;
-        std::vector<glm::vec3> inner_points;
+        float tree_dist_1 = inner_dist + 0.6f;
 
         std::vector<glm::vec3> polygon_points_extended;   // Extended polygon points with intermediaries
         std::vector<glm::vec3> outer_points_extended;

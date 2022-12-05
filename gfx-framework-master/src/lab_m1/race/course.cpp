@@ -15,58 +15,63 @@ Course::Course()
 }
 
 
+float Course::TriangleArea(glm::vec2 A, glm::vec2 B, glm::vec2 C)
+{
+	glm::vec2 AB = glm::vec2(B.x - A.x, B.y - A.y);
+	glm::vec2 AC = glm::vec2(C.x - A.x, C.y - A.y);
+	float cross_prod = AB.x * AC.y - AB.y * AC.x;
+	return abs(cross_prod) / 2;
+}
+
+
 bool Course::IsOnRoad(glm::vec2 car_pos) 
 {
-	glm::vec2 P1, P2;	// An outer segment to check distance for
-	glm::vec2 P3, P4;	// An inner segment to check distance for
-	glm::vec2 closest;	// This is the tangent from car_position to segment [P1, P2]
-	float x, y = 0, z;
-	float u, len, distance;
-	int size = (int)outer_points.size();
+	glm::vec2 P1, P2, P3;	// A triangle to check if car_pos is inside
+	float area_sum, triangle_area;
+	int size = (int)inner_points.size();
 
-	// Check each segment in the main polygon
-	for (int i = 0; i < size - 1; i++) {
-		// Check outer segment
-		P1 = glm::vec2(outer_points[i].x, outer_points[i].z);
-		P2 = glm::vec2(outer_points[i + 1].x, outer_points[i + 1].z);
+	// Check for each pair of triangles given by 2 segments (inner & outer [i])
+	for (int i = 0; i < size; i++) {
+		// First triangle
+		P1 = glm::vec2(inner_points[i].x, inner_points[i].z) * road_scale;
+		P2 = glm::vec2(outer_points[i].x, outer_points[i].z) * road_scale;
 
-		u = (car_pos.x - P1.x) * (P2.x - P1.x) + (car_pos.y - P1.y) * (P2.y - P1.y);
-		len = glm::length(P2 - P1);
-		u = u / (len * len);
+		if (i == size - 1) {
+			P3 = glm::vec2(outer_points[0].x, outer_points[0].z) * road_scale;
+		} else {
+			P3 = glm::vec2(outer_points[i + 1].x, outer_points[i + 1].z) * road_scale;
+		}
+		
+		triangle_area = TriangleArea(P1, P2, P3);
 
-		x = P1.x + u * (P2.x - P1.x);
-		z = P1.y + u * (P2.y - P1.y);
-		closest = glm::vec2(x, z);
+		area_sum = 0;
+		area_sum += TriangleArea(P1, P2, car_pos);
+		area_sum += TriangleArea(P1, P3, car_pos);
+		area_sum += TriangleArea(P2, P3, car_pos);
 
-		distance = glm::length(car_pos - closest);
-
-		cout << "outer || " << distance * road_scale << " <= " << road_width / 2 << endl;
-
-		if (distance * road_scale <= road_width / 2) {
+		if (abs(triangle_area - area_sum) <= 0.001f) {
 			return true;
 		}
 
-		// Then check inner segment
-		P3 = glm::vec2(inner_points[i].x, inner_points[i].z);
-		P4 = glm::vec2(inner_points[i + 1].x, inner_points[i + 1].z);
+		// Second triangle
+		if (i == size - 1) {
+			P2 = glm::vec2(inner_points[0].x, inner_points[0].z) * road_scale;
+		} else {
+			P2 = glm::vec2(inner_points[i + 1].x, inner_points[i + 1].z) * road_scale;
+		}
+		
+		triangle_area = TriangleArea(P2, P3, P1);
 
-		u = (car_pos.x - P3.x) * (P4.x - P3.x) + (car_pos.y - P3.y) * (P4.y - P3.y);
-		len = glm::length(P4 - P3);
-		u = u / (len * len);
+		area_sum = 0;
+		area_sum += TriangleArea(P1, P2, car_pos);
+		area_sum += TriangleArea(P1, P3, car_pos);
+		area_sum += TriangleArea(P2, P3, car_pos);
 
-		x = P3.x + u * (P4.x - P3.x);
-		z = P3.y + u * (P4.y - P3.y);
-		closest = glm::vec2(x, z);
-
-		distance = glm::length(car_pos - closest);
-
-		cout << "inner || " << distance * road_scale << " <= " << road_width / 2 << endl;
-
-		if (distance * road_scale <= road_width / 2) {
-			
+		if (abs(triangle_area - area_sum) <= 0.001f) {
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -100,9 +105,14 @@ void Course::ComputeIntermediaryPoints()
 
 	int size = (int)polygon_points.size();
 
-	for (int i = 0; i < size - 1; i++) {
+	for (int i = 0; i < size; i++) {
 		P1 = polygon_points[i];
-		P2 = polygon_points[i + 1];
+
+		if (i == size - 1) {
+			P2 = polygon_points[0];		// For last segment
+		} else {
+			P2 = polygon_points[i + 1];
+		}
 
 		while (t <= 1) {
 			point = IntermediaryPoint(P1, P2, t);
@@ -125,9 +135,14 @@ void Course::ComputeInnerOuterPoints()
 
 	int size = (int)polygon_points.size();
 
-	for (int i = 0; i < size - 1; i++) {
+	for (int i = 0; i < size; i++) {
 		P1 = polygon_points[i];
-		P2 = polygon_points[i + 1];
+
+		if (i == size - 1) {
+			P2 = polygon_points[0];		// For last segment
+		} else {
+			P2 = polygon_points[i + 1];
+		}
 
 		D = glm::normalize(P2 - P1);
 		P = glm::normalize(cross(D, up));
@@ -152,9 +167,14 @@ void Course::ComputeInnerOuterPointsExtended()
 
 	int size = (int)polygon_points_extended.size();
 
-	for (int i = 0; i < size - 1; i++) {
+	for (int i = 0; i < size; i++) {
 		P1 = polygon_points_extended[i];
-		P2 = polygon_points_extended[i + 1];
+
+		if (i == size - 1) {
+			P2 = polygon_points_extended[0];
+		} else {
+			P2 = polygon_points_extended[i + 1];
+		}
 
 		D = glm::normalize(P2 - P1);
 		P = glm::normalize(cross(D, up));
@@ -245,7 +265,6 @@ void Course::ComputeCourseMesh()
 }
 
 
-
 void Course::SetPolygonPoints()
 {
 	polygon_points =
@@ -255,6 +274,9 @@ void Course::SetPolygonPoints()
 		glm::vec3(0.84, 0, 0.91),	// E
 		glm::vec3(1.29, 0, 0.7),	// F
 		glm::vec3(1.99, 0, 0.27),	// G
+		glm::vec3(2.76, 0, -0.24),	// J3
+		glm::vec3(3.58, 0, -0.79),	// K3
+		glm::vec3(4.38, 0, -1.33),	// L3
 		glm::vec3(5.3, 0, -1.94),	// H
 		glm::vec3(5.89, 0, -2.32),	// I
 		glm::vec3(6.29, 0, -2.45),	// J
@@ -264,6 +286,9 @@ void Course::SetPolygonPoints()
 		glm::vec3(7.87, 0, -1.51),	// N
 		glm::vec3(7.85, 0, -1),		// O
 		glm::vec3(7.77, 0, -0.52),	// P
+		glm::vec3(7.46, 0, 0.5),	// M3
+		glm::vec3(7.15, 0, 1.52),	// N3
+		glm::vec3(6.81, 0, 2.63),	// O3
 		glm::vec3(6.49, 0, 3.7),	// Q
 		glm::vec3(6.35, 0, 4.17),	// R
 		glm::vec3(6.31, 0, 4.66),	// S
@@ -273,6 +298,9 @@ void Course::SetPolygonPoints()
 		glm::vec3(7.18, 0, 6.43),	// W
 
 		glm::vec3(7.74, 0, 6.81),	// Z
+		glm::vec3(8.7, 0, 7.46),	// P3
+		glm::vec3(9.76, 0, 8.18),	// Q3
+		glm::vec3(10.65, 0, 8.79),	// R3
 		glm::vec3(11.52, 0, 9.38),	// A1
 		glm::vec3(11.83, 0, 9.81),	// B1
 		glm::vec3(11.88, 0, 10.28),	// C1
@@ -282,6 +310,9 @@ void Course::SetPolygonPoints()
 		glm::vec3(10.95, 0, 11.82),	// G1
 		glm::vec3(10.57, 0, 12.05),	// H1
 		glm::vec3(10.16, 0, 12.11),	// I1
+		glm::vec3(9.09, 0, 12.13),	// S3
+		glm::vec3(8, 0, 12.16),		// T3
+		glm::vec3(6.74, 0, 12.18),	// U3
 		glm::vec3(5.58, 0, 12.21),	// J1
 		glm::vec3(5.25, 0, 12.26),	// K1
 		glm::vec3(4.84, 0, 12.39),	// L1
@@ -289,6 +320,9 @@ void Course::SetPolygonPoints()
 		glm::vec3(4.12, 0, 12.83),	// N1
 		glm::vec3(3.76, 0, 13.23),	// O1
 		glm::vec3(3.45, 0, 13.66),	// P1
+		glm::vec3(3.03, 0, 14.71),	// V3
+		glm::vec3(2.58, 0, 15.82),	// W3
+		glm::vec3(2.15, 0, 16.88),	// Z3
 		glm::vec3(1.65, 0, 18.12),	// Q1
 		glm::vec3(1.5, 0, 18.54),	// R1
 		glm::vec3(1.31, 0, 18.89),	// S1
@@ -301,6 +335,9 @@ void Course::SetPolygonPoints()
 		glm::vec3(-1.31, 0, 18.89),		// -S1
 		glm::vec3(-1.5, 0, 18.54),		// -R1
 		glm::vec3(-1.65, 0, 18.12),		// -Q1
+		glm::vec3(-2.15, 0, 16.88),		// Z3
+		glm::vec3(-2.58, 0, 15.82),		// W3
+		glm::vec3(-3.03, 0, 14.71),		// V3
 		glm::vec3(-3.45, 0, 13.66),		// -P1
 		glm::vec3(-3.76, 0, 13.23),		// -O1
 		glm::vec3(-4.12, 0, 12.83),		// -N1
@@ -308,6 +345,9 @@ void Course::SetPolygonPoints()
 		glm::vec3(-4.84, 0, 12.39),		// -L1
 		glm::vec3(-5.25, 0, 12.26),		// -K1
 		glm::vec3(-5.58, 0, 12.21),		// -J1
+		glm::vec3(-6.74, 0, 12.18),		// -U3
+		glm::vec3(-8, 0, 12.16),		// -T3
+		glm::vec3(-9.09, 0, 12.13),		// -S3
 		glm::vec3(-10.16, 0, 12.11),	// -I1
 		glm::vec3(-10.57, 0, 12.05),	// -H1
 		glm::vec3(-10.95, 0, 11.82),	// -G1
@@ -317,7 +357,12 @@ void Course::SetPolygonPoints()
 		glm::vec3(-11.88, 0, 10.28),	// -C1
 		glm::vec3(-11.83, 0, 9.81),		// -B1
 		glm::vec3(-11.52, 0, 9.38),		// -A1
+		glm::vec3(-10.65, 0, 8.79),		// R3
+		glm::vec3(-9.76, 0, 8.18),		// Q3
+		glm::vec3(-8.7, 0, 7.46),		// P3
 		glm::vec3(-7.74, 0, 6.81),		// -Z
+
+
 
 		glm::vec3(-7.12, 0, 6.8),	// H3
 		glm::vec3(-6.43, 0, 6.77),	// G3
@@ -369,6 +414,9 @@ void Course::SetPolygonPoints()
 		glm::vec3(-6.17, 0, 4.33),	// Z1
 
 		glm::vec3(-6.49, 0, 3.7),	// -Q
+		glm::vec3(-6.81, 0, 2.63),	// -O3
+		glm::vec3(-7.15, 0, 1.52),	// -N3
+		glm::vec3(-7.46, 0, 0.5),	// -M3
 		glm::vec3(-7.77, 0, -0.52),	// -P
 		glm::vec3(-7.85, 0, -1),	// -O
 		glm::vec3(-7.87, 0, -1.51),	// -N
@@ -378,6 +426,9 @@ void Course::SetPolygonPoints()
 		glm::vec3(-6.29, 0, -2.45),	// -J
 		glm::vec3(-5.89, 0, -2.32),	// -I
 		glm::vec3(-5.3, 0, -1.94),	// -H
+		glm::vec3(-4.38, 0, -1.33),	// -L3
+		glm::vec3(-3.58, 0, -0.79),	// -K3
+		glm::vec3(-2.76, 0, -0.24),	// -J3
 		glm::vec3(-1.99, 0, 0.27),	// -G
 		glm::vec3(-1.29, 0, 0.7),	// -F
 		glm::vec3(-0.84, 0, 0.91),	// -E

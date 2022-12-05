@@ -75,7 +75,7 @@ void Race::RenderTrees()
     int side, rotation;
     float x, y, z;
 
-    for (int i = 0; i < size; i += 501) {
+    for (int i = 0; i < size; i += 401) {
         side = course->locations[i];
         switch (side) {
         case 0:
@@ -141,9 +141,6 @@ void Race::RenderScene()
         glm::mat4 modelMatrix = glm::mat4(1);
         RenderMesh(meshes["grass"], shaders["VertexColor"], modelMatrix);
     }
-
-
-    //cout << "x = " << center_x << " y = " << center_y << " z = " << center_z << endl;
 }
 
 
@@ -203,11 +200,12 @@ void Race::RenderMesh(Mesh * mesh, Shader * shader, const glm::mat4 & modelMatri
 
 void Race::OnInputUpdate(float deltaTime, int mods)
 {
-    cout << course->IsOnRoad(glm::vec2(center_x, center_z)) << " " << glm::vec2(center_x, center_z) << endl;
+    //cout << ">>>> " << course->IsOnRoad(glm::vec2(center_x, center_z)) << " " << glm::vec2(center_x, center_z) << endl;
 
     // Car and camera rotations
     float sensitivity = 0.01f;
     float angle = deltaTime * rotate_speed * sensitivity;
+    float new_x, new_z;
 
     if (window->KeyHold(GLFW_KEY_A)) {
         move_angle += angle;
@@ -223,17 +221,27 @@ void Race::OnInputUpdate(float deltaTime, int mods)
     float step = move_speed * deltaTime;
 
     if (window->KeyHold(GLFW_KEY_W)) {
-        translate_x += step * cos(move_angle);
-        translate_z -= step * sin(move_angle);
+        new_x = translate_x + step * cos(move_angle);
+        new_z = translate_z - step * sin(move_angle);
 
-        main_camera->MoveForward(step);
+        if (course->IsOnRoad(glm::vec2(new_x, new_z))) {
+            translate_x = new_x;
+            translate_z = new_z;
+
+            main_camera->MoveForward(step);
+        }
     }
 
     if (window->KeyHold(GLFW_KEY_S)) {
-        translate_x -= step * cos(move_angle);
-        translate_z += step * sin(move_angle);
+        new_x = translate_x - step * cos(move_angle);
+        new_z = translate_z + step * sin(move_angle);
 
-        main_camera->MoveForward(-step);
+        if (course->IsOnRoad(glm::vec2(new_x, new_z))) {
+            translate_x = new_x;
+            translate_z = new_z;
+
+            main_camera->MoveForward(-step);
+        }
     }
 
     // Update car position 
