@@ -12,6 +12,7 @@ Course::Course()
 	ComputeInnerOuterPointsExtended();
 	ComputeCourseMesh();
 	ComputeLinesMesh();
+	CreateObstacles();
 }
 
 
@@ -114,7 +115,7 @@ void Course::ComputeIntermediaryPoints()
 			P2 = polygon_points[i + 1];
 		}
 
-		while (t <= 1) {
+		while (t < 1) {
 			point = IntermediaryPoint(P1, P2, t);
 			polygon_points_extended.push_back(point);
 			t += step;
@@ -164,6 +165,7 @@ void Course::ComputeInnerOuterPointsExtended()
 	glm::vec3 up = glm::vec3(0, 1, 0);	// Perpendicular on XoZ plane
 	glm::vec3 inner, outer;				// Resulting points
 	glm::vec3 tree_0, tree_1, tree_2, tree_3;		// Same for tree locations
+	glm::vec3 route_0, route_1;
 
 	int size = (int)polygon_points_extended.size();
 
@@ -195,6 +197,13 @@ void Course::ComputeInnerOuterPointsExtended()
 		tree_locations_1.push_back(tree_1); 
 		tree_locations_2.push_back(tree_2);
 		tree_locations_3.push_back(tree_3);
+
+		// And routes for obstacles
+		route_0 = P1 - route_dist * P;
+		route_1 = P1 + route_dist * P;
+
+		obstacle_route_0.push_back(route_0);
+		obstacle_route_1.push_back(route_1);
 	}
 
 	// Compute vector to hold which (random) side to place a model (tree) on
@@ -211,6 +220,19 @@ void Course::ComputeInnerOuterPointsExtended()
 		rotation = rand() % 12;
 		rotations.push_back(rotation);
 	}
+}
+
+
+void Course::CreateObstacles() 
+{
+	int size = (int)obstacle_route_0.size();
+	Obstacle *obstacle_0 = new Obstacle(obstacle_route_0, 0);
+	Obstacle *obstacle_1 = new Obstacle(obstacle_route_0, 0);
+	Obstacle *obstacle_2 = new Obstacle(obstacle_route_1, 0);
+
+	obstacles.push_back(obstacle_0);
+	obstacles.push_back(obstacle_1);
+	obstacles.push_back(obstacle_2);
 }
 
 
@@ -295,6 +317,7 @@ void Course::ComputeCourseMesh()
 
 	course = new Mesh("course");
 	course->SetDrawMode(GL_TRIANGLE_STRIP);
+	//course->SetDrawMode(GL_LINE_LOOP);
 
 	for (int i = 0; i < size; i++) {
 		vertices.push_back(VertexFormat(inner_points_extended[i], color));

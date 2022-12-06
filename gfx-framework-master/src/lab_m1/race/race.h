@@ -23,6 +23,7 @@ namespace m1
         void FrameEnd() override;
         void RenderScene();
         void RenderTrees();
+        void RenderObstacles();
         void RenderMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix) override;
 
         void OnInputUpdate(float deltaTime, int mods) override;
@@ -49,7 +50,7 @@ namespace m1
         // Camera variables
         float PI = glm::pi<float>();
         float fov = PI / 2;
-        float dist = 20;
+        float dist = 10;
         float left = -dist;
         float right = dist;
         float bottom = -dist;

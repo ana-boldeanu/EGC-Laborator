@@ -44,6 +44,27 @@ void Race::Init()
     }
 
     {
+        Mesh* mesh = new Mesh("obstacle_0");
+        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
+        meshes[mesh->GetMeshID()] = mesh;
+        course->obstacles[0]->model = mesh;
+    }
+
+    {
+        Mesh* mesh = new Mesh("obstacle_1");
+        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
+        meshes[mesh->GetMeshID()] = mesh;
+        course->obstacles[1]->model = mesh;
+    }
+
+    {
+        Mesh* mesh = new Mesh("obstacle_2");
+        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
+        meshes[mesh->GetMeshID()] = mesh;
+        course->obstacles[2]->model = mesh;
+    }
+
+    {
         Mesh* mesh = new Mesh("tree");
         mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "race"), "tree.obj");
         meshes[mesh->GetMeshID()] = mesh;
@@ -55,7 +76,7 @@ void Race::Init()
 
     // Create a shader program
     {
-        Shader* shader = new Shader("GrassNRoadShader");
+        Shader* shader = new Shader("CurveShader");
         shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "race", "shaders", "VertexShader.glsl"), GL_VERTEX_SHADER);
         shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "race", "shaders", "FragmentShader.glsl"), GL_FRAGMENT_SHADER);
         shader->CreateAndLink();
@@ -73,6 +94,27 @@ void Race::FrameStart()
     // Set the screen area where to draw
     glm::ivec2 resolution = window->GetResolution();
     glViewport(0, 0, resolution.x, resolution.y);
+}
+
+
+void Race::RenderObstacles() 
+{
+    float road_scale = course->road_scale;
+    glm::vec3 position;
+    glm::mat4 modelMatrix;
+
+    Obstacle *obstacle = course->obstacles[0];
+
+    //for each (auto & obstacle in course->obstacles) {
+        position = obstacle->GetPositionAndAdvance();
+        position *= road_scale;
+
+        modelMatrix = glm::mat4(1);
+        modelMatrix *= transform3D::Translate(position.x, translate_y, position.z);
+
+        RenderMesh(obstacle->model, shaders["CurveShader"], modelMatrix);
+    //}
+
 }
 
 
@@ -118,7 +160,7 @@ void Race::RenderTrees()
         modelMatrix *= transform3D::Translate(road_scale * x, road_scale * y, road_scale * z);
         modelMatrix *= transform3D::Scale(scale, scale, scale);
         modelMatrix *= transform3D::RotateOY((float)rotation);
-        RenderMesh(meshes["tree"], shaders["GrassNRoadShader"], modelMatrix);
+        RenderMesh(meshes["tree"], shaders["CurveShader"], modelMatrix);
         modelMatrix = glm::mat4(1);
     }
 }
@@ -132,10 +174,11 @@ void Race::RenderScene()
         modelMatrix *= transform3D::RotateOY(1);    // Change this for model-specific rotation
         modelMatrix *= transform3D::RotateOY(move_angle);
 
-        RenderMesh(meshes["box"], shaders["GrassNRoadShader"], modelMatrix);
+        RenderMesh(meshes["box"], shaders["CurveShader"], modelMatrix);
     }
 
     RenderTrees();
+    RenderObstacles();
 
     {
         glm::mat4 modelMatrix = glm::mat4(1);
@@ -143,8 +186,8 @@ void Race::RenderScene()
         modelMatrix *= transform3D::Translate(0, 0.06f, 0);
         modelMatrix *= transform3D::Scale(road_scale, road_scale, road_scale);
 
-        RenderMesh(meshes["course"], shaders["GrassNRoadShader"], modelMatrix);
-        RenderMesh(meshes["lines"], shaders["GrassNRoadShader"], modelMatrix);
+        RenderMesh(meshes["course"], shaders["CurveShader"], modelMatrix);
+        RenderMesh(meshes["lines"], shaders["CurveShader"], modelMatrix);
     }
 
     {
@@ -153,7 +196,7 @@ void Race::RenderScene()
         float length = environment->grass_length;
         modelMatrix *= transform3D::Scale(scale, scale, scale);
         modelMatrix *= transform3D::Translate(-length/2, 0, -length/2);
-        RenderMesh(meshes["grass"], shaders["GrassNRoadShader"], modelMatrix);
+        RenderMesh(meshes["grass"], shaders["CurveShader"], modelMatrix);
     }
 }
 

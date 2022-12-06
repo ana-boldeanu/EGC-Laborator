@@ -19,6 +19,6 @@ namespace m1
 
     protected:
         glm::vec3 grass_color_1 = glm::vec3(0.92f, 0.4f, 0.14f);
-        glm::vec3 grass_color_2 = glm::vec3(0.4, 0.3, 0.27);
+        glm::vec3 grass_color_2 = glm::vec3(0.92f, 0.4f, 0.14f);
     };
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "components/simple_scene.h"
+#include "lab_m1/race/obstacle.h"
 
 #include <iostream>
 #include <vector>
@@ -28,6 +29,10 @@ namespace m1
         std::vector<glm::vec3> outer_points;
         std::vector<glm::vec3> inner_points;
 
+        std::vector<Obstacle*> obstacles;
+        std::vector<glm::vec3> obstacle_route_0;
+        std::vector<glm::vec3> obstacle_route_1;
+
     private:
         void Course::SetPolygonPoints();
         void Course::ComputeIntermediaryPoints();
@@ -35,6 +40,9 @@ namespace m1
         void Course::ComputeInnerOuterPointsExtended();
         void Course::ComputeLinesMesh();
         void Course::ComputeCourseMesh();
+
+        void Course::CreateObstacles();
+
         float Course::TriangleArea(glm::vec2 P1, glm::vec2 P2, glm::vec2 P3);
 
     protected:
@@ -44,6 +52,8 @@ namespace m1
 
         float tree_dist_0 = inner_dist + 0.3f;
         float tree_dist_1 = inner_dist + 0.6f;
+
+        float route_dist = inner_dist / 2;
 
         std::vector<glm::vec3> polygon_points_extended;   // Extended polygon points with intermediaries
         std::vector<glm::vec3> outer_points_extended;
