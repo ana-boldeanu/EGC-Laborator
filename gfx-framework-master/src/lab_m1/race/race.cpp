@@ -118,7 +118,7 @@ void Race::RenderTrees()
         modelMatrix *= transform3D::Translate(road_scale * x, road_scale * y, road_scale * z);
         modelMatrix *= transform3D::Scale(scale, scale, scale);
         modelMatrix *= transform3D::RotateOY((float)rotation);
-        RenderMesh(meshes["tree"], shaders["VertexNormal"], modelMatrix);
+        RenderMesh(meshes["tree"], shaders["GrassNRoadShader"], modelMatrix);
         modelMatrix = glm::mat4(1);
     }
 }
@@ -132,7 +132,7 @@ void Race::RenderScene()
         modelMatrix *= transform3D::RotateOY(1);    // Change this for model-specific rotation
         modelMatrix *= transform3D::RotateOY(move_angle);
 
-        RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
+        RenderMesh(meshes["box"], shaders["GrassNRoadShader"], modelMatrix);
     }
 
     RenderTrees();
@@ -140,10 +140,11 @@ void Race::RenderScene()
     {
         glm::mat4 modelMatrix = glm::mat4(1);
         float road_scale = course->road_scale;
+        modelMatrix *= transform3D::Translate(0, 0.06f, 0);
         modelMatrix *= transform3D::Scale(road_scale, road_scale, road_scale);
-        RenderMesh(meshes["course"], shaders["VertexColor"], modelMatrix);
-        modelMatrix *= transform3D::Translate(0, 0.01f, 0);
-        RenderMesh(meshes["lines"], shaders["VertexColor"], modelMatrix);
+
+        RenderMesh(meshes["course"], shaders["GrassNRoadShader"], modelMatrix);
+        RenderMesh(meshes["lines"], shaders["GrassNRoadShader"], modelMatrix);
     }
 
     {
@@ -152,7 +153,7 @@ void Race::RenderScene()
         float length = environment->grass_length;
         modelMatrix *= transform3D::Scale(scale, scale, scale);
         modelMatrix *= transform3D::Translate(-length/2, 0, -length/2);
-        RenderMesh(meshes["grass"], shaders["VertexColor"], modelMatrix);
+        RenderMesh(meshes["grass"], shaders["GrassNRoadShader"], modelMatrix);
     }
 }
 

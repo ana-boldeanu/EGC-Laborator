@@ -25,10 +25,10 @@ void main()
     vec3 world_pos = (Model * vec4(v_position, 1)).xyz;
 
     // Compute gl_Position
-    float gamma = 0.01f;
+    float gamma = 0.005f;
 
-    float len = length(car_pos - world_pos);
-    float y = world_pos.y - len * len * gamma;
+    float len = distance(car_pos, world_pos);
+    world_pos.y -= len * len * gamma;
 
-    gl_Position = Projection * View * vec4(world_pos.x, y, world_pos.z, 1.0);
+    gl_Position = Projection * View * vec4(world_pos, 1.0);
 }
