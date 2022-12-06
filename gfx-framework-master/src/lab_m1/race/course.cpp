@@ -99,7 +99,7 @@ glm::vec3 IntermediaryPoint(glm::vec3 P1, glm::vec3 P2, float t)
 
 void Course::ComputeIntermediaryPoints()
 {
-	float step = 0.001f;
+	float step = 0.01f;
 	float t = 0.0f;
 	glm::vec3 point;
 	glm::vec3 P1, P2;

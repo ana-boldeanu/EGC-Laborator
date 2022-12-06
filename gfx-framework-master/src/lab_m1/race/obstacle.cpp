@@ -13,7 +13,7 @@ glm::vec3 m1::Obstacle::GetPositionAndAdvance()
 	glm::vec3 position = route[idx];
 
 	int size = (int)route.size();
-	idx += 15;
+	idx += 10;
 	if (idx == size) {
 		idx = 0;
 	}

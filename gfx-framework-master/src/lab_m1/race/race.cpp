@@ -106,13 +106,13 @@ void Race::RenderObstacles()
     Obstacle *obstacle = course->obstacles[0];
 
     //for each (auto & obstacle in course->obstacles) {
-        position = obstacle->GetPositionAndAdvance();
-        position *= road_scale;
+    position = obstacle->GetPositionAndAdvance();
+    position *= road_scale;
 
-        modelMatrix = glm::mat4(1);
-        modelMatrix *= transform3D::Translate(position.x, translate_y, position.z);
+    modelMatrix = glm::mat4(1);
+    modelMatrix *= transform3D::Translate(position.x, translate_y, position.z);
 
-        RenderMesh(obstacle->model, shaders["CurveShader"], modelMatrix);
+    RenderMesh(obstacle->model, shaders["CurveShader"], modelMatrix);
     //}
 
 }
