@@ -52,6 +52,15 @@ void Race::Init()
     meshes["course"] = course->course;
     meshes["lines"] = course->lines;
     meshes["grass"] = environment->grass;
+
+    // Create a shader program
+    {
+        Shader* shader = new Shader("GrassNRoadShader");
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "race", "shaders", "VertexShader.glsl"), GL_VERTEX_SHADER);
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "race", "shaders", "FragmentShader.glsl"), GL_FRAGMENT_SHADER);
+        shader->CreateAndLink();
+        shaders[shader->GetName()] = shader;
+    }
 }
 
 
@@ -183,7 +192,7 @@ void Race::RenderMesh(Mesh * mesh, Shader * shader, const glm::mat4 & modelMatri
         return;
 
     // Render an object using the specified shader and the specified position
-    shader->Use();
+    glUseProgram(shader->program);  // Maybe here 
     
     // Either use minimap camera or main camera
     if (project_ortho) {
@@ -196,6 +205,10 @@ void Race::RenderMesh(Mesh * mesh, Shader * shader, const glm::mat4 & modelMatri
     }
 
     glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+    int location_car_pos = glGetUniformLocation(shader->GetProgramID(), "car_pos");
+    glm::vec3 car_pos = glm::vec3(center_x, center_y, center_z);
+    glUniform3fv(location_car_pos, 1, glm::value_ptr(car_pos));
 
     mesh->Render();
 }
