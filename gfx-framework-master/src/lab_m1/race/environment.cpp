@@ -15,54 +15,8 @@ void Environment::CreateGrass()
 }
 
 
-Mesh* Environment::CreateSquare(const std::string& name, float length, glm::vec3 color_1, glm::vec3 color_2)
+void Environment::CreateMeshFromData(Mesh* mesh, std::vector<VertexFormat> vertices, std::vector<unsigned int> indices)
 {
-    // Create indices and vertices vectors
-    std::vector<VertexFormat> vertices;
-    std::vector<unsigned int> indices;
-    Mesh* square = new Mesh(name);
-
-    square->SetDrawMode(GL_TRIANGLE_STRIP);
-
-    int segments = 500;
-    float len = length / segments;
-
-    float y = -0.01f;
-    float x = 0, z = 0;
-
-    float idx = 0;
-
-    for (int j = 0; j < segments; j += 1) {
-        if (j % 2 == 0) {
-            for (int i = 0; i < segments; i += 1) {
-                // Add a square
-                vertices.push_back(VertexFormat(glm::vec3(x + len * i, y, z + len * j), color_1));
-                vertices.push_back(VertexFormat(glm::vec3(x + len * i, y, z + len * (j + 1)), color_1));
-                vertices.push_back(VertexFormat(glm::vec3(x + len * (i + 1), y, z + len * j), color_1));
-                vertices.push_back(VertexFormat(glm::vec3(x + len * (i + 1), y, z + len * (j + 1)), color_1));
-
-                indices.push_back(idx++);
-                indices.push_back(idx++);
-                indices.push_back(idx++);
-                indices.push_back(idx++);
-            }
-        }
-        else {
-            for (int i = segments - 1; i >= 0; i -= 1) {
-                // Add a square
-                vertices.push_back(VertexFormat(glm::vec3(x + len * i, y, z + len * j), color_2));
-                vertices.push_back(VertexFormat(glm::vec3(x + len * i, y, z + len * (j + 1)), color_2));
-                vertices.push_back(VertexFormat(glm::vec3(x + len * (i + 1), y, z + len * j), color_2));
-                vertices.push_back(VertexFormat(glm::vec3(x + len * (i + 1), y, z + len * (j + 1)), color_2));
-
-                indices.push_back(idx++);
-                indices.push_back(idx++);
-                indices.push_back(idx++);
-                indices.push_back(idx++);
-            }
-        }
-    }
-
     // Create the VAO and bind it
     unsigned int VAO = 0;
     glGenVertexArrays(1, &VAO);
@@ -107,9 +61,61 @@ Mesh* Environment::CreateSquare(const std::string& name, float length, glm::vec3
     CheckOpenGLError();
 
     // Save Mesh information
-    square->InitFromBuffer(VAO, static_cast<unsigned int>(indices.size()));
-    square->vertices = vertices;
-    square->indices = indices;
+    mesh->InitFromBuffer(VAO, static_cast<unsigned int>(indices.size()));
+    mesh->vertices = vertices;
+    mesh->indices = indices;
+}
+
+
+Mesh* Environment::CreateSquare(const std::string& name, float length, glm::vec3 color_1, glm::vec3 color_2)
+{
+    // Create indices and vertices vectors
+    std::vector<VertexFormat> vertices;
+    std::vector<unsigned int> indices;
+    Mesh* square = new Mesh(name);
+
+    square->SetDrawMode(GL_TRIANGLE_STRIP);
+
+    int segments = 500;
+    float len = length / segments;
+
+    float y = -0.01f;
+    float x = 0, z = 0;
+
+    int idx = 0;
+
+    for (int j = 0; j < segments; j += 1) {
+        if (j % 2 == 0) {
+            for (int i = 0; i < segments; i += 1) {
+                // Add a square
+                vertices.push_back(VertexFormat(glm::vec3(x + len * i, y, z + len * j), color_1));
+                vertices.push_back(VertexFormat(glm::vec3(x + len * i, y, z + len * (j + 1)), color_1));
+                vertices.push_back(VertexFormat(glm::vec3(x + len * (i + 1), y, z + len * j), color_1));
+                vertices.push_back(VertexFormat(glm::vec3(x + len * (i + 1), y, z + len * (j + 1)), color_1));
+
+                indices.push_back(idx++);
+                indices.push_back(idx++);
+                indices.push_back(idx++);
+                indices.push_back(idx++);
+            }
+        }
+        else {
+            for (int i = segments - 1; i >= 0; i -= 1) {
+                // Add a square
+                vertices.push_back(VertexFormat(glm::vec3(x + len * i, y, z + len * j), color_2));
+                vertices.push_back(VertexFormat(glm::vec3(x + len * i, y, z + len * (j + 1)), color_2));
+                vertices.push_back(VertexFormat(glm::vec3(x + len * (i + 1), y, z + len * j), color_2));
+                vertices.push_back(VertexFormat(glm::vec3(x + len * (i + 1), y, z + len * (j + 1)), color_2));
+
+                indices.push_back(idx++);
+                indices.push_back(idx++);
+                indices.push_back(idx++);
+                indices.push_back(idx++);
+            }
+        }
+    }
+
+    CreateMeshFromData(square, vertices, indices);
     return square;
 }
 

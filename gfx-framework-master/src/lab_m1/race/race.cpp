@@ -44,24 +44,13 @@ void Race::Init()
     }
 
     {
-        Mesh* mesh = new Mesh("obstacle_0");
+        Mesh* mesh = new Mesh("obstacle");
         mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
         meshes[mesh->GetMeshID()] = mesh;
-        course->obstacles[0]->model = mesh;
-    }
 
-    {
-        Mesh* mesh = new Mesh("obstacle_1");
-        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
-        meshes[mesh->GetMeshID()] = mesh;
-        course->obstacles[1]->model = mesh;
-    }
-
-    {
-        Mesh* mesh = new Mesh("obstacle_2");
-        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
-        meshes[mesh->GetMeshID()] = mesh;
-        course->obstacles[2]->model = mesh;
+        for each (Obstacle *obstacle in course->obstacles) {
+            obstacle->model = mesh;
+        }
     }
 
     {
@@ -88,7 +77,7 @@ void Race::Init()
 void Race::FrameStart()
 {
     // Clears the color buffer (using the previously set color) and depth buffer
-    glClearColor(0.45, 0, 0, 1);
+    glClearColor(0.45f, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Set the screen area where to draw
@@ -103,18 +92,15 @@ void Race::RenderObstacles()
     glm::vec3 position;
     glm::mat4 modelMatrix;
 
-    Obstacle *obstacle = course->obstacles[0];
+    for each (auto & obstacle in course->obstacles) {
+        position = obstacle->GetPositionAndAdvance();
+        position *= road_scale;
 
-    //for each (auto & obstacle in course->obstacles) {
-    position = obstacle->GetPositionAndAdvance();
-    position *= road_scale;
+        modelMatrix = glm::mat4(1);
+        modelMatrix *= transform3D::Translate(position.x, translate_y, position.z);
 
-    modelMatrix = glm::mat4(1);
-    modelMatrix *= transform3D::Translate(position.x, translate_y, position.z);
-
-    RenderMesh(obstacle->model, shaders["CurveShader"], modelMatrix);
-    //}
-
+        RenderMesh(obstacle->model, shaders["CurveShader"], modelMatrix);
+    }
 }
 
 
@@ -126,7 +112,7 @@ void Race::RenderTrees()
     int side, rotation;
     float x, y, z;
 
-    for (int i = 0; i < size; i += 401) {
+    for (int i = 0; i < size; i++) {
         side = course->locations[i];
         switch (side) {
         case 0:
@@ -204,6 +190,9 @@ void Race::RenderScene()
 void Race::Update(float deltaTimeSeconds)
 {
     // Render the scene
+
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     project_ortho = false;
     projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
 

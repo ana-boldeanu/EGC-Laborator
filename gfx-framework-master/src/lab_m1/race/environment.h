@@ -13,6 +13,8 @@ namespace m1
         Mesh* grass;
         float grass_length = 200;
 
+        static void Environment::CreateMeshFromData(Mesh* mesh, std::vector<VertexFormat> vertices, std::vector<unsigned int> indices);
+
     private:
         void Environment::CreateGrass();
         Mesh* Environment::CreateSquare(const std::string& name, float length, glm::vec3 color_1, glm::vec3 color_2);

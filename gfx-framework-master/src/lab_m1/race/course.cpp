@@ -7,9 +7,9 @@ using namespace m1;
 Course::Course()
 {
 	SetPolygonPoints();
-	ComputeIntermediaryPoints();
 	ComputeInnerOuterPoints();
-	ComputeInnerOuterPointsExtended();
+	ComputeIntermediaryPoints();
+	ComputeTreeLocations();
 	ComputeCourseMesh();
 	ComputeLinesMesh();
 	CreateObstacles();
@@ -77,6 +77,59 @@ bool Course::IsOnRoad(glm::vec2 car_pos)
 }
 
 
+void Course::ComputeInnerOuterPoints()
+{
+	glm::vec3 P1, P2;	// End points for a segment
+	glm::vec3 D;		// Direction vector from P1 to P2
+	glm::vec3 P;		// Perpendicular on D
+	glm::vec3 up = glm::vec3(0, 1, 0);	// Perpendicular on XoZ plane
+	glm::vec3 inner, outer;				// Resulting points
+	glm::vec3 route_0, route_1;
+	glm::vec3 tree_0, tree_1, tree_2, tree_3;		// Same for tree locations
+
+	int size = (int)polygon_points.size();
+
+	for (int i = 0; i < size; i++) {
+		P1 = polygon_points[i];
+
+		if (i == size - 1) {
+			P2 = polygon_points[0];		// For last segment
+		}
+		else {
+			P2 = polygon_points[i + 1];
+		}
+
+		D = glm::normalize(P2 - P1);
+		P = glm::normalize(cross(D, up));
+
+		inner = P1 - inner_dist * P;
+		outer = P1 + outer_dist * P;
+
+		inner_points.push_back(inner);
+		outer_points.push_back(outer);
+
+
+		// And routes for obstacles
+		route_0 = P1 - route_dist * P;
+		route_1 = P1 + route_dist * P;
+
+		obstacle_route_0.push_back(route_0);
+		obstacle_route_1.push_back(route_1);
+
+
+		// Same for tree locations
+		tree_0 = P1 - tree_dist_0 * P;
+		tree_1 = P1 + tree_dist_0 * P;
+		tree_2 = P1 - tree_dist_1 * P;
+		tree_3 = P1 + tree_dist_1 * P;
+
+		tree_locations_0.push_back(tree_0);
+		tree_locations_1.push_back(tree_1);
+		tree_locations_2.push_back(tree_2);
+		tree_locations_3.push_back(tree_3);
+	}
+}
+
 
 // Value t is in [0, 1]
 glm::vec3 IntermediaryPoint(glm::vec3 P1, glm::vec3 P2, float t)
@@ -97,27 +150,26 @@ glm::vec3 IntermediaryPoint(glm::vec3 P1, glm::vec3 P2, float t)
 }
 
 
-void Course::ComputeIntermediaryPoints()
+void Course::ExtendPoints(std::vector<glm::vec3> &initialList, std::vector<glm::vec3> &extendedList, float step)
 {
-	float step = 0.01f;
 	float t = 0.0f;
 	glm::vec3 point;
 	glm::vec3 P1, P2;
 
-	int size = (int)polygon_points.size();
-
+	int size = (int)initialList.size();
 	for (int i = 0; i < size; i++) {
-		P1 = polygon_points[i];
+		P1 = initialList[i];
 
 		if (i == size - 1) {
-			P2 = polygon_points[0];		// For last segment
-		} else {
-			P2 = polygon_points[i + 1];
+			P2 = initialList[0];		// For last segment
+		}
+		else {
+			P2 = initialList[i + 1];
 		}
 
 		while (t < 1) {
 			point = IntermediaryPoint(P1, P2, t);
-			polygon_points_extended.push_back(point);
+			extendedList.push_back(point);
 			t += step;
 		}
 
@@ -126,85 +178,30 @@ void Course::ComputeIntermediaryPoints()
 }
 
 
-void Course::ComputeInnerOuterPoints()
+void Course::ComputeIntermediaryPoints()
 {
-	glm::vec3 P1, P2;	// End points for a segment
-	glm::vec3 D;		// Direction vector from P1 to P2
-	glm::vec3 P;		// Perpendicular on D
-	glm::vec3 up = glm::vec3(0, 1, 0);	// Perpendicular on XoZ plane
-	glm::vec3 inner, outer;				// Resulting points
+	// Extend main polygon points
+	float step = 0.001f;
+	ExtendPoints(polygon_points, polygon_points_extended, step);
+	ExtendPoints(inner_points, inner_points_extended, step);
+	ExtendPoints(outer_points, outer_points_extended, step);
 
-	int size = (int)polygon_points.size();
+	step = 0.01f;
+	ExtendPoints(obstacle_route_0, obstacle_route_0_ext, step);
+	ExtendPoints(obstacle_route_1, obstacle_route_1_ext, step);
 
-	for (int i = 0; i < size; i++) {
-		P1 = polygon_points[i];
-
-		if (i == size - 1) {
-			P2 = polygon_points[0];		// For last segment
-		} else {
-			P2 = polygon_points[i + 1];
-		}
-
-		D = glm::normalize(P2 - P1);
-		P = glm::normalize(cross(D, up));
-
-		inner = P1 - inner_dist * P;
-		outer = P1 + outer_dist * P;
-
-		inner_points.push_back(inner);
-		outer_points.push_back(outer);
-	}
+	// Extend Tree locations
+	step = 0.5f;
+	ExtendPoints(tree_locations_0, tree_locations_0, step);
+	ExtendPoints(tree_locations_1, tree_locations_1, step);
+	ExtendPoints(tree_locations_2, tree_locations_2, step);
+	ExtendPoints(tree_locations_3, tree_locations_3, step);
 }
 
 
-void Course::ComputeInnerOuterPointsExtended() 
+void Course::ComputeTreeLocations()
 {
-	glm::vec3 P1, P2;	// End points for a segment
-	glm::vec3 D;		// Direction vector from P1 to P2
-	glm::vec3 P;		// Perpendicular on D
-	glm::vec3 up = glm::vec3(0, 1, 0);	// Perpendicular on XoZ plane
-	glm::vec3 inner, outer;				// Resulting points
-	glm::vec3 tree_0, tree_1, tree_2, tree_3;		// Same for tree locations
-	glm::vec3 route_0, route_1;
-
-	int size = (int)polygon_points_extended.size();
-
-	for (int i = 0; i < size; i++) {
-		P1 = polygon_points_extended[i];
-
-		if (i == size - 1) {
-			P2 = polygon_points_extended[0];
-		} else {
-			P2 = polygon_points_extended[i + 1];
-		}
-
-		D = glm::normalize(P2 - P1);
-		P = glm::normalize(cross(D, up));
-
-		inner = P1 - inner_dist * P;
-		outer = P1 + outer_dist * P;
-
-		inner_points_extended.push_back(inner);
-		outer_points_extended.push_back(outer);
-
-		// Same for tree locations
-		tree_0 = P1 - tree_dist_0 * P;
-		tree_1 = P1 + tree_dist_0 * P;
-		tree_2 = P1 - tree_dist_1 * P;
-		tree_3 = P1 + tree_dist_1 * P;
-
-		tree_locations_0.push_back(tree_0);
-		tree_locations_1.push_back(tree_1); 
-		tree_locations_2.push_back(tree_2);
-		tree_locations_3.push_back(tree_3);
-
-		// And routes for obstacles
-		route_0 = P1 - route_dist * P;
-		route_1 = P1 + route_dist * P;
-
-		obstacle_route_0.push_back(route_0);
-		obstacle_route_1.push_back(route_1);
-	}
+	int size = (int)tree_locations_0.size();
 
 	// Compute vector to hold which (random) side to place a model (tree) on
 	srand(static_cast <unsigned> (time(0)));
@@ -225,14 +222,16 @@ void Course::ComputeInnerOuterPointsExtended()
 
 void Course::CreateObstacles() 
 {
-	int size = (int)obstacle_route_0.size();
-	Obstacle *obstacle_0 = new Obstacle(obstacle_route_0, 0);
-	Obstacle *obstacle_1 = new Obstacle(obstacle_route_0, 0);
-	Obstacle *obstacle_2 = new Obstacle(obstacle_route_1, 0);
+	int size = (int)obstacle_route_0_ext.size();
+	Obstacle *obstacle_0 = new Obstacle(obstacle_route_0_ext, size / 5);
+	Obstacle *obstacle_1 = new Obstacle(obstacle_route_1_ext, 2 * size / 5);
+	Obstacle *obstacle_2 = new Obstacle(obstacle_route_0_ext, 3 * size / 5);
+	Obstacle *obstacle_3 = new Obstacle(obstacle_route_1_ext, 4 * size / 5);
 
 	obstacles.push_back(obstacle_0);
 	obstacles.push_back(obstacle_1);
 	obstacles.push_back(obstacle_2);
+	obstacles.push_back(obstacle_3);
 }
 
 
@@ -258,53 +257,7 @@ void Course::ComputeLinesMesh()
 		indices.push_back(k++);
 	}
 
-	// Create the VAO and bind it
-	unsigned int VAO = 0;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	// Create the VBO and bind it
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	// Send vertices data into the VBO buffer
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
-
-	// Create the IBO and bind it
-	unsigned int IBO;
-	glGenBuffers(1, &IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-
-	// Send indices data into the IBO buffer
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices[0]) * indices.size(), &indices[0], GL_STATIC_DRAW);
-
-	// Set vertex position attribute
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexFormat), 0);
-
-	// Set vertex normal attribute
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexFormat), (void*)(sizeof(glm::vec3)));
-
-	// Set texture coordinate attribute
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexFormat), (void*)(2 * sizeof(glm::vec3)));
-
-	// Set vertex color attribute
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(VertexFormat), (void*)(2 * sizeof(glm::vec3) + sizeof(glm::vec2)));
-
-	// Unbind the VAO
-	glBindVertexArray(0);
-
-	// Check for OpenGL errors
-	CheckOpenGLError();
-
-	// Save Mesh information
-	lines->InitFromBuffer(VAO, static_cast<unsigned int>(indices.size()));
-	lines->vertices = vertices;
-	lines->indices = indices;
+	Environment::CreateMeshFromData(lines, vertices, indices);
 }
 
 
@@ -328,55 +281,9 @@ void Course::ComputeCourseMesh()
 	}
 
 	indices.push_back(0);
-	indices.push_back(1);
+	indices.push_back(1); 
 	
-	// Create the VAO and bind it
-	unsigned int VAO = 0;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	// Create the VBO and bind it
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	// Send vertices data into the VBO buffer
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
-
-	// Create the IBO and bind it
-	unsigned int IBO;
-	glGenBuffers(1, &IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-
-	// Send indices data into the IBO buffer
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices[0]) * indices.size(), &indices[0], GL_STATIC_DRAW);
-
-	// Set vertex position attribute
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexFormat), 0);
-
-	// Set vertex normal attribute
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexFormat), (void*)(sizeof(glm::vec3)));
-
-	// Set texture coordinate attribute
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexFormat), (void*)(2 * sizeof(glm::vec3)));
-
-	// Set vertex color attribute
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(VertexFormat), (void*)(2 * sizeof(glm::vec3) + sizeof(glm::vec2)));
-
-	// Unbind the VAO
-	glBindVertexArray(0);
-
-	// Check for OpenGL errors
-	CheckOpenGLError();
-
-	// Save Mesh information
-	course->InitFromBuffer(VAO, static_cast<unsigned int>(indices.size()));
-	course->vertices = vertices;
-	course->indices = indices;
+	Environment::CreateMeshFromData(course, vertices, indices);
 }
 
 
