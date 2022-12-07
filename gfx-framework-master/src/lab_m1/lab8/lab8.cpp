@@ -56,6 +56,7 @@ void Lab8::Init()
     // Light & material properties
     {
         lightPosition = glm::vec3(0, 1, 1);
+        lightPosition_2 = glm::vec3(0, 1, 1);
         lightDirection = glm::vec3(0, -1, 0);
         materialShininess = 30;
         materialKd = 0.5;
@@ -120,6 +121,14 @@ void Lab8::Update(float deltaTimeSeconds)
         modelMatrix = glm::scale(modelMatrix, glm::vec3(0.1f));
         RenderMesh(meshes["sphere"], shaders["Simple"], modelMatrix);
     }
+
+    // Render the second point light in the scene
+    {
+        glm::mat4 modelMatrix = glm::mat4(1);
+        modelMatrix = glm::translate(modelMatrix, lightPosition_2);
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.1f));
+        RenderMesh(meshes["sphere"], shaders["Simple"], modelMatrix);
+    }
 }
 
 
@@ -144,6 +153,13 @@ void Lab8::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelM
     int light_direction = glGetUniformLocation(shader->program, "light_direction");
     glUniform3f(light_direction, lightDirection.x, lightDirection.y, lightDirection.z);
 
+    // Set shader uniforms for second light properties
+    int light_position_2 = glGetUniformLocation(shader->program, "light_position_2");
+    glUniform3f(light_position_2, lightPosition_2.x, lightPosition_2.y, lightPosition_2.z);
+
+    int light_direction_2 = glGetUniformLocation(shader->program, "light_direction_2");
+    glUniform3f(light_direction_2, lightDirection_2.x, lightDirection_2.y, lightDirection_2.z);
+
     // Set eye position (camera position) uniform
     glm::vec3 eyePosition = GetSceneCamera()->m_transform->GetWorldPosition();
     int eye_position = glGetUniformLocation(shader->program, "eye_position");
@@ -163,6 +179,8 @@ void Lab8::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelM
     glUniform3f(object_color, color.r, color.g, color.b);
 
     // TODO(student): Set any other shader uniforms that you need
+    int spotlight_loc = glGetUniformLocation(shader->program, "spotlight");
+    glUniform1i(spotlight_loc, spotlight);
 
     // Bind model matrix
     GLint loc_model_matrix = glGetUniformLocation(shader->program, "Model");
@@ -210,7 +228,13 @@ void Lab8::OnInputUpdate(float deltaTime, int mods)
         if (window->KeyHold(GLFW_KEY_Q)) lightPosition -= up * deltaTime * speed;
 
         // TODO(student): Set any other keys that you might need
-
+        // Control light second position using on I, J, K, L, U, O
+        if (window->KeyHold(GLFW_KEY_I)) lightPosition_2 -= forward * deltaTime * speed;
+        if (window->KeyHold(GLFW_KEY_J)) lightPosition_2 -= right * deltaTime * speed;
+        if (window->KeyHold(GLFW_KEY_K)) lightPosition_2 += forward * deltaTime * speed;
+        if (window->KeyHold(GLFW_KEY_L)) lightPosition_2 += right * deltaTime * speed;
+        if (window->KeyHold(GLFW_KEY_O)) lightPosition_2 += up * deltaTime * speed;
+        if (window->KeyHold(GLFW_KEY_U)) lightPosition_2 -= up * deltaTime * speed;
     }
 }
 
@@ -220,7 +244,14 @@ void Lab8::OnKeyPress(int key, int mods)
     // Add key press event
 
     // TODO(student): Set keys that you might need
-
+    if (key == GLFW_KEY_F) {
+        if (spotlight == 0) {
+            spotlight = 1;
+        }
+        else {
+            spotlight = 0;
+        }
+    }
 }
 
 

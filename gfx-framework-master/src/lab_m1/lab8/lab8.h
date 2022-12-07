@@ -36,7 +36,11 @@ namespace m1
         float materialKd;
         float materialKs;
 
+        glm::vec3 lightPosition_2;
+        glm::vec3 lightDirection_2;
+
         // TODO(student): If you need any other class variables, define them here.
+        int spotlight = 0;
 
     };
 }   // namespace m1

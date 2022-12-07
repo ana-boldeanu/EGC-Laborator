@@ -255,6 +255,7 @@ void Race::OnInputUpdate(float deltaTime, int mods)
     float sensitivity = 0.01f;
     float angle = deltaTime * rotate_speed * sensitivity;
     float new_x, new_z;
+    bool can_move;
 
     if (window->KeyHold(GLFW_KEY_A)) {
         move_angle += angle;
@@ -273,7 +274,10 @@ void Race::OnInputUpdate(float deltaTime, int mods)
         new_x = translate_x + step * cos(move_angle);
         new_z = translate_z - step * sin(move_angle);
 
-        if (course->IsOnRoad(glm::vec2(new_x, new_z))) {
+        can_move = course->IsOnRoad(glm::vec2(new_x, new_z)) 
+            && !(course->CollidedWithObstacle(glm::vec3(new_x, translate_y, new_z)));
+
+        if (can_move) {
             translate_x = new_x;
             translate_z = new_z;
 
@@ -285,7 +289,10 @@ void Race::OnInputUpdate(float deltaTime, int mods)
         new_x = translate_x - step * cos(move_angle);
         new_z = translate_z + step * sin(move_angle);
 
-        if (course->IsOnRoad(glm::vec2(new_x, new_z))) {
+        can_move = course->IsOnRoad(glm::vec2(new_x, new_z))
+            && !(course->CollidedWithObstacle(glm::vec3(new_x, translate_y, new_z)));
+
+        if (can_move) {
             translate_x = new_x;
             translate_z = new_z;
 

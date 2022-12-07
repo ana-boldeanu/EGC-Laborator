@@ -77,6 +77,18 @@ bool Course::IsOnRoad(glm::vec2 car_pos)
 }
 
 
+bool Course::CollidedWithObstacle(glm::vec3 car_position) 
+{
+	for each (Obstacle * obstacle in obstacles) {
+		if (obstacle->HasCollidedWith(car_position)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 void Course::ComputeInnerOuterPoints()
 {
 	glm::vec3 P1, P2;	// End points for a segment
@@ -191,7 +203,7 @@ void Course::ComputeIntermediaryPoints()
 	ExtendPoints(obstacle_route_1, obstacle_route_1_ext, step);
 
 	// Extend Tree locations
-	step = 0.5f;
+	step = 1.f;
 	ExtendPoints(tree_locations_0, tree_locations_0, step);
 	ExtendPoints(tree_locations_1, tree_locations_1, step);
 	ExtendPoints(tree_locations_2, tree_locations_2, step);

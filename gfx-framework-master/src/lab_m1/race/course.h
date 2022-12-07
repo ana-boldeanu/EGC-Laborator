@@ -15,6 +15,7 @@ namespace m1
         Course();
         ~Course();
         bool Course::IsOnRoad(glm::vec2 car_position);
+        bool Course::CollidedWithObstacle(glm::vec3 car_position);
 
         Mesh *lines;
         Mesh *course;

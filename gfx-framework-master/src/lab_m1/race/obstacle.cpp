@@ -3,12 +3,18 @@
 using namespace std;
 using namespace m1;
 
+#include <iostream>
 
 Obstacle::~Obstacle()
 {
 }
 
-glm::vec3 m1::Obstacle::GetPositionAndAdvance()
+glm::vec3 Obstacle::GetPosition()
+{
+	return route[idx];
+}
+
+glm::vec3 Obstacle::GetPositionAndAdvance()
 {
 	glm::vec3 position = route[idx];
 
@@ -21,7 +27,24 @@ glm::vec3 m1::Obstacle::GetPositionAndAdvance()
 	return position;
 }
 
-bool m1::Obstacle::HasCollidedWith(glm::vec3 player_position)
+
+bool Obstacle::SpheresCollision(glm::vec3 center_A, glm::vec3 center_B, float radius_A, float radius_B)
 {
+	float distance = glm::distance(center_A, center_B);
+	float radii_sum = radius_A + radius_B;
+
+	if (distance <= radii_sum) {
+		return true;
+	}
+	
 	return false;
+}
+
+
+bool Obstacle::HasCollidedWith(glm::vec3 player_pos)
+{
+	glm::vec3 position = GetPosition();
+	position *= road_scale;
+	
+	return SpheresCollision(position, player_pos, radius, car_radius);
 }
