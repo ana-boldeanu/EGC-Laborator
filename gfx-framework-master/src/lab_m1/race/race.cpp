@@ -8,12 +8,14 @@ using namespace m1;
 
 Race::Race()
 {
+    // Create the third-person camera object
     main_camera = new Camera();
     float dist = main_camera->distanceToTarget;
     main_camera_position = glm::vec3(center_x - dist, center_y + dist / 2, center_z);
     main_camera_center = glm::vec3(center_x, center_y, center_z);
     main_camera_up = glm::vec3(0, 1, 0);
 
+    // Create the minimap camera object
     minimap_camera = new Camera();
     minimap_camera_position = glm::vec3(0, minimap_camera->distanceToTarget, z_near);
     minimap_camera_center = glm::vec3(center_x, center_y, center_z);
@@ -31,12 +33,14 @@ Race::~Race()
 
 void Race::Init()
 {
+    // Set up both cameras
     main_camera->Set(main_camera_position, main_camera_center, main_camera_up);
     minimap_camera->Set(minimap_camera_position, minimap_camera_center, minimap_camera_up);
 
     projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
     orthoMatrix = glm::ortho(left, right, bottom, top, z_near, z_far);
 
+    // Add meshes to list
     {
         Mesh* mesh = new Mesh("car");
         mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "race"), "corsair.lwo");
@@ -69,7 +73,7 @@ void Race::Init()
     meshes["lines"] = course->lines;
     meshes["grass"] = environment->grass;
 
-    // Create a shader program
+    // Create shader programs
     {
         Shader* shader = new Shader("CurveShader");
         shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "race", "shaders", "VertexShader.glsl"), GL_VERTEX_SHADER);
@@ -98,7 +102,7 @@ void Race::Init()
 
 void Race::FrameStart()
 {
-    // Clears the color buffer (using the previously set color) and depth buffer
+    // Clear the color buffer (using the previously set color) and depth buffer
     glClearColor(0.44f, 0.73f, 0.82f, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -231,13 +235,9 @@ void Race::RenderScene()
 
 void Race::Update(float deltaTimeSeconds)
 {
-    // Render the scene
-
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+    // Render the scene, in the main viewport
     project_ortho = false;
     projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
-
     RenderScene();
 
     // Render the scene again, in the minimap
@@ -246,10 +246,10 @@ void Race::Update(float deltaTimeSeconds)
     project_ortho = true;
     glViewport(minimap.x, minimap.y, minimap.width, minimap.height);
     orthoMatrix = glm::ortho(left, right, bottom, top, z_near, z_far);
+
+    // Set minimap camera above the car
     minimap_camera->Set(minimap_camera_position, minimap_camera_center, minimap_camera_up);
-
     RenderScene();
-
 }
 
 
@@ -258,16 +258,13 @@ void Race::FrameEnd()
 }
 
 
-// Attention! The `RenderMesh()` function overrides the usual `RenderMesh()` that we've been 
-// using up until now. This new function uses the view matrix from the camera that you just
-// implemented, and the local projection matrix.
 void Race::RenderMesh(Mesh * mesh, Shader * shader, const glm::mat4 & modelMatrix)
 {
     if (!mesh || !shader || !shader->program)
         return;
 
     // Render an object using the specified shader and the specified position
-    glUseProgram(shader->program);  // Maybe here 
+    glUseProgram(shader->program);
     
     // Either use minimap camera or main camera
     if (project_ortho) {
@@ -281,6 +278,7 @@ void Race::RenderMesh(Mesh * mesh, Shader * shader, const glm::mat4 & modelMatri
 
     glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
+    // Send car position to VertexShader
     int location_car_pos = glGetUniformLocation(shader->GetProgramID(), "car_pos");
     glm::vec3 car_pos = glm::vec3(center_x, center_y, center_z);
     glUniform3fv(location_car_pos, 1, glm::value_ptr(car_pos));
@@ -291,8 +289,6 @@ void Race::RenderMesh(Mesh * mesh, Shader * shader, const glm::mat4 & modelMatri
 
 void Race::OnInputUpdate(float deltaTime, int mods)
 {
-    //cout << ">>>> " << course->IsOnRoad(glm::vec2(center_x, center_z)) << " " << glm::vec2(center_x, center_z) << endl;
-
     // Car and camera rotations
     float sensitivity = 0.01f;
     float angle = deltaTime * rotate_speed * sensitivity;
@@ -349,9 +345,4 @@ void Race::OnInputUpdate(float deltaTime, int mods)
     // Update sky camera position
     minimap_camera_position = glm::vec3(center_x, 50, center_z + z_near);
     minimap_camera_center = glm::vec3(center_x, center_y, center_z);
-}
-
-
-void Race::OnKeyPress(int key, int mods)
-{
 }

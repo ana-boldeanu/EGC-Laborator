@@ -14,22 +14,26 @@ namespace m1
         ~Obstacle();
         Mesh* model;
 
-        glm::vec3 GetPosition();
-        glm::vec3 GetPositionAndAdvance();
-
-        bool SpheresCollision(glm::vec3 center_A, glm::vec3 center_B, float radius_A, float radius_B);
+        // Check if the object has collided with the player position
         bool HasCollidedWith(glm::vec3 player_position);
 
+        // Get the current position of the obstacle
+        glm::vec3 GetPosition();
+
+        // Get the current position of the obstacle and increment it
+        glm::vec3 GetPositionAndAdvance();
+
     private:
-        std::vector<glm::vec3> route;
-        int idx;
+        std::vector<glm::vec3> route;   // The route that the obstacle will follow, made of consecutive positions
+        int idx;                        // The current position index in the route vector
 
         float radius = 1;
         float car_radius = 1;
-
         float road_scale = 6;
 
-    protected:
+        // Check if sphere A and sphere B are collided
+        bool SpheresCollision(glm::vec3 center_A, glm::vec3 center_B, float radius_A, float radius_B);
 
+    protected:
     };
 }

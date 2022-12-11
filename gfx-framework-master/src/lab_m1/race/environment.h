@@ -13,10 +13,14 @@ namespace m1
         Mesh* grass;
         float grass_length = 200;
 
+        // Create a mesh using the shader
         static void Environment::CreateMeshFromData(Mesh* mesh, std::vector<VertexFormat> vertices, std::vector<unsigned int> indices);
 
     private:
+        // Create the grass mesh
         void Environment::CreateGrass();
+
+        // Create a square made up of tiny square lines
         Mesh* Environment::CreateSquare(const std::string& name, float length, glm::vec3 color_1, glm::vec3 color_2);
 
     protected:

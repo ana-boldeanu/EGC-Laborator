@@ -27,8 +27,14 @@ float Course::TriangleArea(glm::vec2 A, glm::vec2 B, glm::vec2 C)
 
 bool Course::IsOnRoad(glm::vec2 car_pos) 
 {
+	// For this, we check that the car_position is in at least one of the
+	// triangles defining the course. If the car_position is inside a triangle,
+	// the area sum of the 3 smaller triangles that can be created using car_position 
+	// as a middle point should equal the area of the initial triangle.
+	
 	glm::vec2 P1, P2, P3;	// A triangle to check if car_pos is inside
-	float area_sum, triangle_area;
+	float triangle_area;	// The area of that triangle
+	float area_sum;			// The area sum of the 3 `smaller` triangles
 	int size = (int)inner_points.size();
 
 	// Check for each pair of triangles given by 2 segments (inner & outer [i])
@@ -94,10 +100,10 @@ void Course::ComputeInnerOuterPoints()
 	glm::vec3 P1, P2;	// End points for a segment
 	glm::vec3 D;		// Direction vector from P1 to P2
 	glm::vec3 P;		// Perpendicular on D
-	glm::vec3 up = glm::vec3(0, 1, 0);	// Perpendicular on XoZ plane
-	glm::vec3 inner, outer;				// Resulting points
-	glm::vec3 route_0, route_1;
-	glm::vec3 tree_0, tree_1, tree_2, tree_3;		// Same for tree locations
+	glm::vec3 up = glm::vec3(0, 1, 0);			// Perpendicular on XoZ plane
+	glm::vec3 inner, outer;						// Resulting points
+	glm::vec3 route_0, route_1;					// Same for routes
+	glm::vec3 tree_0, tree_1, tree_2, tree_3;	// Same for tree locations
 
 	int size = (int)polygon_points.size();
 
@@ -120,14 +126,12 @@ void Course::ComputeInnerOuterPoints()
 		inner_points.push_back(inner);
 		outer_points.push_back(outer);
 
-
 		// And routes for obstacles
 		route_0 = P1 - route_dist * P;
 		route_1 = P1 + route_dist * P;
 
 		obstacle_route_0.push_back(route_0);
 		obstacle_route_1.push_back(route_1);
-
 
 		// Same for tree locations
 		tree_0 = P1 - tree_dist_0 * P;
@@ -143,7 +147,7 @@ void Course::ComputeInnerOuterPoints()
 }
 
 
-// Value t is in [0, 1]
+// Value t is in [0, 1] (for t == 1, the result is initial segment P1P2)
 glm::vec3 IntermediaryPoint(glm::vec3 P1, glm::vec3 P2, float t)
 {
 	glm::vec3 delta = P2 - P1;
@@ -282,7 +286,6 @@ void Course::ComputeCourseMesh()
 
 	course = new Mesh("course");
 	course->SetDrawMode(GL_TRIANGLE_STRIP);
-	//course->SetDrawMode(GL_LINE_LOOP);
 
 	for (int i = 0; i < size; i++) {
 		vertices.push_back(VertexFormat(inner_points_extended[i], color));
