@@ -20,7 +20,7 @@ namespace m1
         Mesh* Environment::CreateSquare(const std::string& name, float length, glm::vec3 color_1, glm::vec3 color_2);
 
     protected:
-        glm::vec3 grass_color_1 = glm::vec3(0.92f, 0.4f, 0.14f);
-        glm::vec3 grass_color_2 = glm::vec3(0.92f, 0.4f, 0.14f);
+        glm::vec3 grass_color_1 = glm::vec3(0.46f, 0.37f, 0.72f);
+        glm::vec3 grass_color_2 = grass_color_1;
     };
 }

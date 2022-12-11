@@ -20,12 +20,12 @@ void main()
 { 
     // Send output to fragment shader
     frag_color = v_color; 
-    
+
     // Compute world position
     vec3 world_pos = (Model * vec4(v_position, 1)).xyz;
 
     // Compute gl_Position
-    float gamma = 0.006f;
+    float gamma = 0.01f;
 
     float len = distance(car_pos, world_pos);
     world_pos.y -= len * len * gamma;

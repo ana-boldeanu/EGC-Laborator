@@ -219,7 +219,7 @@ void Course::ComputeTreeLocations()
 	srand(static_cast <unsigned> (time(0)));
 	int side;
 	for (int i = 0; i < size; i++) {
-		side = rand() % 4;
+		side = i % 4;
 		locations.push_back(side);
 	}
 

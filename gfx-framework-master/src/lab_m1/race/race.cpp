@@ -38,14 +38,20 @@ void Race::Init()
     orthoMatrix = glm::ortho(left, right, bottom, top, z_near, z_far);
 
     {
-        Mesh* mesh = new Mesh("box");
-        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
+        Mesh* mesh = new Mesh("car");
+        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "race"), "corsair.lwo");
+        meshes[mesh->GetMeshID()] = mesh;
+    }
+
+    {
+        Mesh* mesh = new Mesh("marker");
+        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "race"), "marker.obj");
         meshes[mesh->GetMeshID()] = mesh;
     }
 
     {
         Mesh* mesh = new Mesh("obstacle");
-        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
+        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "race"), "ufo.obj");
         meshes[mesh->GetMeshID()] = mesh;
 
         for each (Obstacle *obstacle in course->obstacles) {
@@ -71,13 +77,29 @@ void Race::Init()
         shader->CreateAndLink();
         shaders[shader->GetName()] = shader;
     }
+
+    {
+        Shader* shader = new Shader("TreeShader");
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "race", "shaders", "VertexShader.glsl"), GL_VERTEX_SHADER);
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "race", "shaders", "TreeFragmentShader.glsl"), GL_FRAGMENT_SHADER);
+        shader->CreateAndLink();
+        shaders[shader->GetName()] = shader;
+    }
+
+    {
+        Shader* shader = new Shader("CarShader");
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "race", "shaders", "VertexShader.glsl"), GL_VERTEX_SHADER);
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "race", "shaders", "CarFragmentShader.glsl"), GL_FRAGMENT_SHADER);
+        shader->CreateAndLink();
+        shaders[shader->GetName()] = shader;
+    }
 }
 
 
 void Race::FrameStart()
 {
     // Clears the color buffer (using the previously set color) and depth buffer
-    glClearColor(0.45f, 0, 0, 1);
+    glClearColor(0.44f, 0.73f, 0.82f, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Set the screen area where to draw
@@ -91,15 +113,17 @@ void Race::RenderObstacles()
     float road_scale = course->road_scale;
     glm::vec3 position;
     glm::mat4 modelMatrix;
+    float scale = 0.03f;
 
     for each (auto & obstacle in course->obstacles) {
         position = obstacle->GetPositionAndAdvance();
         position *= road_scale;
 
         modelMatrix = glm::mat4(1);
-        modelMatrix *= transform3D::Translate(position.x, translate_y, position.z);
+        modelMatrix *= transform3D::Translate(position.x, translate_y - 0.5f, position.z);
+        modelMatrix *= transform3D::Scale(scale, scale, scale);
 
-        RenderMesh(obstacle->model, shaders["CurveShader"], modelMatrix);
+        RenderMesh(obstacle->model, shaders["CarShader"], modelMatrix);
     }
 }
 
@@ -107,12 +131,12 @@ void Race::RenderObstacles()
 void Race::RenderTrees()
 {
     glm::mat4 modelMatrix = glm::mat4(1);
-    float scale = 0.5f;
+    float tree_scale = 0.4f;
     size_t size = course->tree_locations_0.size();
     int side, rotation;
     float x, y, z;
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i += 3) {
         side = course->locations[i];
         switch (side) {
         case 0:
@@ -144,9 +168,11 @@ void Race::RenderTrees()
 
         float road_scale = course->road_scale;
         modelMatrix *= transform3D::Translate(road_scale * x, road_scale * y, road_scale * z);
-        modelMatrix *= transform3D::Scale(scale, scale, scale);
+        modelMatrix *= transform3D::Scale(tree_scale, tree_scale, tree_scale);
         modelMatrix *= transform3D::RotateOY((float)rotation);
-        RenderMesh(meshes["tree"], shaders["CurveShader"], modelMatrix);
+        RenderMesh(meshes["tree"], shaders["TreeShader"], modelMatrix);
+
+        
         modelMatrix = glm::mat4(1);
     }
 }
@@ -155,12 +181,28 @@ void Race::RenderTrees()
 void Race::RenderScene()
 {
     {
+        float scale = 0.08f;
+        float rotate = PI / 2;
+
         glm::mat4 modelMatrix = glm::mat4(1);
         modelMatrix *= transform3D::Translate(translate_x, translate_y, translate_z);
-        modelMatrix *= transform3D::RotateOY(1);    // Change this for model-specific rotation
+        modelMatrix *= transform3D::RotateOY(rotate);
         modelMatrix *= transform3D::RotateOY(move_angle);
+        modelMatrix *= transform3D::Scale(scale, scale, scale);
 
-        RenderMesh(meshes["box"], shaders["CurveShader"], modelMatrix);
+        RenderMesh(meshes["car"], shaders["CarShader"], modelMatrix);
+    }
+
+    {
+        float scale = 0.15f;
+        float rotate = 1.8f;
+        
+        glm::mat4 modelMatrix = glm::mat4(1);
+        modelMatrix *= transform3D::Translate(initial_x + 7, initial_y, initial_z - 2);
+        modelMatrix *= transform3D::RotateOY(rotate);
+        modelMatrix *= transform3D::Scale(scale, scale, scale);
+
+        RenderMesh(meshes["marker"], shaders["TreeShader"], modelMatrix);
     }
 
     RenderTrees();
@@ -169,7 +211,7 @@ void Race::RenderScene()
     {
         glm::mat4 modelMatrix = glm::mat4(1);
         float road_scale = course->road_scale;
-        modelMatrix *= transform3D::Translate(0, 0.06f, 0);
+        modelMatrix *= transform3D::Translate(0, 0.07f, 0);
         modelMatrix *= transform3D::Scale(road_scale, road_scale, road_scale);
 
         RenderMesh(meshes["course"], shaders["CurveShader"], modelMatrix);

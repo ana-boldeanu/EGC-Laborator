@@ -50,7 +50,7 @@ namespace m1
         // Camera variables
         float PI = glm::pi<float>();
         float fov = PI / 2;
-        float dist = 15;
+        float dist = 20;
         float left = -dist;
         float right = dist;
         float bottom = -dist;
