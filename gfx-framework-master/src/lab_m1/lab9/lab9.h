@@ -35,5 +35,6 @@ namespace m1
         void OnWindowResize(int width, int height) override;
 
         std::unordered_map<std::string, Texture2D *> mapTextures;
+        int render_sphere = 0;
     };
 }   // namespace m1
