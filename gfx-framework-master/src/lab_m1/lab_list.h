@@ -12,3 +12,4 @@
 #include "lab_m1/lab9/lab9.h"
 #include "lab_m1/duckhunt/duckhunt.h"
 #include "lab_m1/race/race.h"
+#include "lab_m1/skifree/skifree.h"
