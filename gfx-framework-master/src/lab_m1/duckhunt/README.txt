@@ -32,8 +32,6 @@ them;
 
 ================================ How to play ================================
 
-	* (dev step) Make sure that src/main.cpp runs the DuckHunt program
-i.e. World* world = new m1::DuckHunt();
 	* Run the program;
 	* Press R to start the game or to reset it at any time;
 	* Click the mouse to shoot a bullet at the cursor position;
