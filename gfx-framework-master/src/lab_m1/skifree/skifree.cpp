@@ -21,98 +21,26 @@ SkiFree::~SkiFree()
 
 void SkiFree::Init()
 {
-    const string sourceTextureDir = PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "lab9", "textures");
+    const string sourceTextureDir = PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "skifree", "textures");
 
     // Load textures
     {
         Texture2D* texture = new Texture2D();
-        texture->Load2D(PATH_JOIN(sourceTextureDir, "grass_bilboard.png").c_str(), GL_REPEAT);
-        mapTextures["grass"] = texture;
-    }
-
-    {
-        Texture2D* texture = new Texture2D();
-        texture->Load2D(PATH_JOIN(sourceTextureDir, "crate.jpg").c_str(), GL_REPEAT);
-        mapTextures["crate"] = texture;
-    }
-
-    {
-        Texture2D* texture = new Texture2D();
-        texture->Load2D(PATH_JOIN(sourceTextureDir, "earth.png").c_str(), GL_REPEAT);
-        mapTextures["earth"] = texture;
-    }
-
-    {
-        Texture2D* texture = new Texture2D();
-        texture->Load2D(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "vegetation", "bamboo", "bamboo.png").c_str(), GL_REPEAT);
-        mapTextures["bamboo"] = texture;
-    }
-
-    {
-        mapTextures["random"] = CreateRandomTexture(25, 25);
+        texture->Load2D(PATH_JOIN(sourceTextureDir, "snow.jpg").c_str(), GL_REPEAT);
+        mapTextures["snow"] = texture;
     }
 
     // Load meshes
     {
-        Mesh* mesh = new Mesh("box");
-        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
-        meshes[mesh->GetMeshID()] = mesh;
-    }
-
-    {
-        Mesh* mesh = new Mesh("sphere");
-        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "sphere.obj");
-        meshes[mesh->GetMeshID()] = mesh;
-    }
-
-    {
-        Mesh* mesh = new Mesh("bamboo");
-        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "vegetation", "bamboo"), "bamboo.obj");
-        meshes[mesh->GetMeshID()] = mesh;
-    }
-
-    // Create a simple quad
-    {
-        vector<glm::vec3> vertices
-        {
-            glm::vec3(0.5f,   0.5f, 0.0f),    // top right
-            glm::vec3(0.5f,  -0.5f, 0.0f),    // bottom right
-            glm::vec3(-0.5f, -0.5f, 0.0f),    // bottom left
-            glm::vec3(-0.5f,  0.5f, 0.0f),    // top left
-        };
-
-        vector<glm::vec3> normals
-        {
-            glm::vec3(0, 1, 1),
-            glm::vec3(1, 0, 1),
-            glm::vec3(1, 0, 0),
-            glm::vec3(0, 1, 0)
-        };
-
-        vector<glm::vec2> textureCoords
-        {
-            glm::vec2(0.0f, 0.0f),
-            glm::vec2(0.0f, 1.0f),
-            glm::vec2(1.0f, 1.0f),
-            glm::vec2(1.0f, 0.0f)
-        };
-
-        vector<unsigned int> indices =
-        {
-            0, 1, 3,
-            1, 2, 3
-        };
-
-        Mesh* mesh = new Mesh("square");
-        mesh->InitFromData(vertices, normals, textureCoords, indices);
+        Mesh* mesh = meshes_builder->plane;
         meshes[mesh->GetMeshID()] = mesh;
     }
 
     // Create a shader program for drawing face polygon with the color of the normal
     {
         Shader *shader = new Shader("LabShader");
-        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "lab9", "shaders", "VertexShader.glsl"), GL_VERTEX_SHADER);
-        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "lab9", "shaders", "FragmentShader.glsl"), GL_FRAGMENT_SHADER);
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "skifree", "shaders", "VertexShader.glsl"), GL_VERTEX_SHADER);
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "skifree", "shaders", "FragmentShader.glsl"), GL_FRAGMENT_SHADER);
         shader->CreateAndLink();
         shaders[shader->GetName()] = shader;
     }
@@ -136,44 +64,8 @@ void SkiFree::Update(float deltaTimeSeconds)
 {
     {
         glm::mat4 modelMatrix = glm::mat4(1);
-        modelMatrix = glm::translate(modelMatrix, glm::vec3(1, 1, -3));
         modelMatrix = glm::scale(modelMatrix, glm::vec3(2));
-        render_sphere = 1;
-        RenderSimpleMesh(meshes["sphere"], shaders["LabShader"], modelMatrix, mapTextures["earth"], mapTextures["random"]);
-    }
-
-    {
-        glm::mat4 modelMatrix = glm::mat4(1);
-        modelMatrix = glm::translate(modelMatrix, glm::vec3(2, 0.5f, 0));
-        modelMatrix = glm::rotate(modelMatrix, RADIANS(60.0f), glm::vec3(1, 0, 0));
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.75f));
-        render_sphere = 0;
-        RenderSimpleMesh(meshes["box"], shaders["LabShader"], modelMatrix, mapTextures["crate"], mapTextures["crate"]);
-    }
-
-    {
-        glm::mat4 modelMatrix = glm::mat4(1);
-        modelMatrix = glm::translate(modelMatrix, glm::vec3(-2, 0.5f, 0));
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.75f));
-        modelMatrix = glm::rotate(modelMatrix, RADIANS(75.0f), glm::vec3(1, 1, 0));
-        render_sphere = 0;
-        RenderSimpleMesh(meshes["box"], shaders["LabShader"], modelMatrix, mapTextures["random"]);
-    }
-
-    {
-        glm::mat4 modelMatrix = glm::mat4(1);
-        modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 0.5f, 0.0f));
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f));
-        render_sphere = 0;
-        RenderSimpleMesh(meshes["square"], shaders["LabShader"], modelMatrix, mapTextures["grass"], mapTextures["grass"]);
-    }
-
-    {
-        glm::mat4 modelMatrix = glm::mat4(1);
-        modelMatrix = glm::translate(modelMatrix, glm::vec3(-2, -0.5f, -3));
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.1f));
-        render_sphere = 0;
-        RenderSimpleMesh(meshes["bamboo"], shaders["LabShader"], modelMatrix, mapTextures["bamboo"], mapTextures["bamboo"]);
+        RenderSimpleMesh(meshes["plane"], shaders["LabShader"], modelMatrix, mapTextures["snow"]);
     }
 }
 
@@ -184,7 +76,7 @@ void SkiFree::FrameEnd()
 }
 
 
-void SkiFree::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelMatrix, Texture2D* texture1, Texture2D* texture2)
+void SkiFree::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelMatrix, Texture2D* texture)
 {
     if (!mesh || !shader || !shader->GetProgramID())
         return;
@@ -210,22 +102,9 @@ void SkiFree::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & mod
     int location_time = glGetUniformLocation(shader->GetProgramID(), "time");
     glUniform1f(location_time, Engine::GetElapsedTime());
 
-    int location_render_sphere = glGetUniformLocation(shader->GetProgramID(), "render_sphere");
-    glUniform1i(location_render_sphere, render_sphere);
-
-    if (texture1)
-    {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1->GetTextureID());
-        glUniform1i(glGetUniformLocation(shader->program, "texture_1"), 0);
-    }
-
-    if (texture2)
-    {
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2->GetTextureID());
-        glUniform1i(glGetUniformLocation(shader->program, "texture_2"), 1);
-    }
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture->GetTextureID());
+    glUniform1i(glGetUniformLocation(shader->program, "texture"), 0);
 
     // Draw the object
     glBindVertexArray(mesh->GetBuffers()->m_VAO);

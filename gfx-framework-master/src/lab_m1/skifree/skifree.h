@@ -5,7 +5,7 @@
 
 #include "components/simple_scene.h"
 #include "components/transform.h"
-
+#include "lab_m1/skifree/meshes.h"
 
 namespace m1
 {
@@ -22,12 +22,13 @@ namespace m1
         void Update(float deltaTimeSeconds) override;
         void FrameEnd() override;
 
-        void RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix, Texture2D *texture1 = NULL, Texture2D *texture2 = NULL);
+        void RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix, Texture2D *texture1 = NULL);
 
         void OnInputUpdate(float deltaTime, int mods) override;
         void OnKeyPress(int key, int mods) override;
         void OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY) override;
         std::unordered_map<std::string, Texture2D *> mapTextures;
-        int render_sphere = 0;
+
+        Meshes* meshes_builder = new Meshes();
     };
 } 
