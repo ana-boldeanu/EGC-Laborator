@@ -14,7 +14,7 @@ SkiFree::SkiFree()
     // Create the third-person camera object
     camera = new Camera();
     float dist = camera->distanceToTarget;
-    camera_position = glm::vec3(0, 7, 10);
+    camera_position = glm::vec3(0, 4, 8);
     camera_center = glm::vec3(0, 0, 0);
     camera_up = glm::vec3(0, 1, 0);
 }
@@ -124,6 +124,7 @@ void SkiFree::FrameStart()
 void SkiFree::Update(float deltaTimeSeconds)
 {
     {
+        // Plane
         glm::mat4 modelMatrix = glm::mat4(1);
         modelMatrix *= meshes_builder->plane_matrix;
         modelMatrix *= transform3D::RotateOX(angle);
@@ -134,39 +135,44 @@ void SkiFree::Update(float deltaTimeSeconds)
     }
 
     {
+        // Gift
         glm::mat4 modelMatrix = glm::mat4(1);
-        modelMatrix *= transform3D::Translate(2, 0, 0);
+        modelMatrix *= transform3D::Translate(giftX, giftY, giftZ);
         modelMatrix *= transform3D::RotateOX(angle);
         modelMatrix *= meshes_builder->gift_matrix;
         RenderSimpleMesh(meshes["gift"], shaders["LabShader"], modelMatrix, mapTextures["gift"]);
     }
 
     {
+        // Tree
         glm::mat4 modelMatrix;
         for (int i = 0; i < meshes_builder->tree.size(); i++) {
             modelMatrix = glm::mat4(1);
-            modelMatrix *= transform3D::Translate(4, 0, 0);
+            modelMatrix *= transform3D::Translate(treeX, treeY, treeZ);
             modelMatrix *= meshes_builder->tree_matrix[i];
             RenderSimpleMesh(meshes[meshes_builder->tree[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->tree_tex[i]]);
         }
     }
 
     {
+       // Player
         glm::mat4 modelMatrix;
         for (int i = 0; i < meshes_builder->player.size(); i++) {
             modelMatrix = glm::mat4(1);
-            modelMatrix *= transform3D::Translate(-4, 0, 0);
+            modelMatrix *= transform3D::Translate(playerX, playerY, playerZ);
             modelMatrix *= transform3D::RotateOX(angle);
+            modelMatrix *= transform3D::RotateOY(player_rotation);
             modelMatrix *= meshes_builder->player_matrix[i];
             RenderSimpleMesh(meshes[meshes_builder->player[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->player_tex[i]]);
         }
     }
 
     {
+        // Rocks
         glm::mat4 modelMatrix;
         for (int i = 0; i < meshes_builder->rocks.size(); i++) {
             modelMatrix = glm::mat4(1);
-            modelMatrix *= transform3D::Translate(-2, 0, 0);
+            modelMatrix *= transform3D::Translate(rocksX, rocksY, rocksZ);
             modelMatrix *= transform3D::RotateOX(angle);
             modelMatrix *= meshes_builder->rocks_matrix[i];
             RenderSimpleMesh(meshes[meshes_builder->rocks[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->rocks_tex[i]]);
@@ -174,14 +180,32 @@ void SkiFree::Update(float deltaTimeSeconds)
     }
 
     {
+        // Lamp
         glm::mat4 modelMatrix;
         for (int i = 0; i < meshes_builder->lamp.size(); i++) {
             modelMatrix = glm::mat4(1);
-            modelMatrix *= transform3D::Translate(0, 0, 0);
+            modelMatrix *= transform3D::Translate(lampX, lampY, lampZ);
             modelMatrix *= meshes_builder->lamp_matrix[i];
             RenderSimpleMesh(meshes[meshes_builder->lamp[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->lamp_tex[i]]);
         }
     }
+
+    // Move objects
+    giftX -= step * cos(PI / 2 - player_rotation);
+    giftY += step * sin(angle);
+    giftZ -= step * cos(angle);
+
+    treeX -= step * cos(PI / 2 - player_rotation);
+    treeY += step * sin(angle);
+    treeZ -= step * cos(angle);
+
+    rocksX -= step * cos(PI / 2 - player_rotation);
+    rocksY += step * sin(angle);
+    rocksZ -= step * cos(angle);
+
+    lampX -= step * cos(PI / 2 - player_rotation);
+    lampY += step * sin(angle);
+    lampZ -= step * cos(angle);
 }
 
 
@@ -224,22 +248,24 @@ void SkiFree::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & mod
 
 void SkiFree::OnInputUpdate(float deltaTime, int mods)
 {
-    if (!window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
-    {
-        glm::vec3 up = glm::vec3(0, 1, 0);
-        glm::vec3 right = GetSceneCamera()->m_transform->GetLocalOXVector();
-        glm::vec3 forward = GetSceneCamera()->m_transform->GetLocalOZVector();
-        forward = glm::normalize(glm::vec3(forward.x, 0, forward.z));
-    }
+    
 }
 
 
 void SkiFree::OnKeyPress(int key, int mods)
 {
-    // Add key press event
+    
 }
 
 void SkiFree::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
-    // Add mouse move event
+    glm::ivec2 resolution = window->GetResolution();
+    int posX = mouseX;
+    int width = resolution.x / 2;
+
+    // Map [0, width] to [-width/2, width/2]
+    posX -= width;
+
+    // Map to [-max_angle, max_angle]
+    player_rotation = max_player_rotation * posX / width;
 }

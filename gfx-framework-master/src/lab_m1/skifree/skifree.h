@@ -30,11 +30,24 @@ namespace m1
         void OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY) override;
         std::unordered_map<std::string, Texture2D *> mapTextures;
 
+        // Meshes container
         Meshes* meshes_builder = new Meshes();
         int renderSnow = 0;
-        
+
+        // Movement variables
         float PI = glm::pi<float>();
         float angle = PI / 6;
+
+        float player_rotation = 0;
+        float max_player_rotation = PI / 4;
+
+        float step = 0.1f;
+        float giftX = 2, giftY = 0, giftZ = 0;  // Translate values for gift
+        float treeX = 4, treeY = 0, treeZ = 0;  // Translate values for tree
+        float rocksX = -2, rocksY = 0, rocksZ = 0;  // Translate values for rocks
+        float lampX = -4, lampY = 0, lampZ = 0;  // Translate values for lamp
+
+        float playerX = 0, playerY = 4 * sin(angle), playerZ = -4 * cos(angle);
 
         // Camera variables
         Camera* camera;        // Third-person camera, used to follow the player

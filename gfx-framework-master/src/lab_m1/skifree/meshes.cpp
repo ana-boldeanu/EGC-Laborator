@@ -60,7 +60,7 @@ Mesh* Meshes::CreatePlane()
     mesh->InitFromData(vertices, normals, textureCoords, indices); 
 
     // Build its model matrix
-    float scale = 90;
+    float scale = 100;
     plane_matrix *= transform3D::Translate(0, -0.01f, 0);
     plane_matrix *= transform3D::Scale(scale, scale, scale);
 
