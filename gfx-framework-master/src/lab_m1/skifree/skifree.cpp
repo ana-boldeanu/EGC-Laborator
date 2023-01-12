@@ -11,6 +11,12 @@ using namespace m1;
 
 SkiFree::SkiFree()
 {
+    // Create the third-person camera object
+    camera = new Camera();
+    float dist = camera->distanceToTarget;
+    camera_position = glm::vec3(0, 7, 10);
+    camera_center = glm::vec3(0, 0, 0);
+    camera_up = glm::vec3(0, 1, 0);
 }
 
 
@@ -28,12 +34,63 @@ void SkiFree::Init()
         Texture2D* texture = new Texture2D();
         texture->Load2D(PATH_JOIN(sourceTextureDir, "snow.jpg").c_str(), GL_REPEAT);
         mapTextures["snow"] = texture;
+
+        texture = new Texture2D();
+        texture->Load2D(PATH_JOIN(sourceTextureDir, "gift.jpg").c_str(), GL_REPEAT);
+        mapTextures["gift"] = texture;
+
+        texture = new Texture2D();
+        texture->Load2D(PATH_JOIN(sourceTextureDir, "pine1.jpg").c_str(), GL_REPEAT);
+        mapTextures["pine"] = texture;
+
+        texture = new Texture2D();
+        texture->Load2D(PATH_JOIN(sourceTextureDir, "trunk.jpg").c_str(), GL_REPEAT);
+        mapTextures["trunk"] = texture;
+
+        texture = new Texture2D();
+        texture->Load2D(PATH_JOIN(sourceTextureDir, "ski.jpg").c_str(), GL_REPEAT);
+        mapTextures["ski"] = texture;
+
+        texture = new Texture2D();
+        texture->Load2D(PATH_JOIN(sourceTextureDir, "player.jpg").c_str(), GL_REPEAT);
+        mapTextures["player"] = texture;
+
+        texture = new Texture2D();
+        texture->Load2D(PATH_JOIN(sourceTextureDir, "rock.jpg").c_str(), GL_REPEAT);
+        mapTextures["rock"] = texture;
+
+        texture = new Texture2D();
+        texture->Load2D(PATH_JOIN(sourceTextureDir, "black_metal.jpg").c_str(), GL_REPEAT);
+        mapTextures["metal"] = texture;
+
+        texture = new Texture2D();
+        texture->Load2D(PATH_JOIN(sourceTextureDir, "lightbulb1.jpg").c_str(), GL_REPEAT);
+        mapTextures["lightbulb"] = texture;
     }
 
     // Load meshes
     {
-        Mesh* mesh = meshes_builder->plane;
-        meshes[mesh->GetMeshID()] = mesh;
+        Mesh* plane = meshes_builder->plane;
+        meshes[plane->GetMeshID()] = plane;
+
+        Mesh* gift = meshes_builder->gift;
+        meshes[gift->GetMeshID()] = gift;
+
+        for (Mesh* mesh : meshes_builder->tree) {
+            meshes[mesh->GetMeshID()] = mesh;
+        }
+
+        for (Mesh* mesh : meshes_builder->player) {
+            meshes[mesh->GetMeshID()] = mesh;
+        }
+
+        for (Mesh* mesh : meshes_builder->rocks) {
+            meshes[mesh->GetMeshID()] = mesh;
+        }
+
+        for (Mesh* mesh : meshes_builder->lamp) {
+            meshes[mesh->GetMeshID()] = mesh;
+        }
     }
 
     // Create a shader program for drawing face polygon with the color of the normal
@@ -44,6 +101,10 @@ void SkiFree::Init()
         shader->CreateAndLink();
         shaders[shader->GetName()] = shader;
     }
+
+    // Set up camera
+    camera->Set(camera_position, camera_center, camera_up);
+    projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
 }
 
 
@@ -64,15 +125,69 @@ void SkiFree::Update(float deltaTimeSeconds)
 {
     {
         glm::mat4 modelMatrix = glm::mat4(1);
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(2));
+        modelMatrix *= meshes_builder->plane_matrix;
+        modelMatrix *= transform3D::RotateOX(angle);
+
+        renderSnow = 1;
         RenderSimpleMesh(meshes["plane"], shaders["LabShader"], modelMatrix, mapTextures["snow"]);
+        renderSnow = 0;
+    }
+
+    {
+        glm::mat4 modelMatrix = glm::mat4(1);
+        modelMatrix *= transform3D::Translate(2, 0, 0);
+        modelMatrix *= transform3D::RotateOX(angle);
+        modelMatrix *= meshes_builder->gift_matrix;
+        RenderSimpleMesh(meshes["gift"], shaders["LabShader"], modelMatrix, mapTextures["gift"]);
+    }
+
+    {
+        glm::mat4 modelMatrix;
+        for (int i = 0; i < meshes_builder->tree.size(); i++) {
+            modelMatrix = glm::mat4(1);
+            modelMatrix *= transform3D::Translate(4, 0, 0);
+            modelMatrix *= meshes_builder->tree_matrix[i];
+            RenderSimpleMesh(meshes[meshes_builder->tree[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->tree_tex[i]]);
+        }
+    }
+
+    {
+        glm::mat4 modelMatrix;
+        for (int i = 0; i < meshes_builder->player.size(); i++) {
+            modelMatrix = glm::mat4(1);
+            modelMatrix *= transform3D::Translate(-4, 0, 0);
+            modelMatrix *= transform3D::RotateOX(angle);
+            modelMatrix *= meshes_builder->player_matrix[i];
+            RenderSimpleMesh(meshes[meshes_builder->player[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->player_tex[i]]);
+        }
+    }
+
+    {
+        glm::mat4 modelMatrix;
+        for (int i = 0; i < meshes_builder->rocks.size(); i++) {
+            modelMatrix = glm::mat4(1);
+            modelMatrix *= transform3D::Translate(-2, 0, 0);
+            modelMatrix *= transform3D::RotateOX(angle);
+            modelMatrix *= meshes_builder->rocks_matrix[i];
+            RenderSimpleMesh(meshes[meshes_builder->rocks[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->rocks_tex[i]]);
+        }
+    }
+
+    {
+        glm::mat4 modelMatrix;
+        for (int i = 0; i < meshes_builder->lamp.size(); i++) {
+            modelMatrix = glm::mat4(1);
+            modelMatrix *= transform3D::Translate(0, 0, 0);
+            modelMatrix *= meshes_builder->lamp_matrix[i];
+            RenderSimpleMesh(meshes[meshes_builder->lamp[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->lamp_tex[i]]);
+        }
     }
 }
 
 
 void SkiFree::FrameEnd()
 {
-    DrawCoordinateSystem();
+    // DrawCoordinateSystem();
 }
 
 
@@ -84,21 +199,15 @@ void SkiFree::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & mod
     // Render an object using the specified shader and the specified position
     glUseProgram(shader->program);
 
-    // Bind model matrix
-    GLint loc_model_matrix = glGetUniformLocation(shader->program, "Model");
-    glUniformMatrix4fv(loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
+    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-    // Bind view matrix
-    glm::mat4 viewMatrix = GetSceneCamera()->GetViewMatrix();
-    int loc_view_matrix = glGetUniformLocation(shader->program, "View");
-    glUniformMatrix4fv(loc_view_matrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
-    // Bind projection matrix
-    glm::mat4 projectionMatrix = GetSceneCamera()->GetProjectionMatrix();
-    int loc_projection_matrix = glGetUniformLocation(shader->program, "Projection");
-    glUniformMatrix4fv(loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+    // Send uniform values
+    int location_snow = glGetUniformLocation(shader->GetProgramID(), "renderSnow");
+    glUniform1i(location_snow, renderSnow);
 
-    // TODO(student): Set any other shader uniforms that you need
     int location_time = glGetUniformLocation(shader->GetProgramID(), "time");
     glUniform1f(location_time, Engine::GetElapsedTime());
 
