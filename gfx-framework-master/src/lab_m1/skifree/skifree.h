@@ -37,15 +37,39 @@ namespace m1
         // Movement variables
         float PI = glm::pi<float>();
         float angle = PI / 6;
+        glm::mat4 rotationMatrix = transform3D::RotateOX(angle);
 
         float player_rotation = 0;
         float max_player_rotation = PI / 4;
 
-        float step = 0.1f;
-        float giftX = 2, giftY = 0, giftZ = 0;  // Translate values for gift
-        float treeX = 4, treeY = 0, treeZ = 0;  // Translate values for tree
-        float rocksX = -2, rocksY = 0, rocksZ = 0;  // Translate values for rocks
-        float lampX = -4, lampY = 0, lampZ = 0;  // Translate values for lamp
+        float step = 0.15f;
+
+        // Arrays of positions for objects to render
+        std::vector<glm::vec4> treeCoords{ rotationMatrix * glm::vec4(-4, 0, -2, 1),
+            rotationMatrix * glm::vec4(12, 0, 1, 1),
+            rotationMatrix * glm::vec4(4, 0, 4, 1),
+            rotationMatrix * glm::vec4(-4, 0, 6, 1),
+            rotationMatrix * glm::vec4(8, 0, 8, 1),
+            rotationMatrix * glm::vec4(-7, 0, 10, 1)};
+
+        std::vector<glm::vec3> rocksCoords{ rotationMatrix * glm::vec4(-10, 0, -3, 1),
+            rotationMatrix * glm::vec4(-7, 0, 1, 1),
+            rotationMatrix * glm::vec4(4, 0, 2, 1),
+            rotationMatrix * glm::vec4(8, 0, 4, 1),
+            rotationMatrix * glm::vec4(-2, 0, 5, 1),
+            rotationMatrix * glm::vec4(2, 0, 8, 1) };
+
+        std::vector<glm::vec3> lampCoords{ rotationMatrix * glm::vec4(10, 0, -3, 1),
+            rotationMatrix * glm::vec4(4, 0, -1, 1),
+            rotationMatrix * glm::vec4(-2, 0, 2, 1),
+            rotationMatrix * glm::vec4(-8, 0, 5, 1),
+            rotationMatrix * glm::vec4(12, 0, 6, 1),
+            rotationMatrix * glm::vec4(-4, 0, 10, 1) };
+
+        std::vector<glm::vec3> giftCoords{ rotationMatrix * glm::vec4(-7, 0, -3, 1),
+            rotationMatrix* glm::vec4(0, 0, 3, 1),
+            rotationMatrix* glm::vec4(4, 0, 6, 1),
+            rotationMatrix* glm::vec4(1, 0, 9, 1) };
 
         float playerX = 0, playerY = 4 * sin(angle), playerZ = -4 * cos(angle);
 

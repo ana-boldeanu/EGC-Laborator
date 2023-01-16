@@ -14,8 +14,8 @@ SkiFree::SkiFree()
     // Create the third-person camera object
     camera = new Camera();
     float dist = camera->distanceToTarget;
-    camera_position = glm::vec3(0, 4, 8);
-    camera_center = glm::vec3(0, 0, 0);
+    camera_position = glm::vec3(playerX, playerY + dist, playerZ + dist);
+    camera_center = glm::vec3(playerX, playerY, playerZ);
     camera_up = glm::vec3(0, 1, 0);
 }
 
@@ -23,6 +23,19 @@ SkiFree::SkiFree()
 SkiFree::~SkiFree()
 {
 }
+
+
+//////////////////////////////////////////////////////////////////////////////
+// NOTE TO SELF
+//////////////////////////////////////////////////////////////////////////////
+// Trebuie neaparat sa schimb regula de miscare (sa misc jucatorul, nu obiectele),
+// pentru ca altfel nu se vede miscarea si fata de zapada
+//////////////////////////////////////////////////////////////////////////////
+// Pt generare de obiecte, o sa tin un vector de vreo 5 pozitii (vector3) pt 
+// fiecare tip de obiect, si le randez intr-un for. Tot intr-un for in Update(),
+// incrementez pasul si atunci cand iese din viewport resetez pozitia initiala
+
+
 
 
 void SkiFree::Init()
@@ -126,8 +139,9 @@ void SkiFree::Update(float deltaTimeSeconds)
     {
         // Plane
         glm::mat4 modelMatrix = glm::mat4(1);
+        modelMatrix *= transform3D::Translate(playerX, playerY, playerZ);
+        modelMatrix *= rotationMatrix;
         modelMatrix *= meshes_builder->plane_matrix;
-        modelMatrix *= transform3D::RotateOX(angle);
 
         renderSnow = 1;
         RenderSimpleMesh(meshes["plane"], shaders["LabShader"], modelMatrix, mapTextures["snow"]);
@@ -136,21 +150,25 @@ void SkiFree::Update(float deltaTimeSeconds)
 
     {
         // Gift
-        glm::mat4 modelMatrix = glm::mat4(1);
-        modelMatrix *= transform3D::Translate(giftX, giftY, giftZ);
-        modelMatrix *= transform3D::RotateOX(angle);
-        modelMatrix *= meshes_builder->gift_matrix;
-        RenderSimpleMesh(meshes["gift"], shaders["LabShader"], modelMatrix, mapTextures["gift"]);
+        for (auto& gift : giftCoords) {
+            glm::mat4 modelMatrix = glm::mat4(1);
+            modelMatrix *= transform3D::Translate(gift.x, gift.y, gift.z);
+            modelMatrix *= transform3D::RotateOX(angle);
+            modelMatrix *= meshes_builder->gift_matrix;
+            RenderSimpleMesh(meshes["gift"], shaders["LabShader"], modelMatrix, mapTextures["gift"]);
+        }
     }
 
     {
         // Tree
-        glm::mat4 modelMatrix;
-        for (int i = 0; i < meshes_builder->tree.size(); i++) {
-            modelMatrix = glm::mat4(1);
-            modelMatrix *= transform3D::Translate(treeX, treeY, treeZ);
-            modelMatrix *= meshes_builder->tree_matrix[i];
-            RenderSimpleMesh(meshes[meshes_builder->tree[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->tree_tex[i]]);
+        for (auto& tree : treeCoords) {
+            glm::mat4 modelMatrix;
+            for (int i = 0; i < meshes_builder->tree.size(); i++) {
+                modelMatrix = glm::mat4(1);
+                modelMatrix *= transform3D::Translate(tree.x, tree.y, tree.z);
+                modelMatrix *= meshes_builder->tree_matrix[i];
+                RenderSimpleMesh(meshes[meshes_builder->tree[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->tree_tex[i]]);
+            }
         }
     }
 
@@ -169,43 +187,44 @@ void SkiFree::Update(float deltaTimeSeconds)
 
     {
         // Rocks
-        glm::mat4 modelMatrix;
-        for (int i = 0; i < meshes_builder->rocks.size(); i++) {
-            modelMatrix = glm::mat4(1);
-            modelMatrix *= transform3D::Translate(rocksX, rocksY, rocksZ);
-            modelMatrix *= transform3D::RotateOX(angle);
-            modelMatrix *= meshes_builder->rocks_matrix[i];
-            RenderSimpleMesh(meshes[meshes_builder->rocks[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->rocks_tex[i]]);
+        for (auto& rocks : rocksCoords) {
+            glm::mat4 modelMatrix;
+            for (int i = 0; i < meshes_builder->rocks.size(); i++) {
+                modelMatrix = glm::mat4(1);
+                modelMatrix *= transform3D::Translate(rocks.x, rocks.y, rocks.z);
+                modelMatrix *= transform3D::RotateOX(angle);
+                modelMatrix *= meshes_builder->rocks_matrix[i];
+                RenderSimpleMesh(meshes[meshes_builder->rocks[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->rocks_tex[i]]);
+            }
         }
     }
 
     {
         // Lamp
-        glm::mat4 modelMatrix;
-        for (int i = 0; i < meshes_builder->lamp.size(); i++) {
-            modelMatrix = glm::mat4(1);
-            modelMatrix *= transform3D::Translate(lampX, lampY, lampZ);
-            modelMatrix *= meshes_builder->lamp_matrix[i];
-            RenderSimpleMesh(meshes[meshes_builder->lamp[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->lamp_tex[i]]);
+        for (auto& lamp : lampCoords) {
+            glm::mat4 modelMatrix;
+            for (int i = 0; i < meshes_builder->lamp.size(); i++) {
+                modelMatrix = glm::mat4(1);
+                modelMatrix *= transform3D::Translate(lamp.x, lamp.y, lamp.z);
+                modelMatrix *= meshes_builder->lamp_matrix[i];
+                RenderSimpleMesh(meshes[meshes_builder->lamp[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->lamp_tex[i]]);
+            }
         }
     }
 
     // Move objects
-    giftX -= step * cos(PI / 2 - player_rotation);
-    giftY += step * sin(angle);
-    giftZ -= step * cos(angle);
+    playerX += step * cos(PI / 2 - player_rotation);
+    playerY -= step * sin(angle);
+    playerZ += step * cos(angle);
 
-    treeX -= step * cos(PI / 2 - player_rotation);
-    treeY += step * sin(angle);
-    treeZ -= step * cos(angle);
+    // Update camera
+    float dist = camera->distanceToTarget;
+    camera_position = glm::vec3(playerX, playerY + dist, playerZ + dist);
+    camera_center = glm::vec3(playerX, playerY, playerZ);
+    camera->Set(camera_position, camera_center, camera_up);
+    camera->TranslateUpward(-dist/2);
 
-    rocksX -= step * cos(PI / 2 - player_rotation);
-    rocksY += step * sin(angle);
-    rocksZ -= step * cos(angle);
-
-    lampX -= step * cos(PI / 2 - player_rotation);
-    lampY += step * sin(angle);
-    lampZ -= step * cos(angle);
+    // printf("TreeX - PlayerX = %f || Y = %f || z = %f\n", treeX - playerX, treeY - playerY, treeZ - playerZ);
 }
 
 

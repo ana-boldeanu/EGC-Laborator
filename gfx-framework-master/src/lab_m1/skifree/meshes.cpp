@@ -73,7 +73,7 @@ Mesh* Meshes::CreateGift()
     mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
 
     gift_matrix *= transform3D::Translate(0, 0.375f, 0);
-    gift_matrix *= transform3D::Scale(0.75f, 0.75f, 0.75f);
+    gift_matrix *= transform3D::Scale(1.25f, 1.25f, 1.25f);
 
     return mesh;
 }
@@ -207,11 +207,11 @@ std::vector<Mesh*> Meshes::CreateRocks()
     rock_2_matrix *= transform3D::Scale(1, 0.1f, 1);
 
     glm::mat4 rock_3_matrix = glm::mat4(1);
-    rock_3_matrix *= transform3D::Translate(0.5f, 0.1f, 0.2);
+    rock_3_matrix *= transform3D::Translate(0.5f, 0.1f, 0.2f);
     rock_3_matrix *= transform3D::Scale(0.5f, 0.2f, 0.5f);
 
     glm::mat4 rock_4_matrix = glm::mat4(1);
-    rock_4_matrix *= transform3D::Translate(0.8f, 0.2f, 0.2);
+    rock_4_matrix *= transform3D::Translate(0.8f, 0.2f, 0.2f);
     rock_4_matrix *= transform3D::RotateOZ(-0.5f);
     rock_4_matrix *= transform3D::Scale(0.5f, 0.2f, 0.5f);
 
