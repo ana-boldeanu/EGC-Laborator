@@ -82,14 +82,10 @@ vec3 get_sunlight() {
 
 	if (diffuse_light > 0)
     {
-        specular_light =  material_ks * pow(max(dot(world_normal, H), 0), material_shininess);
+        specular_light = material_ks * pow(max(dot(world_normal, H), 0), material_shininess);
     }
-
-    // Add normal distance attenuation for normal point light
-    float d = distance(light_position, world_position);
-	float light_att_factor =  1;
     
-    vec3 light_result = light_att_factor * (diffuse_light + specular_light) * light_color;
+    vec3 light_result = (diffuse_light + specular_light) * light_color;
     return light_result;
 }
 
