@@ -52,21 +52,21 @@ namespace m1
             rotationMatrix * glm::vec4(8, 0, 8, 1),
             rotationMatrix * glm::vec4(-7, 0, 10, 1)};
 
-        std::vector<glm::vec3> rocksCoords{ rotationMatrix * glm::vec4(-10, 0, -3, 1),
+        std::vector<glm::vec4> rocksCoords{ rotationMatrix * glm::vec4(-10, 0, -3, 1),
             rotationMatrix * glm::vec4(-7, 0, 1, 1),
             rotationMatrix * glm::vec4(4, 0, 2, 1),
             rotationMatrix * glm::vec4(8, 0, 4, 1),
             rotationMatrix * glm::vec4(-2, 0, 5, 1),
             rotationMatrix * glm::vec4(2, 0, 8, 1) };
 
-        std::vector<glm::vec3> lampCoords{ rotationMatrix * glm::vec4(10, 0, -3, 1),
+        std::vector<glm::vec4> lampCoords{ rotationMatrix * glm::vec4(10, 0, -3, 1),
             rotationMatrix * glm::vec4(4, 0, -1, 1),
             rotationMatrix * glm::vec4(-2, 0, 2, 1),
             rotationMatrix * glm::vec4(-8, 0, 5, 1),
             rotationMatrix * glm::vec4(12, 0, 6, 1),
             rotationMatrix * glm::vec4(-4, 0, 10, 1) };
 
-        std::vector<glm::vec3> giftCoords{ rotationMatrix * glm::vec4(-7, 0, -3, 1),
+        std::vector<glm::vec4> giftCoords{ rotationMatrix * glm::vec4(-7, 0, -3, 1),
             rotationMatrix* glm::vec4(0, 0, 3, 1),
             rotationMatrix* glm::vec4(4, 0, 6, 1),
             rotationMatrix* glm::vec4(1, 0, 9, 1) };
@@ -84,5 +84,16 @@ namespace m1
         glm::vec3 camera_position;     // The position of the camera
         glm::vec3 camera_center;       // The position of the object that the camera looks at (the player)
         glm::vec3 camera_up;           // Perpendicular on XoZ
+
+        // Light properties
+        glm::vec3 lightDirection;
+        unsigned int materialShininess;
+        float materialKd;
+        float materialKs;
+
+        std::vector<glm::vec3> lampLightsCoords;
+        std::vector<glm::vec3> treeLightsCoords;
+        std::vector<glm::vec3> giftsLightsCoords;
+        glm::vec4 light_offset = glm::vec4(0, 1, 0, 0);
     };
 } 

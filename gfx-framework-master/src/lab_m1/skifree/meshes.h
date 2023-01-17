@@ -19,6 +19,9 @@ namespace m1
         std::vector<Mesh*> rocks;
         std::vector<Mesh*> lamp;
 
+        glm::vec3 lamp_offset_1;
+        glm::vec3 lamp_offset_2;
+
         glm::mat4 plane_matrix = glm::mat4(1);
         glm::mat4 gift_matrix = glm::mat4(1);
         std::vector<glm::mat4> tree_matrix;

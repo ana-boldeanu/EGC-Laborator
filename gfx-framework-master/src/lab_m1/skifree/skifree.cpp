@@ -17,6 +17,12 @@ SkiFree::SkiFree()
     camera_position = glm::vec3(playerX, playerY + dist, playerZ + dist);
     camera_center = glm::vec3(playerX, playerY, playerZ);
     camera_up = glm::vec3(0, 1, 0);
+
+    // Set light & material properties
+    lightDirection = glm::vec3(0, -1, 0);
+    materialShininess = 100;
+    materialKd = 0.7f;
+    materialKs = 0.5f;
 }
 
 
@@ -118,6 +124,20 @@ void SkiFree::Init()
     // Set up camera
     camera->Set(camera_position, camera_center, camera_up);
     projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
+
+    // Compute lights positions
+    for (auto& coords : lampCoords) {
+        lampLightsCoords.push_back(coords + glm::vec4(meshes_builder->lamp_offset_1, 0));
+        lampLightsCoords.push_back(coords + glm::vec4(meshes_builder->lamp_offset_2, 0));
+    }
+
+    for (auto& coords : treeCoords) {
+        treeLightsCoords.push_back(coords + light_offset);
+    }
+
+    for (auto& coords : giftCoords) {
+        giftsLightsCoords.push_back(coords + light_offset);
+    }
 }
 
 
@@ -213,9 +233,9 @@ void SkiFree::Update(float deltaTimeSeconds)
     }
 
     // Move objects
-    playerX += step * cos(PI / 2 - player_rotation);
+    /*playerX += step * cos(PI / 2 - player_rotation);
     playerY -= step * sin(angle);
-    playerZ += step * cos(angle);
+    playerZ += step * cos(angle);*/
 
     // Update camera
     float dist = camera->distanceToTarget;
@@ -225,6 +245,7 @@ void SkiFree::Update(float deltaTimeSeconds)
     camera->TranslateUpward(-dist/2);
 
     // printf("TreeX - PlayerX = %f || Y = %f || z = %f\n", treeX - playerX, treeY - playerY, treeZ - playerZ);
+
 }
 
 
@@ -244,7 +265,6 @@ void SkiFree::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & mod
 
     glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
     glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-
     glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
     // Send uniform values
@@ -257,6 +277,33 @@ void SkiFree::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & mod
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture->GetTextureID());
     glUniform1i(glGetUniformLocation(shader->program, "texture"), 0);
+
+    // Uniforms for lights
+    int location_lamps = glGetUniformLocation(shader->program, "lamp_light_position");
+    glUniform3fv(location_lamps, 12, glm::value_ptr(lampLightsCoords[0]));
+
+    int location_trees = glGetUniformLocation(shader->program, "tree_light_position");
+    glUniform3fv(location_trees, 6, glm::value_ptr(treeLightsCoords[0]));
+
+    int location_gifts = glGetUniformLocation(shader->program, "gift_light_position");
+    glUniform3fv(location_gifts, 4, glm::value_ptr(giftsLightsCoords[0]));
+
+    int light_direction = glGetUniformLocation(shader->program, "light_direction");
+    glUniform3f(light_direction, lightDirection.x, lightDirection.y, lightDirection.z);
+
+    // Set eye position uniform
+    int eye_position = glGetUniformLocation(shader->program, "eye_position");
+    glUniform3f(eye_position, camera_position.x, camera_position.y, camera_position.z);
+
+    // Set material property uniforms (shininess, kd, ks, object color) 
+    int material_shininess = glGetUniformLocation(shader->program, "material_shininess");
+    glUniform1i(material_shininess, materialShininess);
+
+    int material_kd = glGetUniformLocation(shader->program, "material_kd");
+    glUniform1f(material_kd, materialKd);
+
+    int material_ks = glGetUniformLocation(shader->program, "material_ks");
+    glUniform1f(material_ks, materialKs);
 
     // Draw the object
     glBindVertexArray(mesh->GetBuffers()->m_VAO);

@@ -262,21 +262,23 @@ std::vector<Mesh*> Meshes::CreateLamp()
     vertical_bar_matrix *= transform3D::Translate(0, 2, 0);
     vertical_bar_matrix *= transform3D::Scale(0.2f, 4, 0.2f);
 
-
     glm::mat4 horizontal_bar_matrix = glm::mat4(1);
     horizontal_bar_matrix *= transform3D::Translate(0, 4, 0);
     horizontal_bar_matrix *= transform3D::Scale(1.5f, 0.2f, 0.2f);
 
+    lamp_offset_1 = glm::vec3(-0.6f, 3.7f, 0);
+    lamp_offset_2 = glm::vec3(0.6f, 3.7f, 0);
 
     glm::mat4 light_1_matrix = glm::mat4(1);
-    light_1_matrix *= transform3D::Translate(-0.6f, 3.7f, 0);
+    light_1_matrix *= transform3D::Translate(lamp_offset_1.x, lamp_offset_1.y, lamp_offset_1.z);
     light_1_matrix *= transform3D::Scale(0.4f, 0.4f, 0.4f);
 
-
     glm::mat4 light_2_matrix = glm::mat4(1);
-    light_2_matrix *= transform3D::Translate(0.6f, 3.7f, 0);
+    light_2_matrix *= transform3D::Translate(lamp_offset_2.x, lamp_offset_2.y, lamp_offset_2.z);
     light_2_matrix *= transform3D::Scale(0.4f, 0.4f, 0.4f);
 
+    lamp_offset_1 *= 4;
+    lamp_offset_2 *= 4;
 
     lamp_matrix.push_back(vertical_bar_matrix);
     lamp_matrix.push_back(horizontal_bar_matrix);
