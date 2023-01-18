@@ -21,7 +21,7 @@ SkiFree::SkiFree()
     // Set light & material properties
     lightDirection = glm::vec3(0, -1, 0);
     materialShininess = 100;
-    materialKd = 0.7f;
+    materialKd = 1;
     materialKs = 0.5f;
 }
 
@@ -31,22 +31,11 @@ SkiFree::~SkiFree()
 }
 
 
-//////////////////////////////////////////////////////////////////////////////
-// NOTE TO SELF
-//////////////////////////////////////////////////////////////////////////////
-// Trebuie neaparat sa schimb regula de miscare (sa misc jucatorul, nu obiectele),
-// pentru ca altfel nu se vede miscarea si fata de zapada
-//////////////////////////////////////////////////////////////////////////////
-// Pt generare de obiecte, o sa tin un vector de vreo 5 pozitii (vector3) pt 
-// fiecare tip de obiect, si le randez intr-un for. Tot intr-un for in Update(),
-// incrementez pasul si atunci cand iese din viewport resetez pozitia initiala
-
-
-
-
 void SkiFree::Init()
 {
     const string sourceTextureDir = PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "skifree", "textures");
+
+    srand(static_cast <unsigned> (time(0)));
 
     // Load textures
     {
@@ -95,6 +84,9 @@ void SkiFree::Init()
         Mesh* gift = meshes_builder->gift;
         meshes[gift->GetMeshID()] = gift;
 
+        Mesh* life = meshes_builder->CreateLife();
+        meshes[life->GetMeshID()] = life;
+
         for (Mesh* mesh : meshes_builder->tree) {
             meshes[mesh->GetMeshID()] = mesh;
         }
@@ -124,20 +116,6 @@ void SkiFree::Init()
     // Set up camera
     camera->Set(camera_position, camera_center, camera_up);
     projectionMatrix = glm::perspective(fov, window->props.aspectRatio, z_near, z_far);
-
-    // Compute lights positions
-    for (auto& coords : lampCoords) {
-        lampLightsCoords.push_back(coords + glm::vec4(meshes_builder->lamp_offset_1, 0));
-        lampLightsCoords.push_back(coords + glm::vec4(meshes_builder->lamp_offset_2, 0));
-    }
-
-    for (auto& coords : treeCoords) {
-        treeLightsCoords.push_back(coords + light_offset);
-    }
-
-    for (auto& coords : giftCoords) {
-        giftsLightsCoords.push_back(coords + light_offset);
-    }
 }
 
 
@@ -154,12 +132,25 @@ void SkiFree::FrameStart()
 }
 
 
-void SkiFree::Update(float deltaTimeSeconds)
+void SkiFree::RenderObjects()
 {
+    {
+        // Player
+        glm::mat4 modelMatrix;
+        for (int i = 0; i < meshes_builder->player.size(); i++) {
+            modelMatrix = glm::mat4(1);
+            modelMatrix *= transform3D::Translate(playerPosition.x, playerPosition.y, playerPosition.z);
+            modelMatrix *= transform3D::RotateOX(angle);
+            modelMatrix *= transform3D::RotateOY(player_rotation);
+            modelMatrix *= meshes_builder->player_matrix[i];
+            RenderSimpleMesh(meshes[meshes_builder->player[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->player_tex[i]]);
+        }
+    }
+
     {
         // Plane
         glm::mat4 modelMatrix = glm::mat4(1);
-        modelMatrix *= transform3D::Translate(playerX, playerY, playerZ);
+        modelMatrix *= transform3D::Translate(playerPosition.x, playerPosition.y, playerPosition.z);
         modelMatrix *= rotationMatrix;
         modelMatrix *= meshes_builder->plane_matrix;
 
@@ -193,19 +184,6 @@ void SkiFree::Update(float deltaTimeSeconds)
     }
 
     {
-       // Player
-        glm::mat4 modelMatrix;
-        for (int i = 0; i < meshes_builder->player.size(); i++) {
-            modelMatrix = glm::mat4(1);
-            modelMatrix *= transform3D::Translate(playerX, playerY, playerZ);
-            modelMatrix *= transform3D::RotateOX(angle);
-            modelMatrix *= transform3D::RotateOY(player_rotation);
-            modelMatrix *= meshes_builder->player_matrix[i];
-            RenderSimpleMesh(meshes[meshes_builder->player[i]->GetMeshID()], shaders["LabShader"], modelMatrix, mapTextures[meshes_builder->player_tex[i]]);
-        }
-    }
-
-    {
         // Rocks
         for (auto& rocks : rocksCoords) {
             glm::mat4 modelMatrix;
@@ -232,20 +210,224 @@ void SkiFree::Update(float deltaTimeSeconds)
         }
     }
 
-    // Move objects
-    /*playerX += step * cos(PI / 2 - player_rotation);
-    playerY -= step * sin(angle);
-    playerZ += step * cos(angle);*/
+    {
+        // Life (Interface)
+        float scale = 0.01f;
+        glm::mat4 interfaceMatrix;
+        
+        if (lifeCount >= 1) {
+            interfaceMatrix = glm::mat4(1);
+            interfaceMatrix *= transform3D::Translate(playerPosition.x - 0.7f, playerPosition.y + 2, playerPosition.z);
+            interfaceMatrix *= transform3D::Scale(scale, scale, scale);
+            RenderSimpleMesh(meshes["life"], shaders["VertexColor"], interfaceMatrix, mapTextures["metal"]);
+        }
+        
+        if (lifeCount >= 2) {
+            interfaceMatrix = glm::mat4(1);
+            interfaceMatrix *= transform3D::Translate(playerPosition.x - 0.2f, playerPosition.y + 2, playerPosition.z);
+            interfaceMatrix *= transform3D::Scale(scale, scale, scale);
+            RenderSimpleMesh(meshes["life"], shaders["VertexColor"], interfaceMatrix, mapTextures["metal"]);
+        }
+
+        if (lifeCount == 3) {
+            interfaceMatrix = glm::mat4(1);
+            interfaceMatrix *= transform3D::Translate(playerPosition.x + 0.3f, playerPosition.y + 2, playerPosition.z);
+            interfaceMatrix *= transform3D::Scale(scale, scale, scale);
+            RenderSimpleMesh(meshes["life"], shaders["VertexColor"], interfaceMatrix, mapTextures["metal"]);
+        }
+    }
+}
+
+
+glm::vec4 SkiFree::RespawnObject(glm::vec4 oldCoords, int maxOffsetX)
+{
+    glm::vec4 newCoords;
+
+    // Respawn the object at a random upcoming location, with X in (-maxOffsetX, maxOffsetX)
+    int add = rand() % 2;
+    int offsetX = rand() % maxOffsetX;
+  
+    float newX = add ? (playerX + offsetX) : (playerX - offsetX);
+    float newY = 0;
+    float newZ = playerZ + respawnDistanceZ;
+
+    // Apply plane rotation
+    newCoords = rotationMatrix * glm::vec4(newX, newY, newZ, 1);
+
+    return newCoords;
+}
+
+void SkiFree::UpdateObjectsLocations() 
+{
+    // Check if any object has left the viewport
+    for (auto& coords : treeCoords) {
+        if (abs(coords.x - playerX) >= maxOffsetX ||
+            playerPosition.z - coords.z >= maxOffsetZ) {
+            coords = RespawnObject(coords, maxOffsetX - 15);
+        }
+    }
+
+    for (auto& coords : rocksCoords) {
+        if (abs(coords.x - playerX) >= maxOffsetX ||
+            playerPosition.z - coords.z >= maxOffsetZ) {
+            coords = RespawnObject(coords, maxOffsetX - 15);
+        }
+    }
+
+    for (auto& coords : giftCoords) {
+        if (abs(coords.x - playerX) >= maxOffsetX ||
+            playerPosition.z - coords.z >= maxOffsetZ) {
+            coords = RespawnObject(coords, maxOffsetX - 18);
+        }
+    }
+
+    for (auto& coords : lampCoords) {
+        if (abs(coords.x - playerX) >= maxOffsetX ||
+            playerPosition.z - coords.z >= maxOffsetZ) {
+            coords = RespawnObject(coords, maxOffsetX - 18);
+        }
+    }
+
+    // Compute lights positions
+    lampLightsCoords.clear();
+    treeLightsCoords.clear();
+    giftsLightsCoords.clear();
+
+    for (auto& coords : lampCoords) {
+        lampLightsCoords.push_back(coords + glm::vec4(meshes_builder->lamp_offset_1, 0));
+        lampLightsCoords.push_back(coords + glm::vec4(meshes_builder->lamp_offset_2, 0));
+    }
+
+    for (auto& coords : treeCoords) {
+        treeLightsCoords.push_back(coords + light_offset);
+    }
+
+    for (auto& coords : giftCoords) {
+        giftsLightsCoords.push_back(coords + light_offset);
+    }
+}
+
+bool SkiFree::SpheresCollision(glm::vec3 center_A, glm::vec3 center_B, float radius_A, float radius_B)
+{
+    float distance = glm::distance(center_A, center_B);
+    float radii_sum = radius_A + radius_B;
+
+    if (distance <= radii_sum) {
+        return true;
+    }
+
+    return false;
+}
+
+bool SkiFree::ObstacleCollision()
+{
+    // Check if any object has collided with the player
+    for (auto& coords : treeCoords) {
+        if (SpheresCollision(glm::vec3(coords), glm::vec3(playerPosition), treeRadius, playerRadius)) {
+            return true;
+        }
+    }
+
+    for (auto& coords : rocksCoords) {
+        if (SpheresCollision(glm::vec3(coords), glm::vec3(playerPosition), rocksRadius, playerRadius)) {
+            return true;
+        }
+    }
+
+    for (auto& coords : lampCoords) {
+        if (SpheresCollision(glm::vec3(coords), glm::vec3(playerPosition), lampRadius, playerRadius)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void SkiFree::CheckGiftCollection() 
+{
+    // Check if the player got any gift
+    for (auto& coords : giftCoords) {
+        if (SpheresCollision(glm::vec3(coords), glm::vec3(playerPosition), giftRadius, playerRadius)) {
+            coords = RespawnObject(coords, maxOffsetX - 15);
+            numGifts++;
+
+            int message = rand() % 10;
+            switch (message) {
+            case 0: cout << "Wow!" << endl; break;
+            case 1: cout << "Amazing!" << endl; break;
+            case 2: cout << "Well done!" << endl; break;
+            case 3: cout << "Nice!" << endl; break;
+            case 4: cout << "Keep it up!" << endl; break;
+            case 5: cout << "Congrats!" << endl; break;
+            case 6: cout << "Hell yeah!" << endl; break;
+            case 7: cout << "Get those gifts!" << endl; break;
+            case 8: cout << "Can't stop now!" << endl; break;
+            case 9: cout << "You're on!" << endl; break;
+            default: break;
+            }
+        }
+    }
+}
+
+void SkiFree::Update(float deltaTimeSeconds)
+{
+    // Check if any object has left the viewport
+    if (!gameOver) {
+        UpdateObjectsLocations();
+    }
+    
+    // Render the scene
+    RenderObjects();
+
+    // Update player position
+    if (!gameOver) {
+        playerX += step * cos(PI / 2 - player_rotation);
+        playerZ += step;
+        playerPosition = rotationMatrix * glm::vec4(playerX, playerY, playerZ, 1);
+    }
 
     // Update camera
     float dist = camera->distanceToTarget;
-    camera_position = glm::vec3(playerX, playerY + dist, playerZ + dist);
-    camera_center = glm::vec3(playerX, playerY, playerZ);
+    camera_position = glm::vec3(playerPosition.x, playerPosition.y + dist, playerPosition.z + dist);
+    camera_center = glm::vec3(playerPosition.x, playerPosition.y, playerPosition.z);
     camera->Set(camera_position, camera_center, camera_up);
     camera->TranslateUpward(-dist/2);
 
-    // printf("TreeX - PlayerX = %f || Y = %f || z = %f\n", treeX - playerX, treeY - playerY, treeZ - playerZ);
+    // Check if the player has touched a gift
+    CheckGiftCollection();
 
+    // Check any obstacle collisions
+    if (!gameOver && !collided) {
+        if (ObstacleCollision()) {
+            collided = true;
+            lifeCount--;
+            step = collided_step;
+            timePassed = 0;
+
+            int message = rand() % 5;
+            switch (message) {
+            case 0: cout << "Ouch..." << endl; break;
+            case 1: cout << "Damn..." << endl; break;
+            case 2: cout << "Shit..." << endl; break;
+            case 3: cout << "RIP..." << endl; break;
+            case 4: cout << "Dodge...?" << endl; break;
+            default: break;
+            }
+
+            if (lifeCount == 0) {
+                gameOver = true;
+
+                cout << "Game over! You collected " << numGifts << " gifts. If only real life was as easy~" << endl;
+                cout << "To try again, press R" << endl;
+            }
+        }
+    }
+
+    timePassed += deltaTimeSeconds;
+    if (timePassed >= 1) {
+        collided = false;
+        step = normal_step;
+    }
 }
 
 
@@ -271,8 +453,10 @@ void SkiFree::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & mod
     int location_snow = glGetUniformLocation(shader->GetProgramID(), "renderSnow");
     glUniform1i(location_snow, renderSnow);
 
-    int location_time = glGetUniformLocation(shader->GetProgramID(), "time");
-    glUniform1f(location_time, Engine::GetElapsedTime());
+    if (!gameOver) {
+        int location_time = glGetUniformLocation(shader->GetProgramID(), "time");
+        glUniform1f(location_time, Engine::GetElapsedTime());
+    }
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture->GetTextureID());
@@ -320,7 +504,29 @@ void SkiFree::OnInputUpdate(float deltaTime, int mods)
 
 void SkiFree::OnKeyPress(int key, int mods)
 {
-    
+    if (key == GLFW_KEY_R) {
+        cout << endl << "May the Force be with you." << endl;
+
+        numGifts = 0;
+
+        treeCoords.clear();
+        treeCoords = initialTreeCoords;
+
+        rocksCoords.clear();
+        rocksCoords = initialRocksCoords;
+
+        lampCoords.clear();
+        lampCoords = initialLampCoords;
+
+        giftCoords.clear();
+        giftCoords = initialGiftCoords;
+
+        playerX = 0; playerY = 0; playerZ = -4;
+        playerPosition = rotationMatrix * glm::vec4(playerX, playerY, playerZ, 1);
+
+        gameOver = false;
+        lifeCount = 3;
+    }
 }
 
 void SkiFree::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)

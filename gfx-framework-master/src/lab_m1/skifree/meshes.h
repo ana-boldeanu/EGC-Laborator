@@ -11,6 +11,7 @@ namespace m1
      public:
          Meshes();
         ~Meshes();
+        Mesh* Meshes::CreateLife();
 
         Mesh* plane; 
         Mesh* gift;

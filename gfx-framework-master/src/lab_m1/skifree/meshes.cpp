@@ -22,6 +22,31 @@ Meshes::~Meshes()
 {
 }
 
+Mesh* Meshes::CreateLife()
+{
+    Mesh* life = new Mesh("life");
+    glm::vec3 color = glm::vec3(1, 0, 0);
+
+    std::vector<VertexFormat> vertices =
+    {
+        VertexFormat(glm::vec3(22, 0, 0), color),
+        VertexFormat(glm::vec3(43, 28, 0), color),
+        VertexFormat(glm::vec3(34, 38, 0), color),
+        VertexFormat(glm::vec3(22, 28, 0), color),
+        VertexFormat(glm::vec3(11, 38, 0), color),
+        VertexFormat(glm::vec3(0, 28, 0), color)
+    };
+
+    std::vector<unsigned int> indices = {
+        0, 1, 5,
+        1, 2, 3,
+        3, 4, 5
+    };
+
+    life->InitFromData(vertices, indices);
+
+    return life;
+}
 
 Mesh* Meshes::CreatePlane()
 {
