@@ -15,7 +15,7 @@ void main()
     vec4 local_color = vec4(frag_color, 1);
 
     // Add fog effect
-    float fog_density = 0.15f;
+    float fog_density = 0.1f;
     vec4 fog_color = vec4(0.44f, 0.73f, 0.82f, 1);
     float distance = distance(eye_position, world_position);
     float k_fog = 1 - pow(2.71f, -fog_density * distance);

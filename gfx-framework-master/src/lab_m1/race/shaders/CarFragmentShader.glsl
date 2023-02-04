@@ -12,10 +12,10 @@ layout(location = 0) out vec4 out_color;
 void main()
 {
     // Compute final color
-    vec4 local_color = vec4(0.62f, 0.45f, 0.83f, 1);
+    vec4 local_color = vec4(0.62f, 0.45f, 0.83f, 0.7f);
 
     // Add fog effect
-    float fog_density = 0.15f;
+    float fog_density = 0.1f;
     vec4 fog_color = vec4(0.44f, 0.73f, 0.82f, 1);
     float distance = distance(eye_position, world_position);
     float k_fog = 1 - pow(2.71f, -fog_density * distance);
