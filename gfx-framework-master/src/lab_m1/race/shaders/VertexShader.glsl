@@ -15,6 +15,8 @@ uniform vec3 car_pos;
 
 // Output values to fragment shader
 out vec3 frag_color;
+out vec3 eye_position;
+out vec3 world_position;
 
 void main()
 { 
@@ -31,4 +33,7 @@ void main()
     world_pos.y -= len * len * gamma;
 
     gl_Position = Projection * View * vec4(world_pos, 1.0);
+
+    eye_position = car_pos;
+    world_position = world_pos.xyz;
 }

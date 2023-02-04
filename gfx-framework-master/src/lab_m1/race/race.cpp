@@ -22,7 +22,7 @@ Race::Race()
     minimap_camera_up = glm::vec3(0, 1, 0);
 
     glm::ivec2 resolution = window->GetResolution();
-    minimap = ViewportArea(1000, 20, resolution.x / 5, resolution.y / 5);
+    minimap = ViewportArea(840, 10, resolution.x / 3, resolution.y / 3);
 }
 
 

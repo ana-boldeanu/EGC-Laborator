@@ -15,7 +15,7 @@ namespace m1
             forward     = glm::vec3(0, 0, -1);
             up          = glm::vec3(0, 1, 0);
             right       = glm::vec3(1, 0, 0);
-            distanceToTarget = 8;
+            distanceToTarget = 2;
         }
 
         Camera(const glm::vec3 &position, const glm::vec3 &center, const glm::vec3 &up)

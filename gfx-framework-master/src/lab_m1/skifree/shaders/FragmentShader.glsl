@@ -69,9 +69,9 @@ vec3 compute_light(vec3 light_position, vec3 light_color, int spotlight)
 }
 
 vec3 get_sunlight() {
-    vec3 light_position = glm::vec3(0, 10, 0);
-    vec3 light_color = glm::vec3(1);
-    vec3 L = glm::vec3(0, -1, 0);
+    vec3 light_position = vec3(0, 10, 0);
+    vec3 light_color = vec3(1);
+    vec3 L = vec3(0, -1, 0);
 
     vec3 V = normalize(eye_position - world_position);
     vec3 H = normalize(V + L);
@@ -133,6 +133,15 @@ void main()
         light += compute_light(gift_light_position[i], light_color, 0);
     }
 
+    // Compute final color
+    vec4 local_color = color * vec4(light, 1);
+
+    // Add fog effect
+    float fog_density = 0.01f;
+    vec4 fog_color = vec4(0.7f);
+    float distance = distance(eye_position, world_position);
+    float k_fog = 1 - pow(2.71f, -fog_density * distance);
+
     // Write pixel out color
-    out_color = color * vec4(light, 1);
+    out_color = (1 - k_fog) * local_color + k_fog * fog_color;
 }
