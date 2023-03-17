@@ -12,7 +12,7 @@ using namespace m1;
 SkiFree::SkiFree()
 {
     // Create the third-person camera object
-    camera = new Camera();
+    camera = new CameraSki();
     float dist = camera->distanceToTarget;
     camera_position = glm::vec3(playerX, playerY + dist, playerZ + dist);
     camera_center = glm::vec3(playerX, playerY, playerZ);
@@ -456,6 +456,9 @@ void SkiFree::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & mod
     if (!gameOver) {
         int location_time = glGetUniformLocation(shader->GetProgramID(), "time");
         glUniform1f(location_time, Engine::GetElapsedTime());
+
+        int location_angle = glGetUniformLocation(shader->GetProgramID(), "skierAngle");
+        glUniform1f(location_angle, player_rotation);
     }
 
     glActiveTexture(GL_TEXTURE0);

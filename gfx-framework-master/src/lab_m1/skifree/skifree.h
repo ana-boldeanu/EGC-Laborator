@@ -6,7 +6,7 @@
 #include "components/simple_scene.h"
 #include "components/transform.h"
 #include "lab_m1/duckhunt/transform2D.h"
-#include "lab_m1/race/camera.h"
+#include "lab_m1/skifree/camera.h"
 #include "lab_m1/skifree/meshes.h"
 
 namespace m1
@@ -90,7 +90,7 @@ namespace m1
         std::vector<glm::vec4> initialGiftCoords = giftCoords;
 
         // Camera variables
-        Camera* camera;        // Third-person camera, used to follow the player
+        CameraSki* camera;        // Third-person camera, used to follow the player
         glm::mat4 projectionMatrix = glm::mat4(1);  // Matrix used for the camera
 
         float fov = PI / 2;

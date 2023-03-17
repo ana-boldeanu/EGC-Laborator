@@ -10,6 +10,7 @@ uniform sampler2D texture;
 uniform int alpha;
 uniform int renderSnow;
 uniform float time;
+uniform float skierAngle;
 
 // Light properties
 uniform vec3 eye_position;
@@ -95,7 +96,8 @@ void main()
     // Snow plane motion effect
     vec2 texcoords = texcoord;
     if (renderSnow == 1) {
-        texcoords.y -= time * 0.1;
+        texcoords.y -= time * 0.1f;
+        //texcoords.x -= time * 0.1f * sin(-skierAngle);
     }
 
     // Add texture

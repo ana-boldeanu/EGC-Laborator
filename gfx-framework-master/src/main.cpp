@@ -44,7 +44,8 @@ int main(int argc, char **argv)
     (void)Engine::Init(wp);
 
     // Create a new 3D world and start running it
-    World* world = new m1::Race();
+    // For games, use either "SkiFree", "Race" or "DuckHunt"
+    World* world = new m1::SkiFree();   
 
     world->Init();
     world->Run();
